@@ -3,15 +3,47 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: white;
+  --foreground: black;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.weInputContainer {
+  width: fit-content;
+  height: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.weinputdiv {
+  border: 2px solid theme("colors.weblue");
+  border-radius: 22px;
+}
+
+.weLabelDiv {
+  position: flex;
+  height: 10px;
+  width: fit-content;
+}
+
+.weLabel {
+  color: theme("colors.weblue");
+  position: absolute;
+  background: white;
+  margin-left: 28px;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+.weinput {
+  width: 80vw;
+  border: 0px solid white;
+  height: 30px;
+  padding-left: 9px;
+  margin: 10px;
+  margin-top: 12px;
+}
+
+.weinput:focus {
+  outline: none;
 }
 
 body {
