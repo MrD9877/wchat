@@ -1,27 +1,16 @@
-import { Verify } from "../../model/verify";
 import { cookies } from "next/headers";
 import { generateAccessToken, generateRefreshToken, generateSession } from "../../utility/generateTokens";
 import dbConnect from "../../lib/DbConnect";
 import { User } from "../../model/User";
-import { generateRandom } from "../../utility/random";
 
 export async function POST(req) {
   await dbConnect();
-  const { otp } = await req.json();
   const cookieStore = await cookies();
-  const emailCookie = cookieStore.get("email");
-  let email = null;
-  let name = null;
-  if (emailCookie) {
-    const data = JSON.parse(decodeURIComponent(emailCookie.value));
-    console.log(data);
-    console.log(data["email"]);
-    email = data.email;
-    name = data.name;
+  const refreshToken = cookieStore.get("refreshToken");
+  if (!refreshToken) {
+    return new Response(JSON.stringify({ msg: "Bad request: No refreshToken found" }), { status: 401 });
   }
-  if (!email) {
-    return new Response(JSON.stringify({ msg: "Bad request: Email not found" }), { status: 400 });
-  }
+
   try {
     const otpVerify = await Verify.findOne({ user: email });
     if (!otpVerify) {

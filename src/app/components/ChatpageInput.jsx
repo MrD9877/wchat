@@ -1,11 +1,17 @@
 "use client";
+import { socket } from "@/socket";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { areDatesOnSameDay, getFriend } from "../utility/getFriend";
+import { generateRandom } from "../(backend)/utility/random";
+import { getDate } from "../utility/convertTime";
 
-export default function ChatpageInput({ popTost }) {
+export default function ChatpageInput({ popTost, setChat, room }) {
   const [textMessage, setTextMessage] = useState("");
   const [files, setFile] = useState(null);
   const [sendVisible, setSendVisible] = useState(false);
+  const userId = useSelector((state) => state.userId);
   const [src, setSrc] = useState([]);
 
   const fileSelected = (event) => {
@@ -22,25 +28,116 @@ export default function ChatpageInput({ popTost }) {
       render.readAsDataURL(file);
     });
   };
+
+  const handleIndexDb = (msg, room) => {
+    const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
+
+    if (!indexedDB) {
+      console.log("IndexedDB could not be found in this browser.");
+    }
+    // 2
+    const request = indexedDB.open("wchat", 1);
+    request.onerror = function (event) {
+      console.error("An error occurred with IndexedDB");
+      console.error(event);
+    };
+
+    request.onupgradeneeded = function () {
+      const db = request.result;
+      const friends = db.createObjectStore("friends", { keyPath: "userId" });
+      const chats = db.createObjectStore("chats", { keyPath: "chatId" });
+    };
+
+    request.onsuccess = function () {
+      console.log("Database opened successfully");
+      const db = request.result;
+      // 1
+      const transaction = db.transaction(["friends", "chats"], "readwrite");
+      //2
+      const friendStore = transaction.objectStore("friends");
+      const chatStore = transaction.objectStore("chats");
+      //3
+      //   store.put({ id: 1, colour: "Red", make: "Toyota" });
+      //4
+      const findFriend = friendStore.get(room);
+
+      // 5
+      findFriend.onsuccess = function () {
+        const friend = findFriend.result;
+        const date = new Date();
+        const chatId = generateRandom(32);
+        if (!friend) {
+          const chat = { chatId: chatId, date: date };
+          friendStore.put({ userId: room, chats: [{ ...chat }] });
+          chatStore.put({ chatId, chats: [{ date, message: msg, user: userId }] });
+        } else {
+          const allChats = friend.chats;
+          const lastChatDate = allChats[allChats.length - 1].date;
+          const sameDay = areDatesOnSameDay(lastChatDate, date);
+          if (sameDay) {
+            const findChat = chatStore.get(allChats[allChats.length - 1].chatId);
+            findChat.onsuccess = function () {
+              const chats = findChat.result;
+              const allChats = chats.chats;
+              allChats.push({ date, message: msg, user: userId });
+              findChat.result.chats = [...allChats];
+              chatStore.put(findChat.result);
+            };
+          } else {
+            const chat = { chatId: chatId, date: date };
+            friend.chats.push(chat);
+            findFriend.result.chats = [...friend.chats];
+            friendStore.put(findFriend.result);
+            chatStore.put({ chatId, chats: [{ date, message: msg, user: userId }] });
+          }
+        }
+      };
+      transaction.oncomplete = function () {
+        console.log("Transaction completed successfully");
+      };
+
+      transaction.onerror = function () {
+        console.error("Transaction failed", transaction.error);
+      };
+    };
+  };
+
   const sendMsg = async (e) => {
     if (textMessage === "") return;
-    try {
-      // todo fetch api
-      e.target.disabled = true;
-      const res = await fetch("", { method: "POST", credentials: "include", body: JSON.stringify({ textMessage }) });
-      e.target.disabled = false;
-      if (res.status === 200) {
-        setTextMessage("");
-      } else if (res.status === 400) {
-        const data = await res.json();
-        popTost(data.msg);
+    setChat((pre) => {
+      if (pre.length > 0 && getDate(pre[pre.length - 1].date) == getDate(new Date())) {
+        const latest = pre.length - 1;
+        const temp = structuredClone(pre);
+        temp[latest].chats.push({ date: new Date(), message: textMessage, user: userId });
+        return temp;
       } else {
-        popTost(res.status);
+        const temp = [...pre];
+        temp.push({ date: new Date(), chats: [{ date: new Date(), message: textMessage, user: userId }] });
+        console.log("temp:", temp);
+        return temp;
       }
-    } catch {
-      e.target.disabled = false;
-      popTost("somthing wend wrong");
-    }
+    });
+    // save in localstorage
+    handleIndexDb(textMessage, room);
+    socket.emit("private message", room, { message: textMessage, user: userId });
+    setTextMessage("");
+    // try {
+    //   // todo fetch api
+    //   e.target.disabled = true;
+    //   const res = await fetch("", { method: "POST", credentials: "include", body: JSON.stringify({ textMessage }) });
+    //   e.target.disabled = false;
+    //   if (res.status === 200) {
+    //     setTextMessage("");
+    //   } else if (res.status === 400) {
+    //     const data = await res.json();
+    //     popTost(data.msg);
+    //   } else {
+    //     popTost(res.status);
+    //   }
+    // } catch {
+    //   e.target.disabled = false;
+    //   popTost("somthing wend wrong");
+    // }
   };
 
   useEffect(() => {

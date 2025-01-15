@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-export default function ChatPageTop() {
+export default function ChatPageTop({ friend }) {
   const router = useRouter();
   const handleBack = () => {
     router.back();
@@ -31,7 +31,7 @@ export default function ChatPageTop() {
             <Image className="rounded-full items-start flex-shrink-0 " src="https://res.cloudinary.com/dc6deairt/image/upload/v1638102932/user-32-01_pfck4u.jpg" width="36" height="36" alt="Marie Zulfikar" />
           </button>
           {/* name  */}
-          <div className="text-white text-lg">Name</div>
+          <div className="text-white text-lg">{(friend && friend.name) || ""}</div>
         </div>
         <div className="flex items-center gap-4">
           <div>

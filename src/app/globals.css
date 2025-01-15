@@ -46,6 +46,16 @@
   outline: none;
 }
 
+.weButton {
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  background: theme("colors.weblue");
+  border-radius: 0.5rem;
+  width: 60px;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);

@@ -4,8 +4,10 @@ import TopHeader from "../components/TopHeader";
 import WeButton from "../utility/WeButton";
 import toast, { Toaster } from "react-hot-toast";
 import { useActionState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const router = useRouter();
   const popTost = (msg, success) => {
     let emote = "❌";
     if (success) emote = "✅";
@@ -20,11 +22,10 @@ export default function LoginPage() {
   };
   const [error, submitAction, isPending] = useActionState(async (previousState, formData) => {
     const data = Object.fromEntries(formData);
-    let name = data.name.trim().toLowerCase();
-    let email = data.email;
+    let email = data.email.trim().toLowerCase();
     try {
-      const res = await fetch("/", { method: "POST", credentials: "include", body: JSON.stringify({ email }) });
-      if (res.status === 200) {
+      const res = await fetch("/api/login", { method: "POST", credentials: "include", body: JSON.stringify({ email }) });
+      if (res.status === 200 || res.status === 409) {
         router.push("/verify");
       } else if (res.status === 400) {
         const data = await res.json();
@@ -41,6 +42,7 @@ export default function LoginPage() {
   }, null);
   return (
     <div>
+      <Toaster position="top-center" reverseOrder={false} />
       <TopHeader topic="Login" description="Enter your email to continue." />
       <form action={submitAction}>
         <div className="flex flex-col justify-center items-center gap-6 h-[50vh]">

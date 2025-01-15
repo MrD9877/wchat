@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 
 export default function Chatlog() {
@@ -15,6 +16,7 @@ export default function Chatlog() {
                 <h4 className="text-sm font-semibold text-gray-900">Marie Zulfikar</h4>
                 <div className="text-[13px]">The video chat ended · 2hrs</div>
               </div>
+              <div className="absolute right-10 bg-weblue px-2 text-[12px] text-white py-0.5 rounded-full">1</div>
             </div>
           </button>
           {/* <!-- User --> */}

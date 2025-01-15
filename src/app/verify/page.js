@@ -4,12 +4,18 @@ import TopHeader from "../components/TopHeader";
 import WeButton from "../utility/WeButton";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "@/redux/Slice";
 
 export default function VerifyPage() {
   const [inputValue, setInputValue] = useState(["", "", "", ""]);
   const [count, setCount] = useState(0);
   const router = useRouter();
   const inputRef = useRef();
+  // const total = useSelector((state) => state.total);
+  // const products = useSelector((state) => state.products);
+  const dispatch = useDispatch();
+
   const popTost = (msg, success) => {
     let emote = "❌";
     if (success) emote = "✅";
@@ -30,8 +36,11 @@ export default function VerifyPage() {
       return;
     }
     try {
-      const res = await fetch("", { method: "POST", credentials: "include", body: JSON.stringify(otp) });
+      const res = await fetch("/api/verify", { method: "POST", credentials: "include", body: JSON.stringify({ otp }) });
+      console.log(res.status);
       if (res.status === 200) {
+        const { user } = await res.json();
+        dispatch(setUser({ ...user }));
         router.push("/chatscreen");
       } else if (res.status === 400) {
         const data = await res.json();

@@ -7,7 +7,11 @@ const userSchema = new Schema({
     required: true,
     unique: true,
   },
+  userId: { type: Schema.Types.String },
   name: {
+    type: Schema.Types.String,
+  },
+  profilePic: {
     type: Schema.Types.String,
   },
   isVerified: {
@@ -17,11 +21,11 @@ const userSchema = new Schema({
   friends: [
     {
       name: { type: Schema.Types.String },
-      chatId: { type: Schema.Types.String },
       email: { type: Schema.Types.String },
+      userId: { type: Schema.Types.String },
     },
   ],
-  friendRequests: [{ type: Schema.Types.String }],
+  friendRequests: [{ type: Schema.Types.Mixed }],
   friendRequestSend: [{ type: Schema.Types.String }],
   chatPages: [
     {
@@ -38,4 +42,5 @@ const userSchema = new Schema({
     },
   ],
 });
+userSchema.index({ email: "text", name: "text" });
 export const User = mongoose.models.User || mongoose.model("User", userSchema);

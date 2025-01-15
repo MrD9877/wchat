@@ -24,10 +24,10 @@ export default function Page() {
   const [error, submitAction, isPending] = useActionState(async (previousState, formData) => {
     const data = Object.fromEntries(formData);
     let name = data.name.trim().toLowerCase();
-    let email = data.email;
+    let email = data.email.trim().toLowerCase();
     try {
-      const res = await fetch("/", { method: "POST", credentials: "include", body: JSON.stringify({ name, email }) });
-      if (res.status === 200) {
+      const res = await fetch("/api/register", { method: "POST", credentials: "include", body: JSON.stringify({ name, email }) });
+      if (res.status === 201) {
         router.push("/verify");
       } else if (res.status === 400) {
         const data = await res.json();
