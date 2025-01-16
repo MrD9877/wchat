@@ -74,11 +74,9 @@ export default function ChatPage() {
             const findChat = chatStore.get(chat.chatId);
             findChat.onsuccess = function () {
               const chats = findChat.result.chats;
-              console.log("memmy", chats);
               temp.push({ date: chat.date, chats: structuredClone(chats) });
             };
           });
-          console.log("memmory temp:", temp);
         }
       };
       transaction.oncomplete = function () {
@@ -118,6 +116,7 @@ export default function ChatPage() {
     };
   }, []);
 
+  // for received msg
   useEffect(() => {
     const handleNewMessage = ({ message, user }) => {
       setChat((pre) => {
@@ -133,7 +132,6 @@ export default function ChatPage() {
       });
     };
     socket.on("chat message", handleNewMessage);
-    // Cleanup on unmount
     return () => {
       socket.off("chat message", handleNewMessage);
     };
@@ -148,7 +146,7 @@ export default function ChatPage() {
   useEffect(() => {
     console.log(chatBox.current);
     chatBox.current.scrollTop = chatBox.current.scrollHeight;
-  }, [chat, windowHeight]);
+  }, [chat]);
 
   return (
     <div className="h-screen bg-chatPattern">
@@ -162,22 +160,23 @@ export default function ChatPage() {
               return (
                 <div key={index}>
                   <DateBubble>{day}</DateBubble>
-                  {chatBydates.chats.map((msg, index) => {
-                    const time = convertTime(msg.date);
-                    if (msg.user === room) {
-                      return (
-                        <div key={index}>
-                          <ChatbubblesIn time={time}>{msg.message}</ChatbubblesIn>
-                        </div>
-                      );
-                    } else if (msg.user === userId) {
-                      return (
-                        <div key={index}>
-                          <ChatbubblesOut time={time}>{msg.message}</ChatbubblesOut>
-                        </div>
-                      );
-                    }
-                  })}
+                  {chatBydates.chats &&
+                    chatBydates.chats.map((msg, index) => {
+                      const time = convertTime(msg.date);
+                      if (msg.user === room) {
+                        return (
+                          <div key={index}>
+                            <ChatbubblesIn time={time}>{msg.message}</ChatbubblesIn>
+                          </div>
+                        );
+                      } else if (msg.user === userId) {
+                        return (
+                          <div key={index}>
+                            <ChatbubblesOut time={time}>{msg.message}</ChatbubblesOut>
+                          </div>
+                        );
+                      }
+                    })}
                 </div>
               );
             })}

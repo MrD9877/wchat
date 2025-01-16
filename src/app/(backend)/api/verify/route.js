@@ -30,9 +30,10 @@ export async function POST(req) {
     if (otpVerify.otp == otp || otp === "test") {
       const userInfo = await User.findOne({ email });
       const profilePic = userInfo.profilePic;
+      const userId = userInfo.userId;
       const expiresIn = "1d";
-      const accessToken = generateAccessToken({ email, name, profilePic }, expiresIn);
-      const refreshToken = generateRefreshToken({ email, name, profilePic });
+      const accessToken = generateAccessToken({ email, name, profilePic, userId }, expiresIn);
+      const refreshToken = generateRefreshToken({ email, name, profilePic, userId });
       const session = await generateSession({ user: email, refreshToken: refreshToken }, req);
       if (session === "_error") throw new Error("error");
       cookieStore.set("session", session);

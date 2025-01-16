@@ -25,7 +25,7 @@ export default function LoginPage() {
     let email = data.email.trim().toLowerCase();
     try {
       const res = await fetch("/api/login", { method: "POST", credentials: "include", body: JSON.stringify({ email }) });
-      if (res.status === 200 || res.status === 409) {
+      if (res.status === 201 || res.status === 409) {
         router.push("/verify");
       } else if (res.status === 400) {
         const data = await res.json();

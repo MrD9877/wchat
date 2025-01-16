@@ -6,6 +6,8 @@ import { useSelector } from "react-redux";
 import { areDatesOnSameDay, getFriend } from "../utility/getFriend";
 import { generateRandom } from "../(backend)/utility/random";
 import { getDate } from "../utility/convertTime";
+import { getCookie } from "../utility/getCookie";
+import { useRouter } from "next/navigation";
 
 export default function ChatpageInput({ popTost, setChat, room }) {
   const [textMessage, setTextMessage] = useState("");
@@ -13,6 +15,7 @@ export default function ChatpageInput({ popTost, setChat, room }) {
   const [sendVisible, setSendVisible] = useState(false);
   const userId = useSelector((state) => state.userId);
   const [src, setSrc] = useState([]);
+  const router = useRouter();
 
   const fileSelected = (event) => {
     const temp = event.target.files;
@@ -56,9 +59,6 @@ export default function ChatpageInput({ popTost, setChat, room }) {
       //2
       const friendStore = transaction.objectStore("friends");
       const chatStore = transaction.objectStore("chats");
-      //3
-      //   store.put({ id: 1, colour: "Red", make: "Toyota" });
-      //4
       const findFriend = friendStore.get(room);
 
       // 5
@@ -102,6 +102,16 @@ export default function ChatpageInput({ popTost, setChat, room }) {
     };
   };
 
+  const handleExpire = async () => {
+    const res = await fetch("/api/refreshAuth");
+    if (res.status === 200) {
+      const accessToken = getCookie("accessToken");
+      socket.emit("private message", room, { message: textMessage, accessToken });
+    } else {
+      Router.push("/login");
+    }
+  };
+
   const sendMsg = async (e) => {
     if (textMessage === "") return;
     setChat((pre) => {
@@ -113,13 +123,14 @@ export default function ChatpageInput({ popTost, setChat, room }) {
       } else {
         const temp = [...pre];
         temp.push({ date: new Date(), chats: [{ date: new Date(), message: textMessage, user: userId }] });
-        console.log("temp:", temp);
         return temp;
       }
     });
     // save in localstorage
     handleIndexDb(textMessage, room);
-    socket.emit("private message", room, { message: textMessage, user: userId });
+    const accessToken = getCookie("accessToken");
+    socket.emit("private message", room, { message: textMessage, accessToken });
+    socket.on("tokenExpire", handleExpire);
     setTextMessage("");
     // try {
     //   // todo fetch api

@@ -29,3 +29,41 @@ export function getDate(string) {
   const formattedTime = `${date} ${month} ${year}`;
   return formattedTime;
 }
+
+export function timeDifference(string1, string2) {
+  const date1 = new Date(string1);
+  const date2 = new Date(string2);
+
+  const hours1 = date1.getHours();
+  const hours2 = date2.getHours();
+
+  const hoursDifference = hours2 - hours1;
+
+  if (hoursDifference > 1) return `${hoursDifference}hrs ago`;
+
+  const min1 = date1.getMinutes();
+  const min2 = date2.getMinutes();
+
+  const minutesDifference = min2 - min1;
+  console.log(minutesDifference);
+  if (minutesDifference > 0) {
+    return `${minutesDifference}min ago`;
+  } else {
+    return "now";
+  }
+}
+
+export function getDisplayTime(string) {
+  const today = getDate(new Date());
+  const msgDate = getDate(string);
+  console.log(msgDate != today);
+  console.log(msgDate);
+  if (msgDate === today) {
+    return timeDifference(string, new Date());
+  } else {
+    const options = { month: "short" };
+    let date = msgDate.getDate();
+    const month = msgDate.toLocaleString("en-US", options).toLowerCase();
+    return `${date} ${month}`;
+  }
+}

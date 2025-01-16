@@ -3,7 +3,11 @@ import React, { useState, useEffect, useActionState } from "react";
 import { socket } from "@/socket"; // Import socket from the singleton
 import { generateRandom } from "../(backend)/utility/random";
 import { areDatesOnSameDay, getFriend } from "../utility/getFriend";
+import { handleNewFriend } from "../utility/updateFriend";
+import { usePathname } from "next/navigation";
 export default function GetMessages() {
+  const pathname = usePathname();
+
   const handleIndexDb = (msg, userId) => {
     const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
 
@@ -31,18 +35,15 @@ export default function GetMessages() {
       //2
       const friendStore = transaction.objectStore("friends");
       const chatStore = transaction.objectStore("chats");
-      //3
-      //   store.put({ id: 1, colour: "Red", make: "Toyota" });
-      //4
       const findFriend = friendStore.get(userId);
-      // 5
       findFriend.onsuccess = function () {
         const friend = findFriend.result;
         const date = new Date();
         const chatId = generateRandom(32);
         if (!friend) {
           const chat = { chatId: chatId, date: date };
-          friendStore.put({ userId, chats: [{ ...chat }] });
+          friendStore.put({ userId, chats: [{ ...chat }], lastMessage: { message: msg, date: new Date() } });
+          handleNewFriend(userId);
           chatStore.put({ chatId, chats: [{ date, message: msg, user: userId }] });
         } else {
           const allChats = friend.chats;
@@ -56,11 +57,14 @@ export default function GetMessages() {
               allChats.push({ date, message: msg, user: userId });
               findChat.result.chats = [...allChats];
               chatStore.put(findChat.result);
+              findFriend.result.lastMessage = { message: msg, date: new Date() };
+              friendStore.put(findFriend.result);
             };
           } else {
             const chat = { chatId: chatId, date: date };
             friend.chats.push(chat);
             findFriend.result.chats = [...friend.chats];
+            findFriend.result.lastMessage = { message: msg, date: new Date() };
             friendStore.put(findFriend.result);
             chatStore.put({ chatId, chats: [{ date, message: msg, user: userId }] });
           }

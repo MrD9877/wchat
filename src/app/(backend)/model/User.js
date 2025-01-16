@@ -27,20 +27,27 @@ const userSchema = new Schema({
   ],
   friendRequests: [{ type: Schema.Types.Mixed }],
   friendRequestSend: [{ type: Schema.Types.String }],
-  chatPages: [
-    {
+  chatPages: {
+    type: Map,
+    of: new Schema({
       chatId: {
         type: Schema.Types.String,
         required: true,
       },
       lastMessage: {
-        type: Schema.Types.String,
+        date: { type: Schema.Types.Date },
+        message: { type: Schema.Types.String },
       },
       newMessages: {
         type: Schema.Types.Number,
+        default: 0,
       },
-    },
-  ],
+      date: {
+        type: Schema.Types.Date,
+      },
+    }),
+    default: {},
+  },
 });
 userSchema.index({ email: "text", name: "text" });
 export const User = mongoose.models.User || mongoose.model("User", userSchema);
