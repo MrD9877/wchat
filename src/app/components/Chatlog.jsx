@@ -46,8 +46,14 @@ export default function Chatlog() {
       // 5
       findFriend.onsuccess = function () {
         const friends = findFriend.result;
-        console.log(friends);
         setFriends([...structuredClone(friends)]);
+        friends.forEach((friend) => {
+          setNewMessages((pre) => {
+            const temp = { ...pre };
+            temp[friend.userId] = friend.newMessages;
+            return temp;
+          });
+        });
       };
       transaction.oncomplete = function () {
         console.log("Transaction completed successfully");

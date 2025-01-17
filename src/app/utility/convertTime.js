@@ -38,8 +38,9 @@ export function timeDifference(string1, string2) {
   const hours2 = date2.getHours();
 
   const hoursDifference = hours2 - hours1;
+  console.log(hoursDifference);
 
-  if (hoursDifference > 1) return `${hoursDifference}hrs ago`;
+  if (hoursDifference > 0) return `${hoursDifference}hrs ago`;
 
   const min1 = date1.getMinutes();
   const min2 = date2.getMinutes();
@@ -56,14 +57,13 @@ export function timeDifference(string1, string2) {
 export function getDisplayTime(string) {
   const today = getDate(new Date());
   const msgDate = getDate(string);
-  console.log(msgDate != today);
-  console.log(msgDate);
   if (msgDate === today) {
     return timeDifference(string, new Date());
   } else {
+    const day = new Date(string);
     const options = { month: "short" };
-    let date = msgDate.getDate();
-    const month = msgDate.toLocaleString("en-US", options).toLowerCase();
+    let date = day.getDate();
+    const month = day.toLocaleString("en-US", options).toLowerCase();
     return `${date} ${month}`;
   }
 }

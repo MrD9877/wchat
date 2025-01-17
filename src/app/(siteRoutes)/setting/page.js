@@ -1,4 +1,4 @@
-import NavBarChatBox from "../components/NavBarChatBox";
+import NavBarChatBox from "../../components/NavBarChatBox";
 
 export default function FriendsPage() {
   return (

@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ConnectToServer from "./ConnectToServer";
+import { setOfflineMessages } from "../utility/updateDbMessages";
 // import { socket } from "@/socket";
 
 export default function SetUser() {
@@ -19,7 +20,7 @@ export default function SetUser() {
         const data = await res.json();
         console.log(data);
         dispatch(setUser({ email: data.email, name: data.name, userId: data.userId }));
-        // socket.on("chat message", handleNewMessage);
+        await setOfflineMessages(data.chatPages);
       }
     } catch {}
   };
