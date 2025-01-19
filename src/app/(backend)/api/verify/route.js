@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 import { generateAccessToken, generateRefreshToken, generateSession } from "../../utility/generateTokens";
 import dbConnect from "../../lib/DbConnect";
 import { User } from "../../model/User";
-import { generateRandom } from "../../utility/random";
 
 export async function POST(req) {
   await dbConnect();

@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
 import { Session } from "../model/session";
 import { sessionAuth } from "./authToken";
-
+import dotenv from "dotenv";
+dotenv.config();
 export function generateAccessToken(user, expiresIn) {
   return jwt.sign({ user }, process.env.LOCAL_SECRET, { expiresIn });
 }

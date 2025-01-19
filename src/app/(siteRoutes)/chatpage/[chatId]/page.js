@@ -2,7 +2,10 @@
 import { ChatbubblesIn, ChatbubblesOut, DateBubble } from "@/app/components/Chatbubbles";
 import ChatpageInput from "@/app/components/ChatpageInput";
 import ChatPageTop from "@/app/components/ChatPageTop";
+import EmoteKeyBoard from "@/app/components/EmoteKeyBoard";
+import { ImageBubbleRecive, ImageBubbleSend } from "@/app/components/ImageBubble";
 import { convertTime, getDate } from "@/app/utility/convertTime";
+import { onUpgrade } from "@/app/utility/indexDbFunctions";
 import { socket } from "@/socket";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -11,7 +14,7 @@ import { useSelector } from "react-redux";
 
 export default function ChatPage() {
   const [windowHeight, setWindowHeight] = useState("100vh");
-  const [initialHeight, setInitialHeight] = useState("100vh");
+  const [keyBoardHeight, setKeyBoardHeight] = useState(0);
   const [chat, setChat] = useState([]);
   const chatBox = useRef();
   const chatPageDiv = useRef();
@@ -19,6 +22,7 @@ export default function ChatPage() {
   const [room, setRoom] = useState(null);
   const userId = useSelector((state) => state.userId);
   const [friend, setFriend] = useState({});
+  const [textMessage, setTextMessage] = useState("");
 
   const popTost = (msg, success) => {
     let emote = "❌";
@@ -45,11 +49,7 @@ export default function ChatPage() {
       console.error(event);
     };
 
-    request.onupgradeneeded = function () {
-      const db = request.result;
-      const friends = db.createObjectStore("friends", { keyPath: "userId" });
-      const chats = db.createObjectStore("chats", { keyPath: "chatId" });
-    };
+    request.onupgradeneeded = onUpgrade;
 
     request.onsuccess = function () {
       console.log("Database opened successfully");
@@ -68,7 +68,7 @@ export default function ChatPage() {
       const temp = [];
       findFriend.onsuccess = function () {
         const friend = findFriend.result;
-        setFriend(friend.chats);
+        setFriend(friend);
         if (friend && friend.chats) {
           friend.chats.forEach((chat) => {
             const findChat = chatStore.get(chat.chatId);
@@ -91,7 +91,7 @@ export default function ChatPage() {
   };
 
   useEffect(() => {
-    setInitialHeight(window.visualViewport.height);
+    // setInitialHeight(window.visualViewport.height);
     const handleResize = () => {
       const visualHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
       setWindowHeight(visualHeight);
@@ -118,20 +118,23 @@ export default function ChatPage() {
 
   // for received msg
   useEffect(() => {
-    const handleNewMessage = ({ message, user }) => {
+    const handleNewMessage = ({ message, user, image }) => {
       setChat((pre) => {
+        let data = { date: new Date(), message: message, user: user };
+        if (image) data.image = image;
         if (pre.length > 0 && getDate(pre[pre.length - 1].date) === getDate(new Date())) {
           const temp = structuredClone(pre);
-          temp[pre.length - 1].chats.push({ date: new Date(), message: message, user: user });
+          temp[pre.length - 1].chats.push({ ...data });
           return temp;
         } else {
           const temp = [...pre];
-          temp.push({ date: new Date(), chats: [{ date: new Date(), message: message, user: user }] });
+          temp.push({ date: new Date(), chats: [{ ...data }] });
           return temp;
         }
       });
     };
     socket.on("chat message", handleNewMessage);
+    socket.on("image", handleNewMessage);
     return () => {
       socket.off("chat message", handleNewMessage);
     };
@@ -150,11 +153,12 @@ export default function ChatPage() {
 
   return (
     <div className="h-screen bg-chatPattern">
+      <Toaster position="top-center" reverseOrder={false} />
       {windowHeight && (
-        <div ref={chatPageDiv} style={{ height: windowHeight }} className="bg-chatPattern bg-sky-100 top-0">
+        <div ref={chatPageDiv} style={{ height: windowHeight || "100vh" }} className="bg-chatPattern bg-sky-100 top-0 z-10">
           <ChatPageTop popTost={popTost} friend={friend} />
           {/* chat */}
-          <div ref={chatBox} style={{ height: windowHeight - 150 }} className="overflow-scroll ">
+          <div ref={chatBox} style={{ height: windowHeight - 150 - keyBoardHeight }} className="overflow-scroll ">
             {chat.map((chatBydates, index) => {
               const day = getDate(chatBydates.date);
               return (
@@ -164,24 +168,41 @@ export default function ChatPage() {
                     chatBydates.chats.map((msg, index) => {
                       const time = convertTime(msg.date);
                       if (msg.user === room) {
-                        return (
-                          <div key={index}>
-                            <ChatbubblesIn time={time}>{msg.message}</ChatbubblesIn>
-                          </div>
-                        );
+                        if (msg.image) {
+                          return (
+                            <div key={index}>
+                              <ImageBubbleRecive src={msg.image} time={time} msg={msg.message} />
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div key={index}>
+                              <ChatbubblesIn time={time}>{msg.message}</ChatbubblesIn>
+                            </div>
+                          );
+                        }
                       } else if (msg.user === userId) {
-                        return (
-                          <div key={index}>
-                            <ChatbubblesOut time={time}>{msg.message}</ChatbubblesOut>
-                          </div>
-                        );
+                        if (msg.image) {
+                          return (
+                            <div key={index}>
+                              <ImageBubbleSend src={msg.image} time={time} msg={msg.message} />;
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div key={index}>
+                              <ChatbubblesOut time={time}>{msg.message}</ChatbubblesOut>
+                            </div>
+                          );
+                        }
                       }
                     })}
                 </div>
               );
             })}
           </div>
-          <ChatpageInput popTost={popTost} setChat={setChat} room={room} />
+          <ChatpageInput setKeyBoardHeight={setKeyBoardHeight} popTost={popTost} setChat={setChat} room={room} textMessage={textMessage} setTextMessage={setTextMessage} />
+          {keyBoardHeight > 0 && <EmoteKeyBoard keyBoardHeight={keyBoardHeight} setTextMessage={setTextMessage} />}
         </div>
       )}
     </div>

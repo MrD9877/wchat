@@ -5,10 +5,11 @@ import { generateRandom } from "../(backend)/utility/random";
 import { areDatesOnSameDay, getFriend } from "../utility/getFriend";
 import { handleNewFriend } from "../utility/updateFriend";
 import { usePathname } from "next/navigation";
+import { onUpgrade } from "../utility/indexDbFunctions";
 export default function GetMessages() {
   const pathname = usePathname();
 
-  const handleIndexDb = (msg, userId) => {
+  const handleIndexDb = (msg, userId, image) => {
     const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
 
     if (!indexedDB) {
@@ -21,12 +22,7 @@ export default function GetMessages() {
       console.error(event);
     };
 
-    request.onupgradeneeded = function () {
-      const db = request.result;
-      const friends = db.createObjectStore("friends", { keyPath: "userId" });
-      const chats = db.createObjectStore("chats", { keyPath: "chatId" });
-    };
-
+    request.onupgradeneeded = onUpgrade;
     request.onsuccess = function () {
       console.log("Database opened successfully");
       const db = request.result;
@@ -37,14 +33,16 @@ export default function GetMessages() {
       const chatStore = transaction.objectStore("chats");
       const findFriend = friendStore.get(userId);
       findFriend.onsuccess = function () {
-        const friend = findFriend.result;
         const date = new Date();
+        const messageToSave = { date, message: msg, user: userId };
+        if (image) messageToSave.image = image;
+        const friend = findFriend.result;
         const chatId = generateRandom(32);
         if (!friend) {
           const chat = { chatId: chatId, date: date };
-          friendStore.put({ userId, chats: [{ ...chat }], lastMessage: { message: msg, date: new Date() } });
+          friendStore.put({ userId, chats: [{ ...chat }], lastMessage: { message: msg, date } });
           handleNewFriend(userId);
-          chatStore.put({ chatId, chats: [{ date, message: msg, user: userId }] });
+          chatStore.put({ chatId, chats: [{ ...messageToSave }] });
         } else {
           const allChats = friend.chats;
           const lastChatDate = allChats[allChats.length - 1].date;
@@ -54,19 +52,19 @@ export default function GetMessages() {
             findChat.onsuccess = function () {
               const chats = findChat.result;
               const allChats = chats.chats;
-              allChats.push({ date, message: msg, user: userId });
+              allChats.push({ ...messageToSave });
               findChat.result.chats = [...allChats];
               chatStore.put(findChat.result);
-              findFriend.result.lastMessage = { message: msg, date: new Date() };
+              findFriend.result.lastMessage = { message: msg, date };
               friendStore.put(findFriend.result);
             };
           } else {
             const chat = { chatId: chatId, date: date };
             friend.chats.push(chat);
             findFriend.result.chats = [...friend.chats];
-            findFriend.result.lastMessage = { message: msg, date: new Date() };
+            findFriend.result.lastMessage = { message: msg, date };
             friendStore.put(findFriend.result);
-            chatStore.put({ chatId, chats: [{ date, message: msg, user: userId }] });
+            chatStore.put({ chatId, chats: [{ ...messageToSave }] });
           }
         }
       };
@@ -82,8 +80,9 @@ export default function GetMessages() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const handleNewMessage = ({ message, user }) => {
-      handleIndexDb(message, user);
+    const handleNewMessage = ({ message, user, image }) => {
+      console.log(message);
+      handleIndexDb(message, user, image);
     };
     socket.on("chat message", handleNewMessage);
     return () => {

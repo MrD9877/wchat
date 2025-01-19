@@ -8,7 +8,6 @@ export default function ChatPageTop({ friend }) {
     router.back();
   };
   const OpenProfile = () => {
-    // to do open profile
     router.push("/");
   };
   return (

@@ -1,9 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-import { forbidden, useRouter } from "next/navigation";
+import { getCookie } from "@/app/utility/getCookie";
+import { handleIndexDb } from "@/app/utility/saveMessageLocalDB";
+import { socket } from "@/socket";
+import { forbidden, usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import Camera from "react-html5-camera-photo";
 import "react-html5-camera-photo/build/css/index.css";
+import { useSelector } from "react-redux";
 
 export default function CaremaPage() {
   const [dataUri, setDataUri] = useState(null);
@@ -11,16 +15,17 @@ export default function CaremaPage() {
   const [caption, setCaption] = useState("");
   const router = useRouter();
   const [visible, setVisible] = useState(true);
+  const pathname = usePathname();
+  const userId = useSelector((state) => state.userId);
 
   const sendImage = async () => {
     const formData = new FormData();
-    formData.append("file", dataUri.split(",")[1]);
-    formData.append("caption", caption);
-    try {
-      const res = await fetch("", { method: "POST", credentials: "include", body: formData });
-    } catch {
-      console.log("error");
-    }
+    const id = pathname.split("/");
+    const room = id[id.length - 1];
+    const accessToken = getCookie("accessToken");
+    socket.emit("private message", room, { message: caption, accessToken, image: dataUri });
+    handleIndexDb(caption, room, dataUri, userId);
+    router.back();
   };
 
   function handleTakePhotoAnimationDone(dataUri) {

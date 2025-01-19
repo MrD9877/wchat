@@ -1,6 +1,6 @@
 "use client";
+import WeButton from "@/app/utility/WeButton";
 import Image from "next/image";
-import WeButton from "../utility/WeButton";
 import { useRouter } from "next/navigation";
 
 export default function Page() {

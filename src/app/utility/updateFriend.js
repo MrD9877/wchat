@@ -1,3 +1,5 @@
+import { onUpgrade } from "./indexDbFunctions";
+
 export const updateNewFriendInDb = (userId, friendInfo) => {
   const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
 
@@ -11,11 +13,7 @@ export const updateNewFriendInDb = (userId, friendInfo) => {
     console.error(event);
   };
 
-  request.onupgradeneeded = function () {
-    const db = request.result;
-    const friends = db.createObjectStore("friends", { keyPath: "userId" });
-    const chats = db.createObjectStore("chats", { keyPath: "chatId" });
-  };
+  request.onupgradeneeded = onUpgrade;
 
   request.onsuccess = function () {
     console.log("Database opened successfully");

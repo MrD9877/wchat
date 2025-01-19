@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import TopHeader from "../components/TopHeader";
-import WeButton from "../utility/WeButton";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "@/redux/Slice";
+import TopHeader from "@/app/components/TopHeader";
+import WeButton from "@/app/utility/WeButton";
 
 export default function VerifyPage() {
   const [inputValue, setInputValue] = useState(["", "", "", ""]);

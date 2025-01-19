@@ -5,6 +5,7 @@ import { handleNewFriend } from "../utility/updateFriend";
 import { socket } from "@/socket";
 import { useRouter } from "next/navigation";
 import { getDisplayTime } from "../utility/convertTime";
+import { onUpgrade } from "../utility/indexDbFunctions";
 
 export default function Chatlog() {
   const [friends, setFriends] = useState([]);
@@ -24,11 +25,7 @@ export default function Chatlog() {
       console.error(event);
     };
 
-    request.onupgradeneeded = function () {
-      const db = request.result;
-      const friends = db.createObjectStore("friends", { keyPath: "userId" });
-      const chats = db.createObjectStore("chats", { keyPath: "chatId" });
-    };
+    request.onupgradeneeded = onUpgrade;
 
     request.onsuccess = function () {
       console.log("Database opened successfully");

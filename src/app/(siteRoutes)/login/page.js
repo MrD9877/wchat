@@ -1,10 +1,10 @@
 "use client";
 import Link from "next/link";
-import TopHeader from "../components/TopHeader";
-import WeButton from "../utility/WeButton";
 import toast, { Toaster } from "react-hot-toast";
 import { useActionState } from "react";
 import { useRouter } from "next/navigation";
+import TopHeader from "@/app/components/TopHeader";
+import WeButton from "@/app/utility/WeButton";
 
 export default function LoginPage() {
   const router = useRouter();

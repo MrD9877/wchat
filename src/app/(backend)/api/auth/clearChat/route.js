@@ -20,7 +20,7 @@ export async function POST(req, res) {
   try {
     if (userId) {
       const userInfo = await User.findOne({ email: user.email });
-      if (!userInfo) return new Response(JSON.stringify({ msg: "what are you doing!!!" }), { status: 401 });
+      if (!userInfo) return new Response(JSON.stringify({ msg: "what are you doing!!!" }), { status: 400 });
       const page = userInfo.chatPages.get(userId);
       if (!page) return new Response(JSON.stringify({ msg: "No chat from this user Found" }), { status: 400 });
       userInfo.chatPages.delete(userId);

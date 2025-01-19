@@ -1,5 +1,6 @@
 import { generateRandom } from "../(backend)/utility/random";
 import { getDate } from "./convertTime";
+import { onUpgrade } from "./indexDbFunctions";
 
 const updateDb = (userId, val, data) => {
   const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
@@ -14,11 +15,7 @@ const updateDb = (userId, val, data) => {
     console.error(event);
   };
 
-  request.onupgradeneeded = function () {
-    const db = request.result;
-    const friends = db.createObjectStore("friends", { keyPath: "userId" });
-    const chats = db.createObjectStore("chats", { keyPath: "chatId" });
-  };
+  request.onupgradeneeded = onUpgrade;
 
   request.onsuccess = function () {
     console.log("Database opened successfully");
@@ -87,7 +84,7 @@ export const updateFriend = async (userId, val) => {
 export async function setOfflineMessages(chats) {
   for (const [userId, val] of Object.entries(chats)) {
     await updateFriend(userId, val);
-    fetch("api/auth/clearChat", { method: "POST", body: JSON.stringify({ userId }) });
+    fetch("/api/auth/clearChat", { method: "POST", body: JSON.stringify({ userId }) });
   }
   //   Object.entries(chats).forEach(([userId, val]) => {
   //    await updateFriend(userId, val);
