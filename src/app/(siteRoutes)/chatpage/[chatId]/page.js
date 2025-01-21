@@ -156,9 +156,9 @@ export default function ChatPage() {
       <Toaster position="top-center" reverseOrder={false} />
       {windowHeight && (
         <div ref={chatPageDiv} style={{ height: windowHeight || "100vh" }} className="bg-chatPattern bg-sky-100 top-0 z-10">
-          <ChatPageTop popTost={popTost} friend={friend} />
+          <ChatPageTop room={room} popTost={popTost} friend={friend} />
           {/* chat */}
-          <div ref={chatBox} style={{ height: windowHeight - 150 - keyBoardHeight }} className="overflow-scroll ">
+          <div ref={chatBox} style={{ height: windowHeight - 150 - keyBoardHeight || "80vh" }} className="overflow-scroll ">
             {chat.map((chatBydates, index) => {
               const day = getDate(chatBydates.date);
               return (
