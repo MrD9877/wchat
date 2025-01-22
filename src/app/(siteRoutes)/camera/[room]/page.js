@@ -19,7 +19,6 @@ export default function CaremaPage() {
   const userId = useSelector((state) => state.userId);
 
   const sendImage = async () => {
-    const formData = new FormData();
     const id = pathname.split("/");
     const room = id[id.length - 1];
     const accessToken = getCookie("accessToken");
@@ -40,14 +39,12 @@ export default function CaremaPage() {
   };
   return (
     <div className="bg-black h-screen w-screen pt-10  text-white overflow-hidden">
-      <div tabIndex={10} className="px-1.5 py-1  flex items-center m-4 absolute z-10 bg-black w-fit rounded-full opacity-45 ">
-        <button onClick={() => router.back()}>
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M16 8L8 16M8.00001 8L16 16" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
-      </div>
-      <div className="">
+      <button onClick={() => router.back()} className="px-1.5 py-1  flex items-center m-4 absolute z-50 bg-black w-fit rounded-full opacity-45 ">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 8L8 16M8.00001 8L16 16" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      <div>
         {dataUri && dataUri !== "" ? (
           <>
             <img src={dataUri && dataUri !== "" ? dataUri : null} alt="capture Image" />
@@ -87,7 +84,7 @@ export default function CaremaPage() {
                   </svg>
                 </button>
               </div>
-              <div style={{ display: visible ? "" : "none" }} className="h-fit w-fit" tabIndex={0}>
+              <div style={{ display: visible ? "block" : "none" }} className="h-fit w-fit" tabIndex={0}>
                 <Camera onTakePhotoAnimationDone={handleTakePhotoAnimationDone} isFullscreen={false} isImageMirror={false} idealFacingMode={faceMode} />
               </div>
             </div>

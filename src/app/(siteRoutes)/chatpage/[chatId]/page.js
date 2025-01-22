@@ -1,9 +1,11 @@
 "use client";
+import { AudioBubbleIn, AudioBubbleOut, CustomAudioPlayer } from "@/app/components/AudioBubble";
 import { ChatbubblesIn, ChatbubblesOut, DateBubble } from "@/app/components/Chatbubbles";
 import ChatpageInput from "@/app/components/ChatpageInput";
 import ChatPageTop from "@/app/components/ChatPageTop";
 import EmoteKeyBoard from "@/app/components/EmoteKeyBoard";
 import { ImageBubbleRecive, ImageBubbleSend } from "@/app/components/ImageBubble";
+import { handleAudioChunk } from "@/app/utility/AudioChunkConverter";
 import { convertTime, getDate } from "@/app/utility/convertTime";
 import { onUpgrade } from "@/app/utility/indexDbFunctions";
 import { socket } from "@/socket";
@@ -59,9 +61,6 @@ export default function ChatPage() {
       //2
       const friendStore = transaction.objectStore("friends");
       const chatStore = transaction.objectStore("chats");
-      //3
-      //   store.put({ id: 1, colour: "Red", make: "Toyota" });
-      //4
       const findFriend = friendStore.get(room);
 
       // 5
@@ -114,14 +113,15 @@ export default function ChatPage() {
       window.removeEventListener("resize", handleResize);
       window.visualViewport?.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [pathname]);
 
   // for received msg
   useEffect(() => {
-    const handleNewMessage = ({ message, user, image }) => {
+    const handleNewMessage = ({ message, user, image, audio }) => {
       setChat((pre) => {
         let data = { date: new Date(), message: message, user: user };
         if (image) data.image = image;
+        if (audio) data.audio = audio;
         if (pre.length > 0 && getDate(pre[pre.length - 1].date) === getDate(new Date())) {
           const temp = structuredClone(pre);
           temp[pre.length - 1].chats.push({ ...data });
@@ -134,7 +134,6 @@ export default function ChatPage() {
       });
     };
     socket.on("chat message", handleNewMessage);
-    socket.on("image", handleNewMessage);
     return () => {
       socket.off("chat message", handleNewMessage);
     };
@@ -174,6 +173,13 @@ export default function ChatPage() {
                               <ImageBubbleRecive src={msg.image} time={time} msg={msg.message} />
                             </div>
                           );
+                        } else if (msg.audio) {
+                          const audioURL = handleAudioChunk(msg.audio);
+                          return (
+                            <div key={index}>
+                              <AudioBubbleIn url={audioURL} />
+                            </div>
+                          );
                         } else {
                           return (
                             <div key={index}>
@@ -185,7 +191,15 @@ export default function ChatPage() {
                         if (msg.image) {
                           return (
                             <div key={index}>
-                              <ImageBubbleSend src={msg.image} time={time} msg={msg.message} />;
+                              <ImageBubbleSend src={msg.image} time={time} msg={msg.message} />
+                            </div>
+                          );
+                        } else if (msg.audio) {
+                          const audioURL = handleAudioChunk(msg.audio);
+                          return (
+                            <div key={index}>
+                              <AudioBubbleOut url={audioURL} />
+                              {/* <CustomAudioPlayer audioURL={audioURL} /> */}
                             </div>
                           );
                         } else {

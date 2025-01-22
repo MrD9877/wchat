@@ -3,7 +3,11 @@ import { sessionAuth, tokenAuth } from "./authToken";
 import { generateAccessToken } from "./generateTokens";
 
 export async function authenticate(cookieStore) {
-  // console.log(cookieStore.get("accessToken"));
+  const accessTokenString = cookieStore.get("accessToken");
+  if (!accessTokenString) {
+    console.log(accessTokenString);
+    return keys.ERROR;
+  }
   let accessToken = tokenAuth(cookieStore.get("accessToken").value);
   let newToken;
   if (accessToken == keys.ERROR) {

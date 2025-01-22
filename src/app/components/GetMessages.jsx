@@ -9,7 +9,7 @@ import { onUpgrade } from "../utility/indexDbFunctions";
 export default function GetMessages() {
   const pathname = usePathname();
 
-  const handleIndexDb = (msg, userId, image) => {
+  const handleIndexDb = (msg, userId, image, audio) => {
     const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
 
     if (!indexedDB) {
@@ -34,13 +34,12 @@ export default function GetMessages() {
       const findFriend = friendStore.get(userId);
       findFriend.onsuccess = function () {
         const date = new Date();
-        const messageToSave = { date, message: msg, user: userId };
-        if (image) messageToSave.image = image;
+        const messageToSave = { date, message: msg, user: userId, image, audio };
         const friend = findFriend.result;
         const chatId = generateRandom(32);
         if (!friend) {
           const chat = { chatId: chatId, date: date };
-          friendStore.put({ userId, chats: [{ ...chat }], lastMessage: { message: msg, date } });
+          friendStore.put({ userId, chats: [{ ...chat }], lastMessage: { message: audio ? "audio" : msg, date } });
           handleNewFriend(userId);
           chatStore.put({ chatId, chats: [{ ...messageToSave }] });
         } else {
@@ -80,9 +79,9 @@ export default function GetMessages() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const handleNewMessage = ({ message, user, image }) => {
+    const handleNewMessage = ({ message, user, image, audio }) => {
       console.log(message);
-      handleIndexDb(message, user, image);
+      handleIndexDb(message, user, image, audio);
     };
     socket.on("chat message", handleNewMessage);
     return () => {

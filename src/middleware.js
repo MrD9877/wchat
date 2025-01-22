@@ -6,12 +6,10 @@ export async function middleware(req, res) {
   try {
     const refreshToken = cookieStore.get("refreshToken");
     const session = cookieStore.get("session");
-    // console.log(accessToken);
-    console.log("auth");
-    if (!refreshToken || !session) {
-      console.log("no auth");
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
+    // if (!refreshToken || !session) {
+    //   console.log("no auth");
+    //   return NextResponse.redirect(new URL("/login", req.url));
+    // }
   } catch (err) {
     console.log(err);
     console.log("error");

@@ -2,7 +2,7 @@ import { generateRandom } from "../(backend)/utility/random";
 import { areDatesOnSameDay } from "./getFriend";
 import { onUpgrade } from "./indexDbFunctions";
 
-export const handleIndexDb = (msg, room, image, userId) => {
+export const handleIndexDb = (msg, room, image, userId, audio) => {
   const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
 
   if (!indexedDB) {
@@ -32,8 +32,7 @@ export const handleIndexDb = (msg, room, image, userId) => {
       const friend = findFriend.result;
       const chatId = generateRandom(32);
       const date = new Date();
-      const messageToSave = { date, message: msg, user: userId };
-      if (image) messageToSave.image = image;
+      const messageToSave = { date, message: msg, user: userId, image, audio };
       if (!friend) {
         const chat = { chatId: chatId, date: date };
         friendStore.put({ userId: room, chats: [{ ...chat }] });

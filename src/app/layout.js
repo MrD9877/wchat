@@ -3,6 +3,10 @@ import "./globals.css";
 import StoreProvider from "@/redux/StoreProvider";
 import SetUser from "./components/SetUser";
 import GetMessages from "./components/GetMessages";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "swiper/css/scrollbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
