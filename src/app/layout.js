@@ -21,11 +21,23 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "WChat",
   description: "Text app for the web",
+  generator: "Next.js",
+  manifest: "/manifest.json",
+  keywords: ["nextjs", "next15", "pwa", "next-pwa"],
+  authors: [
+    {
+      name: "Dhuruv Bansal",
+    },
+  ],
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#000000" />
+      </head>
       <StoreProvider>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <SetUser />
