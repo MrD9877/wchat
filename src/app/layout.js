@@ -7,6 +7,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/scrollbar";
+import PwaCustumServicePush from "./components/AddserviceWorker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,6 +41,7 @@ export default function RootLayout({ children }) {
       </head>
       <StoreProvider>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          <PwaCustumServicePush />
           <SetUser />
           <GetMessages />
           {children}

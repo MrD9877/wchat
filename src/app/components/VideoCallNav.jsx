@@ -1,26 +1,22 @@
 import { socket } from "@/socket";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-export default function VideoCallNav({ sendStream, handleEndCall, callUser, room, localStream }) {
-  const [isMuted, setIsMuted] = useState(false);
-
-  const toggleMute = () => {
-    if (localStream) {
-      localStream.getAudioTracks().forEach((track) => {
-        console.log(track.enabled);
-        track.enabled = isMuted;
-      });
-      setIsMuted(!isMuted);
-    }
-  };
+export default function VideoCallNav({ sendStream, handleEndCall, callUser, room, isMuted, setIsMuted }) {
   const endCall = () => {
     socket.emit("closeCall", { to: callUser, from: room });
     handleEndCall();
   };
+
   return (
     // microphone
     <div className="w-screen px-10 justify-between bg-gray-700 py-8 mx-auto my-2 flex">
-      <button onClick={toggleMute} style={{ backgroundColor: " rgba(0, 0, 0, 0.5)" }} className="rounded-full px-2 py-2">
+      <button
+        onClick={() => {
+          setIsMuted(!isMuted);
+        }}
+        style={{ backgroundColor: " rgba(0, 0, 0, 0.5)" }}
+        className="rounded-full px-2 py-2"
+      >
         {isMuted ? (
           <svg fill="white" width="26" height="26" viewBox="0 0 34 40" xmlns="http://www.w3.org/2000/svg">
             <path d="M30,17h-2c0,1.8-0.5,3.5-1.4,5l1.5,1.5C29.3,21.5,29.9,19.3,30,17z"></path>

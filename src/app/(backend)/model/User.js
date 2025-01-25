@@ -25,6 +25,9 @@ const userSchema = new Schema({
       userId: { type: Schema.Types.String },
     },
   ],
+  subscribe: {
+    type: Schema.Types.Mixed,
+  },
   friendRequests: [{ type: Schema.Types.Mixed }],
   friendRequestSend: [{ type: Schema.Types.String }],
   chatPages: {

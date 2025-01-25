@@ -1,8 +1,12 @@
-"use client";
+"use client"; // Ensure this runs on the client-side
 
-import AudioRecorder from "@/app/components/AudioRecording";
+// import NotificationRequest from "@/app/components/Notification";
+import NotificationButton from "@/app/utility/SendNotification";
 
-export default function TestPage() {
-  // Function to get a cookie by name
-  return <AudioRecorder />;
+export default function Test() {
+  return (
+    <div>
+      <NotificationButton />
+    </div>
+  );
 }

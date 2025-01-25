@@ -73,6 +73,20 @@ export default function VerifyPage() {
     }
   };
 
+  const reSendOtp = async () => {
+    try {
+      const res = await fetch("/api/resendOTP");
+      if (res.status === 201) {
+        popTost("New OTP Generated", true);
+      } else {
+        const data = await res.json();
+        popTost(data.msg);
+      }
+    } catch {
+      popTost("Error 500");
+    }
+  };
+
   useEffect(() => {
     if (inputRef.current) {
       window.addEventListener("keydown", handleKeyDown);
@@ -115,7 +129,11 @@ export default function VerifyPage() {
           <div className="my-4">
             <WeButton handler={handleSubmit} btnText={"Verify"} />
           </div>
-          <div className="text-weblue mx-auto w-fit underline">Resend OTP</div>
+          <div className=" mx-auto w-fit">
+            <button onClick={reSendOtp} className="text-weblue underline">
+              Resend OTP
+            </button>
+          </div>
         </div>
       </div>
     </div>

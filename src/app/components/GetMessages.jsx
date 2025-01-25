@@ -80,7 +80,6 @@ export default function GetMessages() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const handleNewMessage = ({ message, user, image, audio }) => {
-      console.log(message);
       handleIndexDb(message, user, image, audio);
     };
     socket.on("chat message", handleNewMessage);

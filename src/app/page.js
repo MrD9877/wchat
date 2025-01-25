@@ -3,48 +3,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function HomePage() {
-  const [isInstallable, setIsInstallable] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
   const router = useRouter();
 
-  // useEffect(() => {
-  //   router.push("/chatscreen");
-  // }, []);
-
-  // Use useEffect to check if the app is in standalone mode only once
   useEffect(() => {
-    // Check if the app is already installed and in standalone mode
-    if (window.matchMedia("(display-mode: standalone)").matches) {
-      setIsInstallable(false); // Hide the install button if in standalone mode
-    }
-
-    // Listen for the beforeinstallprompt event
-    const handleBeforeInstallPrompt = (e) => {
-      e.preventDefault(); // Prevent the default prompt
-      setDeferredPrompt(e); // Store the event for later use
-      setIsInstallable(true); // Show the install button
-    };
-
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-
-    // Cleanup the event listener when the component unmounts
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-    };
-  }, []); // Empty dependency array ensures this runs only once when the component mounts
-
-  const handleInstallClick = () => {
-    if (deferredPrompt) {
-      // Show the install prompt
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult) => {
-        console.log(`User response: ${choiceResult.outcome}`);
-        // Reset the prompt after the user responds
-        setDeferredPrompt(null);
-        setIsInstallable(false); // Hide the install button after prompt is shown
-      });
-    }
-  };
+    router.push("/chatscreen");
+  }, [router]);
 
   return (
     <div>
@@ -61,11 +24,6 @@ export default function HomePage() {
           </svg>
         </div>
       </div>
-      {isInstallable && (
-        <button onClick={handleInstallClick} id="install-button" style={{ padding: "10px", fontSize: "16px" }}>
-          Add to Home Screen
-        </button>
-      )}
     </div>
   );
 }

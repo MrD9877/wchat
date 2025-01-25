@@ -14,6 +14,7 @@ function VideoCall() {
   const [localStream, setLocalStream] = useState();
   const [callUser, setCallUser] = useState("");
   const [remoteStream, setRemoteStream] = useState();
+  const [isMuted, setIsMuted] = useState(false);
   const router = useRouter();
 
   // start stream
@@ -36,11 +37,14 @@ function VideoCall() {
   };
   //   send stream
   const sendStream = async () => {
+    console.log("triggered2");
     try {
       for (const track of localStream.getTracks()) {
         peer.peer.addTrack(track, localStream);
       }
-    } catch {}
+    } catch {
+      console.log("error");
+    }
   };
 
   //   ending the call
@@ -74,7 +78,7 @@ function VideoCall() {
 
       <div className="w-fit mx-auto py-10 z-1 absolute"></div>
       <div className="z-50 absolute  bottom-10 w-screen">
-        <VideoCallNav sendStream={sendStream} handleEndCall={handleEndCall} callUser={callUser} room={room} localStream={localStream} />
+        <VideoCallNav sendStream={sendStream} handleEndCall={handleEndCall} callUser={callUser} room={room} isMuted={isMuted} setIsMuted={setIsMuted} />
       </div>
     </div>
   );
