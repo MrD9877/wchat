@@ -1,13 +1,13 @@
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Geist, Geist_Mono } from "next/font/google";
 import StoreProvider from "@/redux/StoreProvider";
-import SetUser from "./components/SetUser";
-import GetMessages from "./components/GetMessages";
+import SetUser from "../components/SetUser";
+import GetMessages from "../components/GetMessages";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/scrollbar";
-import PwaCustumServicePush from "./components/AddserviceWorker";
+import PwaCustumServicePush from "../components/AddserviceWorker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-import { getCookie } from "@/app/utility/getCookie";
-import { handleIndexDb } from "@/app/utility/saveMessageLocalDB";
+import { getCookie } from "@/utility/getCookie";
+import { handleIndexDb } from "@/utility/saveMessageLocalDB";
 import { socket } from "@/socket";
 import { forbidden, usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";

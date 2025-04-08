@@ -1,12 +1,12 @@
 "use client";
 
-import { urlB64ToUint8Array } from "@/app/utility/b64ToUint8";
-import NavBarChatBox from "../../components/NavBarChatBox";
+import { urlB64ToUint8Array } from "@/utility/b64ToUint8";
+import NavBarChatBox from "../../../components/NavBarChatBox";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-export default function FriendsPage({ user }) {
+export default function FriendsPage() {
   const [avatarSrc, setAvatarSrc] = useState("/getStarted.png");
   const [isInstallable, setIsInstallable] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);

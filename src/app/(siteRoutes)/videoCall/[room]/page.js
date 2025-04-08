@@ -1,13 +1,13 @@
 "use client";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import ReactPlayer from "react-player";
-import peer from "@/app/utility/peer";
+import peer from "@/utility/peer";
 // import { socket } from "@/socket";
 import { useSelector } from "react-redux";
 // import { usePathname } from "next/navigation";
-import VideoCallNav from "@/app/components/VideoCallNav";
+import VideoCallNav from "@/components/VideoCallNav";
 import { useRouter } from "next/navigation";
-import Call from "@/app/components/SetCall";
+import Call from "@/components/SetCall";
 
 function VideoCall() {
   const room = useSelector((state) => state.userId);

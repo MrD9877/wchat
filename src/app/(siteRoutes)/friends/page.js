@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
-import NavBarChatBox from "../../components/NavBarChatBox";
-import FriendPageMain from "../../components/FriendPageMain";
+import NavBarChatBox from "../../../components/NavBarChatBox";
+import FriendPageMain from "../../../components/FriendPageMain";
 import { useSelector } from "react-redux";
-import SearchBar from "../../components/SearchBar";
+import SearchBar from "../../../components/SearchBar";
 
 export default function FriendsPage() {
   const [page, setPage] = useState("friends");

@@ -3,8 +3,8 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import TopHeader from "@/app/components/TopHeader";
-import WeButton from "@/app/utility/WeButton";
+import TopHeader from "@/components/TopHeader";
+import WeButton from "@/utility/WeButton";
 
 export default function Page() {
   const router = useRouter();

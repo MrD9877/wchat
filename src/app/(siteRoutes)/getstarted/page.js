@@ -1,5 +1,5 @@
 "use client";
-import WeButton from "@/app/utility/WeButton";
+import WeButton from "@/utility/WeButton";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
