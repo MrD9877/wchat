@@ -1,5 +1,5 @@
 "use client";
-import { setUser, setIncomingCall } from "@/redux/Slice";
+import { setUser, setIncomingCall, UserState } from "@/redux/Slice";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,8 +14,7 @@ export default function SetUser() {
   const dispatch = useDispatch();
   const exceptions = ["/login", "/register", "/verify"];
   const pathname = usePathname();
-  const userId = useSelector((state) => state.userId);
-  const inComingCall = useSelector((state) => state.inComingCall);
+  const { userId, inComingCall } = useSelector((state: UserState) => ({ userId: state.userId, inComingCall: state.inComingCall }));
   const router = useRouter();
   const [calling, setCalling] = useState(false);
   const isOnline = useNetworkStatus();
@@ -27,7 +26,7 @@ export default function SetUser() {
   }, [isOnline]);
 
   const rejectCall = () => {
-    socket.emit("closeCall", { from: userId, to: inComingCall.from });
+    if (inComingCall) socket.emit("closeCall", { from: userId, to: inComingCall.from });
     dispatch(setIncomingCall({ inComingCall: null }));
     setCalling(false);
   };
@@ -38,16 +37,16 @@ export default function SetUser() {
       await peer.initializePeerConnection();
     }
     setCalling(false);
-    if (inComingCall.type == "video") {
+    if (inComingCall && inComingCall.type == "video") {
       router.push(`/videoCall/${inComingCall.from}`);
     }
-    if (inComingCall.type == "voice") {
+    if (inComingCall && inComingCall.type == "voice") {
       router.push(`/VoiceCall/${inComingCall.from}`);
     }
   };
 
-  const handleCallRequest = async ({ offer, from, name, type }) => {
-    setIncomingCall({ offer, from });
+  const handleCallRequest = async ({ offer, from, name, type }: { offer: RTCSessionDescriptionInit; from: string; name: string; type: "voice" | "video" }) => {
+    // setIncomingCall({ offer, from });
     dispatch(setIncomingCall({ inComingCall: { offer, from, name, type } }));
   };
 
@@ -62,7 +61,7 @@ export default function SetUser() {
     } catch {}
   };
 
-  const handleCallRequestClosed = ({ from }) => {
+  const handleCallRequestClosed = ({ from }: { from: string }) => {
     if (!inComingCall) return;
     if (from === inComingCall.from) {
       dispatch(setIncomingCall({ inComingCall: null }));
@@ -86,7 +85,7 @@ export default function SetUser() {
       socket.off("requestCall", handleCallRequest);
       socket.off("closeCall", handleCallRequestClosed);
     };
-  }, [inComingCall]);
+  }, [inComingCall, pathname]);
   if (userId)
     return (
       <div>

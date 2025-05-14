@@ -4,14 +4,11 @@ import { socket } from "@/socket"; // Import socket from the singleton
 import { generateRandom } from "../app/(backend)/utility/random";
 import { areDatesOnSameDay, getFriend } from "../utility/getFriend";
 import { handleNewFriend } from "../utility/updateFriend";
-import { usePathname } from "next/navigation";
 import { onUpgrade } from "../utility/indexDbFunctions";
+
 export default function GetMessages() {
-  const pathname = usePathname();
-
-  const handleIndexDb = (msg, userId, image, audio) => {
-    const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
-
+  const handleIndexDb = (msg: string, userId: string, image?: Buffer, audio?: Buffer) => {
+    const indexedDB = window.indexedDB;
     if (!indexedDB) {
       console.log("IndexedDB could not be found in this browser.");
     }
@@ -79,7 +76,7 @@ export default function GetMessages() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const handleNewMessage = ({ message, user, image, audio }) => {
+    const handleNewMessage = ({ message, user, image, audio }: { message: string; user: string; image?: Buffer; audio?: Buffer }) => {
       handleIndexDb(message, user, image, audio);
     };
     socket.on("chat message", handleNewMessage);
@@ -87,5 +84,5 @@ export default function GetMessages() {
       socket.off("chat message", handleNewMessage);
     };
   }, []);
-  return <div></div>;
+  return [];
 }

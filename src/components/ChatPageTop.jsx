@@ -1,9 +1,8 @@
 "use client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import peer, { PeerService } from "@/utility/peer";
+import peer from "@/utility/peer";
 import { socket } from "@/socket";
-import { useSelector } from "react-redux";
 import { getCookie } from "../utility/getCookie";
 
 export default function ChatPageTop({ friend, room }) {

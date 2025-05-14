@@ -1,7 +1,15 @@
 import { socket } from "@/socket";
 import React, { useEffect, useState } from "react";
-
-export default function VideoCallNav({ sendStream, handleEndCall, callUser, room, isMuted, setIsMuted }) {
+import { Dispatch } from "redux";
+interface VideoCallNav {
+  sendStream: () => void;
+  handleEndCall: () => void;
+  callUser: string;
+  room: string;
+  isMuted: boolean;
+  setIsMuted: React.Dispatch<React.SetStateAction<boolean>>;
+}
+export default function VideoCallNav({ sendStream, handleEndCall, callUser, room, isMuted, setIsMuted }: VideoCallNav) {
   const endCall = () => {
     socket.emit("closeCall", { to: callUser, from: room });
     handleEndCall();

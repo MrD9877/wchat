@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   const { email, name } = body;
   try {
     const userEmail = await User.findOne({ email });
-    if (userEmail && userEmail.isVerified) {
+    if (userEmail) {
       return new Response(JSON.stringify({ msg: "This email is Already has a account please Login!" }), { status: 400 });
     }
     if (!userEmail) {

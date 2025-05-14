@@ -1,15 +1,13 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-export async function middleware(req, res) {
+export async function middleware(req: Request) {
   const cookieStore = await cookies();
   try {
     const refreshToken = cookieStore.get("refreshToken");
-    const session = cookieStore.get("session");
-    // if (!refreshToken || !session) {
-    //   console.log("no auth");
-    //   return NextResponse.redirect(new URL("/login", req.url));
-    // }
+    if (!refreshToken) {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
   } catch (err) {
     console.log(err);
     console.log("error");

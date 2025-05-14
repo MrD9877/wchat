@@ -1,17 +1,18 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { ChangeEvent, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import DisplaySearchResults from "./DisplaySearchResults";
 import OutSideAlart from "./OutSideAlart";
+import { UserState } from "@/redux/Slice";
 
 export default function SearchBar() {
   const [search, setSeach] = useState("");
   const [result, setResult] = useState([]);
   const [visible, setVisible] = useState(false);
-  const email = useSelector((state) => state.email);
-  const name = useSelector((state) => state.name);
-  const searchResults = useRef();
-  const searchUser = async (e) => {
+  const name = useSelector((state: UserState) => state.name);
+  const searchResults = useRef<HTMLDivElement>(null);
+
+  const searchUser = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setSeach(e.target.value);
     try {
       const res = await fetch("/api/auth/search", { method: "POST", body: JSON.stringify({ search: e.target.value }) });

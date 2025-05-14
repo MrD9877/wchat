@@ -1,7 +1,7 @@
 "use client";
 import { socket } from "@/socket";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { getDate } from "../utility/convertTime";
 import { getCookie } from "../utility/getCookie";
@@ -10,28 +10,42 @@ import { handleIndexDb } from "../utility/saveMessageLocalDB";
 import AudioRecorder from "./AudioRecording";
 import AudioInputUI from "./AudioInputUI";
 import AttachPhotoUI from "./AttachPhotoUI";
+import { UserState } from "@/redux/Slice";
+import { Chat } from "@/app/(siteRoutes)/chatpage/[chatId]/page";
 
-export default function ChatpageInput({ popTost, setChat, room, setKeyBoardHeight, setTextMessage, textMessage }) {
-  const [files, setFile] = useState(null);
+interface ChatInputComponent {
+  setKeyBoardHeight: Dispatch<SetStateAction<number>>;
+  room: string | undefined;
+  textMessage: string;
+  setTextMessage: Dispatch<SetStateAction<string>>;
+  setChat: Dispatch<SetStateAction<Chat[]>>;
+}
+
+export default function ChatpageInput({ setChat, room, setKeyBoardHeight, setTextMessage, textMessage }: ChatInputComponent) {
+  const [files, setFile] = useState<File[] | null>(null);
   const [sendVisible, setSendVisible] = useState(false);
-  const userId = useSelector((state) => state.userId);
-  const [src, setSrc] = useState([]);
+  const userId = useSelector((state: UserState) => state.userId);
+  const [src, setSrc] = useState<(string | ArrayBuffer | null)[]>([]);
   const router = useRouter();
-  const textInput = useRef();
+  const textInput = useRef<HTMLInputElement>(null);
   const [emoji, setEmoji] = useState(false);
   const [audioRecording, setAudioRecording] = useState(false);
   const [changesInInpur, setChanges] = useState(false);
 
-  const fileSelected = (event) => {
-    const temp = event.target.files;
-    setFile([...temp]);
+  const fileSelected = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      const fileArray = Array.from(files);
+      setFile(fileArray);
+    }
   };
 
   const updateSrc = () => {
+    if (!files) return;
     files.forEach((file) => {
       const render = new FileReader();
       render.onload = (e) => {
-        setSrc((pre) => [...pre, e.target.result]);
+        setSrc((pre) => [...pre, e.target && e.target.result]);
       };
       render.readAsDataURL(file);
     });
@@ -46,9 +60,11 @@ export default function ChatpageInput({ popTost, setChat, room, setKeyBoardHeigh
     }
   };
 
-  const sendMsg = async (e) => {
+  const sendMsg = async () => {
     if (src.length < 1 && textMessage === "") return;
     const image = src.length > 0 ? src : null;
+    //to do userid error handling
+    if (!userId) return;
     setChat((pre) => {
       if (pre.length > 0 && getDate(pre[pre.length - 1].date) == getDate(new Date())) {
         const latest = pre.length - 1;
@@ -73,6 +89,7 @@ export default function ChatpageInput({ popTost, setChat, room, setKeyBoardHeigh
   };
 
   const handleEmote = () => {
+    if (!textInput.current) return;
     if (emoji) {
       textInput.current.focus();
       setKeyBoardHeight(0);
@@ -105,7 +122,7 @@ export default function ChatpageInput({ popTost, setChat, room, setKeyBoardHeigh
     } else {
       setSendVisible(false);
     }
-  }, [textMessage, textInput, changesInInpur]);
+  }, [textMessage, textInput, changesInInpur, files]);
 
   return (
     <div>

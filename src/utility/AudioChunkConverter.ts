@@ -1,4 +1,4 @@
-export const handleAudioChunk = (record) => {
+export const handleAudioChunk = (record: Blob[]) => {
   const audioBlob = new Blob(record, {
     type: "audio/wav",
   });

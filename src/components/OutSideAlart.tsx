@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 
 export default function OutSideAlart({ setInside, inside }) {
-  const handler = (e) => {
+  const handler = (e: Event) => {
     const itemClicked = e.target;
     inside.current.contains(itemClicked) ? setInside(true) : setInside(false);
   };

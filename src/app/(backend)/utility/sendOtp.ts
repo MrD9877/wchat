@@ -7,7 +7,7 @@ export async function sendOtp(email: string, name: string) {
   try {
     const otp = random < 1000 ? `0${random}` : `${random}`;
     await client.connect();
-    client.setEx(`otp-${email}`, 60 * 5, otp);
+    await client.setEx(`otp-${email}`, 60 * 5, otp);
     await sendEmail(otp, name, email);
     return { msg: "Created", status: 201 };
   } catch {

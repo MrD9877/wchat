@@ -1,23 +1,31 @@
 "use client";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import ReactPlayer from "react-player";
+import React, { useCallback, useEffect } from "react";
 import peer from "@/utility/peer";
 import { socket } from "@/socket";
 import { useSelector } from "react-redux";
 import { usePathname } from "next/navigation";
-import VideoCallNav from "@/components/VideoCallNav";
 import { useRouter } from "next/navigation";
+import { UserState } from "@/redux/Slice";
 
-function Call({ localStream, setLocalStream, remoteStream, setRemoteStream, callUser, setCallUser }) {
+interface Call {
+  localStream: MediaStream;
+  remoteStream: MediaStream;
+  callUser: string;
+  setLocalStream: React.Dispatch<React.SetStateAction<MediaStream | null>>;
+  setRemoteStream: React.Dispatch<React.SetStateAction<MediaStream | null>>;
+  setCallUser: React.Dispatch<React.SetStateAction<string>>;
+}
+
+export default function Call({ localStream, setLocalStream, remoteStream, setRemoteStream, callUser, setCallUser }: Call) {
   const pathname = usePathname();
-  const room = useSelector((state) => state.userId);
-  const inComingCall = useSelector((state) => state.inComingCall);
+  const room = useSelector((state: UserState) => state.userId);
+  const inComingCall = useSelector((state: UserState) => state.inComingCall);
   const router = useRouter();
 
   // start stream
 
   // stopSteam
-  const stopMediaStream = (stream) => {
+  const stopMediaStream = (stream: MediaStream) => {
     if (stream) {
       stream.getTracks().forEach((track) => {
         track.stop(); // Stop each track (audio/video)
@@ -28,7 +36,7 @@ function Call({ localStream, setLocalStream, remoteStream, setRemoteStream, call
   const sendStream = async () => {
     try {
       for (const track of localStream.getTracks()) {
-        peer.peer.addTrack(track, localStream);
+        if (peer.peer) peer.peer.addTrack(track, localStream);
       }
     } catch {}
   };
@@ -45,36 +53,38 @@ function Call({ localStream, setLocalStream, remoteStream, setRemoteStream, call
   };
   //  if call is accepted
   const acceptCall = useCallback(async () => {
+    if (!inComingCall) return;
     const ans = await peer.getAnswer(inComingCall.offer);
     socket.emit("call:accepted", { to: inComingCall.from, answer: ans, from: room });
   }, [room, inComingCall]);
 
   //   if call request accepted
 
-  const handleCallAccept = async ({ answer, from }) => {
+  const handleCallAccept = async ({ answer, from }: { answer: RTCSessionDescriptionInit; from: string }) => {
     await peer.setLocalDescription(answer);
     await sendStream();
   };
 
   //   negotiations
 
-  const handleNegotiation = async (e) => {
+  const handleNegotiation = async (e: Event) => {
     const offer = await peer.getOffer();
     socket.emit("peer:negotiation", { from: room, to: callUser, offer });
   };
 
-  const handleNegotiationOffer = async ({ from, offer }) => {
+  const handleNegotiationOffer = async ({ offer }: { offer: RTCSessionDescriptionInit }) => {
     const ans = await peer.getAnswer(offer);
     socket.emit("peer:negotiation:done", { to: callUser, from: room, answer: ans });
   };
-  const handleNegotiationDone = async ({ from, answer }) => {
+
+  const handleNegotiationDone = async ({ answer }: { answer: RTCSessionDescriptionInit }) => {
     await peer.setLocalDescription(answer);
     socket.emit("request:after:course", { from: room, to: callUser });
   };
 
   //   setTrack
 
-  const handleTrackReceived = async (e) => {
+  const handleTrackReceived = async (e: RTCTrackEvent) => {
     const remoteStrea = e.streams;
     setRemoteStream(remoteStrea[0]);
   };
@@ -129,7 +139,5 @@ function Call({ localStream, setLocalStream, remoteStream, setRemoteStream, call
       socket.off("requestStream", sendStream);
     };
   }, [callUser, room, inComingCall, localStream, remoteStream, peer.peer]);
-  return <></>;
+  return [];
 }
-
-export default Call;
