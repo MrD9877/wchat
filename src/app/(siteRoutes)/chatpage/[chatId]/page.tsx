@@ -12,8 +12,8 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { UserState } from "@/redux/Slice";
-import useScrool from "@/hooks/useScrool";
 import { connectIndexDb } from "@/utility/IndexDbConnect";
+import ShowImageAndVideo from "@/components/ShowImageAndVideo";
 
 export type ChatReference = {
   chatId: string;
@@ -32,7 +32,7 @@ export type Chat = {
     date: Date;
     message: string;
     user: string;
-    image?: (string | ArrayBuffer | null)[] | null;
+    image?: string[] | null;
     audio?: Blob[];
   }[];
 };
@@ -40,15 +40,27 @@ export type Chat = {
 export default function ChatPage() {
   const chatBox = useRef<HTMLDivElement>(null);
   const chatPageDiv = useRef<HTMLDivElement>(null);
-  const windowHeight = useScrool(chatBox, chatPageDiv);
-  const [keyBoardHeight, setKeyBoardHeight] = useState(0);
+  const [emojiKeyBoard, setEmojiKeyBoard] = useState(false);
 
   const [chat, setChat] = useState<Chat[]>([]);
   const pathname = usePathname();
   const [room, setRoom] = useState<string>();
   const userId = useSelector((state: UserState) => state.userId);
-  const [friend, setFriend] = useState({});
+  const [friend, setFriend] = useState<Friend>();
   const [textMessage, setTextMessage] = useState("");
+  const placeholder = useRef<HTMLDivElement>(null);
+  const interval = useRef<NodeJS.Timeout>(null);
+  const [showImage, setShowImage] = useState<string[] | null>(null);
+
+  const handleFocus = () => {
+    setEmojiKeyBoard(false);
+    if (interval.current) {
+      clearInterval(interval.current);
+    }
+    interval.current = setInterval(() => {
+      placeholder.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
+  };
 
   const handleIndexDb = async (room: string) => {
     const db = await connectIndexDb();
@@ -84,9 +96,15 @@ export default function ChatPage() {
   }, [pathname]);
   // for received msg
   useEffect(() => {
-    const handleNewMessage = ({ message, user, image, audio }: { message: string; user: string; image?: Buffer; audio?: Buffer }) => {
+    const handleNewMessage = ({ message, user, image, audio }: { message: string; user: string; image?: string[]; audio?: Blob[] }) => {
       setChat((pre) => {
-        let data = { date: new Date(), message: message, user: user };
+        let data: {
+          date: Date;
+          message: string;
+          user: string;
+          image?: string[];
+          audio?: Blob[];
+        } = { date: new Date(), message: message, user: user };
         if (image) data.image = image;
         if (audio) data.audio = audio;
         if (pre.length > 0 && getDate(pre[pre.length - 1].date) === getDate(new Date())) {
@@ -111,11 +129,12 @@ export default function ChatPage() {
   }, [chat]);
 
   return (
-    <div className="h-screen bg-chatPattern">
-      <div ref={chatPageDiv} style={{ height: windowHeight || "100vh" }} className="bg-chatPattern bg-sky-100 top-0 z-10">
-        <ChatPageTop room={room} friend={friend} />
+    <div className="h-[100svh]">
+      <ShowImageAndVideo sources={showImage} setSrc={setShowImage} />
+      <ChatPageTop room={room} friend={friend} />
+      <div ref={chatPageDiv} style={{ height: "92svh", background: "url('/chatpageBg.png')" }} className="grid grid-rows-12 bg-sky-100  z-10">
         {/* chat */}
-        <div ref={chatBox} style={{ height: windowHeight ? windowHeight - 150 - keyBoardHeight : "80vh" }} className="overflow-scroll ">
+        <div ref={chatBox} className="overflow-scroll row-span-11">
           {chat.map((chatBydates, index) => {
             const day = getDate(chatBydates.date);
             return (
@@ -128,7 +147,7 @@ export default function ChatPage() {
                       if (msg.image) {
                         return (
                           <div key={index}>
-                            <ImageBubbleRecive src={msg.image} time={time} msg={msg.message} />
+                            <ImageBubbleRecive src={msg.image} time={time} msg={msg.message} setShowImage={setShowImage} />
                           </div>
                         );
                       } else if (msg.audio) {
@@ -149,7 +168,7 @@ export default function ChatPage() {
                       if (msg.image) {
                         return (
                           <div key={index}>
-                            <ImageBubbleSend src={msg.image} time={time} msg={msg.message} />
+                            <ImageBubbleSend src={msg.image} time={time} msg={msg.message} setShowImage={setShowImage} />
                           </div>
                         );
                       } else if (msg.audio) {
@@ -173,8 +192,9 @@ export default function ChatPage() {
             );
           })}
         </div>
-        <ChatpageInput setKeyBoardHeight={setKeyBoardHeight} setChat={setChat} room={room} textMessage={textMessage} setTextMessage={setTextMessage} />
-        {keyBoardHeight > 0 && <EmoteKeyBoard keyBoardHeight={keyBoardHeight} setTextMessage={setTextMessage} />}
+        <ChatpageInput handleFocus={handleFocus} emojiKeyBoard={emojiKeyBoard} setEmojiKeyBoard={setEmojiKeyBoard} setChat={setChat} room={room} textMessage={textMessage} setTextMessage={setTextMessage} />
+        {emojiKeyBoard && <EmoteKeyBoard setTextMessage={setTextMessage} />}
+        <div ref={placeholder} className="mt-2"></div>
       </div>
     </div>
   );

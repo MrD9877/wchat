@@ -14,21 +14,22 @@ import { UserState } from "@/redux/Slice";
 import { Chat } from "@/app/(siteRoutes)/chatpage/[chatId]/page";
 
 interface ChatInputComponent {
-  setKeyBoardHeight: Dispatch<SetStateAction<number>>;
   room: string | undefined;
   textMessage: string;
   setTextMessage: Dispatch<SetStateAction<string>>;
   setChat: Dispatch<SetStateAction<Chat[]>>;
+  handleFocus: () => void;
+  emojiKeyBoard: boolean;
+  setEmojiKeyBoard: Dispatch<SetStateAction<boolean>>;
 }
 
-export default function ChatpageInput({ setChat, room, setKeyBoardHeight, setTextMessage, textMessage }: ChatInputComponent) {
+export default function ChatpageInput({ setChat, room, setTextMessage, textMessage, handleFocus, emojiKeyBoard, setEmojiKeyBoard }: ChatInputComponent) {
   const [files, setFile] = useState<File[] | null>(null);
   const [sendVisible, setSendVisible] = useState(false);
   const userId = useSelector((state: UserState) => state.userId);
-  const [src, setSrc] = useState<(string | ArrayBuffer | null)[]>([]);
+  const [src, setSrc] = useState<string[]>([]);
   const router = useRouter();
   const textInput = useRef<HTMLInputElement>(null);
-  const [emoji, setEmoji] = useState(false);
   const [audioRecording, setAudioRecording] = useState(false);
   const [changesInInpur, setChanges] = useState(false);
 
@@ -45,7 +46,10 @@ export default function ChatpageInput({ setChat, room, setKeyBoardHeight, setTex
     files.forEach((file) => {
       const render = new FileReader();
       render.onload = (e) => {
-        setSrc((pre) => [...pre, e.target && e.target.result]);
+        const result = e.target?.result;
+        if (typeof result === "string") {
+          setSrc((pre) => [...pre, result]);
+        }
       };
       render.readAsDataURL(file);
     });
@@ -61,10 +65,13 @@ export default function ChatpageInput({ setChat, room, setKeyBoardHeight, setTex
   };
 
   const sendMsg = async () => {
+    textInput.current?.focus();
     if (src.length < 1 && textMessage === "") return;
     const image = src.length > 0 ? src : null;
     //to do userid error handling
+
     if (!userId) return;
+
     setChat((pre) => {
       if (pre.length > 0 && getDate(pre[pre.length - 1].date) == getDate(new Date())) {
         const latest = pre.length - 1;
@@ -85,19 +92,16 @@ export default function ChatpageInput({ setChat, room, setKeyBoardHeight, setTex
     setTextMessage("");
     setSrc([]);
     setFile(null);
-    setKeyBoardHeight(0);
   };
 
   const handleEmote = () => {
     if (!textInput.current) return;
-    if (emoji) {
+    if (emojiKeyBoard) {
       textInput.current.focus();
-      setKeyBoardHeight(0);
-      setEmoji(false);
+      setEmojiKeyBoard(false);
     } else {
-      setKeyBoardHeight(340);
       textInput.current.blur();
-      setEmoji(true);
+      setEmojiKeyBoard(true);
     }
   };
 
@@ -136,7 +140,7 @@ export default function ChatpageInput({ setChat, room, setKeyBoardHeight, setTex
               <>
                 {/* emote  */}
                 <button onClick={handleEmote}>
-                  {!emoji ? (
+                  {!emojiKeyBoard ? (
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M12.8284 12.8284C11.2663 14.3905 8.7337 14.3905 7.17157 12.8284M7 8H7.01M13 8H13.01M19 10C19 14.9706 14.9706 19 10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10Z" stroke="#191919" strokeOpacity="0.7" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
@@ -156,8 +160,8 @@ export default function ChatpageInput({ setChat, room, setKeyBoardHeight, setTex
                   ref={textInput}
                   onBlur={() => setChanges(!changesInInpur)}
                   onFocus={() => {
-                    setKeyBoardHeight(0);
                     setChanges(!changesInInpur);
+                    handleFocus();
                   }}
                   value={textMessage ? textMessage : ""}
                   onChange={(e) => setTextMessage(e.target.value)}
@@ -179,7 +183,7 @@ export default function ChatpageInput({ setChat, room, setKeyBoardHeight, setTex
                 </div>
                 {/* camera  */}
                 <div style={{ display: sendVisible ? "none" : "" }}>
-                  <Link href={`/camera/${room}`}>
+                  <Link href={`/camera?room=${room}`}>
                     <svg width="24" height="20" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M2.8 17.2H17.2C18.1941 17.2 19 16.3941 19 15.4V6.04C19 5.04589 18.1941 4.24 17.2 4.24H14.5L12.25 1H7.75L5.5 4.24H2.8C1.80589 4.24 1 5.04589 1 6.04V15.4C1 16.3941 1.80589 17.2 2.8 17.2Z" stroke="#191919" strokeOpacity="0.75" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
                       <path d="M10 13.5999C11.9882 13.5999 13.6 11.9881 13.6 9.9999C13.6 8.01168 11.9882 6.3999 10 6.3999C8.0118 6.3999 6.40002 8.01168 6.40002 9.9999C6.40002 11.9881 8.0118 13.5999 10 13.5999Z" stroke="#191919" strokeOpacity="0.75" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />

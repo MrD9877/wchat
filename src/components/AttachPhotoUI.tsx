@@ -1,10 +1,17 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-export default function AttachPhotoUI({ src, setSrc, sendMsg, setFile }) {
-  const [slide, setSlide] = useState(null);
-  const [slides, setSlides] = useState([]);
-  const swiperDiv = useRef();
+type AttachPhotoUI = {
+  src: (string | ArrayBuffer | null)[];
+  setSrc: Dispatch<SetStateAction<string[]>>;
+  sendMsg: () => Promise<void>;
+  setFile: Dispatch<SetStateAction<File[] | null>>;
+};
+
+export default function AttachPhotoUI({ src, setSrc, sendMsg, setFile }: AttachPhotoUI) {
+  const [slide, setSlide] = useState<number>(0);
+  const [slides, setSlides] = useState<string[]>([]);
+  const swiperDiv = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const arr = new Array(src.length).fill("k");
@@ -38,7 +45,7 @@ export default function AttachPhotoUI({ src, setSrc, sendMsg, setFile }) {
               return (
                 <SwiperSlide key={index}>
                   <div className="bg-black h-[50vh] justify-center flex">
-                    <img className="rounded-xl mx-auto object-contain" src={sr} alt="img" />
+                    <img className="rounded-xl mx-auto object-contain" src={typeof sr === "string" ? sr : ""} alt="img" />
                   </div>
                 </SwiperSlide>
               );

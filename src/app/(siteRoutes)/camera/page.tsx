@@ -3,31 +3,32 @@
 import { getCookie } from "@/utility/getCookie";
 import { handleIndexDb } from "@/utility/saveMessageLocalDB";
 import { socket } from "@/socket";
-import { forbidden, usePathname, useRouter } from "next/navigation";
-import React, { useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { useState } from "react";
 import Camera from "react-html5-camera-photo";
 import "react-html5-camera-photo/build/css/index.css";
 import { useSelector } from "react-redux";
+import { UserState } from "@/redux/Slice";
 
 export default function CaremaPage() {
-  const [dataUri, setDataUri] = useState(null);
-  const [faceMode, setFaceMode] = useState("environment");
+  const [dataUri, setDataUri] = useState<string>();
+  const [faceMode, setFaceMode] = useState<"environment" | "user" | undefined>("environment");
   const [caption, setCaption] = useState("");
   const router = useRouter();
   const [visible, setVisible] = useState(true);
-  const pathname = usePathname();
-  const userId = useSelector((state) => state.userId);
+  const userId = useSelector((state: UserState) => state.userId);
+  const searchParams = useSearchParams();
+
+  const room = searchParams.get("room");
 
   const sendImage = async () => {
-    const id = pathname.split("/");
-    const room = id[id.length - 1];
     const accessToken = getCookie("accessToken");
     socket.emit("private message", room, { message: caption, accessToken, image: dataUri });
     handleIndexDb(caption, room, dataUri, userId);
     router.back();
   };
 
-  function handleTakePhotoAnimationDone(dataUri) {
+  function handleTakePhotoAnimationDone(dataUri: string) {
     setDataUri(dataUri);
   }
   const toggleCamera = () => {
@@ -47,7 +48,7 @@ export default function CaremaPage() {
       <div>
         {dataUri && dataUri !== "" ? (
           <>
-            <img src={dataUri && dataUri !== "" ? dataUri : null} alt="capture Image" />
+            <img src={dataUri || ""} alt="capture Image" />
             <div className="bottom-0 absolute">
               <div className="mx-5 bg-gray-800 rounded-2xl my-2 h-10 flex items-center">
                 <input value={caption ? caption : ""} onChange={(e) => setCaption(e.target.value)} className="bg-gray-800 px-2 mx-2 outline-none" type="text" placeholder="Add caption..." />
@@ -84,7 +85,7 @@ export default function CaremaPage() {
                   </svg>
                 </button>
               </div>
-              <div style={{ display: visible ? "block" : "none" }} className="h-fit w-fit" tabIndex={0}>
+              <div style={{ display: visible ? "block" : "none" }} className="h-fit w-screen absolute bottom-20 flex" tabIndex={0}>
                 <Camera onTakePhotoAnimationDone={handleTakePhotoAnimationDone} isFullscreen={false} isImageMirror={false} idealFacingMode={faceMode} />
               </div>
             </div>

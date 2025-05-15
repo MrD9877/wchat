@@ -1,13 +1,22 @@
 import Image from "next/image";
 import React from "react";
 
-const inLargeImage = (src) => {};
+type ImageBubble = {
+  src: string[];
+  msg: string;
+  time: string;
+  setShowImage: React.Dispatch<React.SetStateAction<string[] | null>>;
+};
 
-export function ImageBubbleSend({ src, msg, time }) {
+const inLargeImage = (src: string[], setShowImage: React.Dispatch<React.SetStateAction<string[] | null>>) => {
+  if (src) setShowImage(src);
+};
+
+export function ImageBubbleSend({ src, msg, time, setShowImage }: ImageBubble) {
   if (Array.isArray(src)) {
     return (
       <>
-        <div onClick={() => inLargeImage(src)} className="bg-weChat px-4 mx-2 py-1 rounded-xl mr-2 w-fit  my-2 h-fit flex items-end flex-col">
+        <div onClick={() => inLargeImage(src, setShowImage)} className="bg-weChat px-4 mx-2 py-1 rounded-xl mr-2 w-fit  my-2 h-fit flex items-end flex-col">
           <div className="grid grid-cols-2 gap-2 h-fit max-w-[250px] py-4 px-2">
             {src.map((img, index) => {
               if (index > 3) return;
@@ -32,7 +41,7 @@ export function ImageBubbleSend({ src, msg, time }) {
     );
   }
   return (
-    <div onClick={() => inLargeImage(src)} className="flex justify-end w-screen px-2.5">
+    <div onClick={() => inLargeImage([src], setShowImage)} className="flex justify-end w-screen px-2.5">
       <div className="bg-weChat px-2.5 py-1 rounded-xl mr-2 w-fit flex items-end my-2 h-[200px] flex-col justify-center max-w-[210px]">
         <Image width={200} height={150} src={src} alt={msg} />
         <div className="overflow-scroll">{msg ? msg : "image"}</div>
@@ -41,10 +50,10 @@ export function ImageBubbleSend({ src, msg, time }) {
     </div>
   );
 }
-export function ImageBubbleRecive({ src, msg, time }) {
+export function ImageBubbleRecive({ src, msg, time, setShowImage }: ImageBubble) {
   if (Array.isArray(src)) {
     return (
-      <div onClick={() => inLargeImage(src)} className="w-screen flex justify-end">
+      <div onClick={() => inLargeImage(src, setShowImage)} className="w-screen flex justify-end">
         <div className="bg-weChat px-4 mx-2 py-1 rounded-xl mr-2 w-fit  my-2 h-fit flex items-end flex-col">
           <div className="grid grid-cols-2 gap-2 h-fit max-w-[250px] py-4 px-2">
             {src.map((img, index) => {
@@ -70,8 +79,8 @@ export function ImageBubbleRecive({ src, msg, time }) {
     );
   }
   return (
-    <div onClick={() => inLargeImage(src)} className="bg-white px-2.5 py-1 rounded-xl mr-2 w-fit flex  my-2 h-[200px] flex-col justify-center max-w-[210px]">
-      <Image onClick={() => inLargeImage(src)} width={200} height={150} src={src} alt={msg} />
+    <div onClick={() => inLargeImage([src], setShowImage)} className="bg-white px-2.5 py-1 rounded-xl mr-2 w-fit flex  my-2 h-[200px] flex-col justify-center max-w-[210px]">
+      <Image width={200} height={150} src={src} alt={msg} />
       <div className="overflow-scroll">{msg ? msg : "image"}</div>
       <div className="text-xxs px-1 text-gray-600">{time}</div>
     </div>

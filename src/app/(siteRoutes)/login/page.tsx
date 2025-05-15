@@ -1,6 +1,6 @@
 "use client";
 import { signIn } from "@/utility/singIn";
-import { Link } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useActionState } from "react";
 import { toast } from "sonner";
@@ -29,7 +29,7 @@ export default function LoginPage() {
   }, null);
   return (
     <>
-      <div className="h-[100svh] w-screen flex justify-center items-center text-black bg-weblue">
+      <div className="h-[100svh] w-screen flex justify-center items-center text-black bg-weblue px-4">
         <form className="form" action={submitAction}>
           <div className="flex-column">
             <label>Email </label>

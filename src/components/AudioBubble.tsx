@@ -1,45 +1,46 @@
 import React, { useRef, useState } from "react";
 
-export const AudioBubbleOut = React.memo(({ url }) => {
-  const audioRef = useRef();
+export const AudioBubbleOut = ({ url }: { url: string }) => {
+  const audioRef = useRef(null);
   return (
     <div className="flex w-screen justify-end px-2.5 my-2">
       <audio ref={audioRef} controls src={url}></audio>
     </div>
   );
-});
-export function AudioBubbleIn({ url }) {
-  const audioRef = useRef();
+};
+
+export function AudioBubbleIn({ url }: { url: string }) {
+  const audioRef = useRef(null);
   return (
     <div className="px-2.5 my-2">
       <audio ref={audioRef} controls src={url}></audio>
     </div>
   );
 }
-export const CustomAudioPlayer = ({ audioURL }) => {
-  const audioRef = useRef(null);
+export const CustomAudioPlayer = ({ audioURL }: { audioURL: string }) => {
+  const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(1); // Volume range 0 to 1
+  const [volume, setVolume] = useState<number>(1); // Volume range 0 to 1
 
   const togglePlayPause = () => {
-    if (audioRef.current.paused) {
+    if (audioRef.current?.paused) {
       audioRef.current.play();
       setIsPlaying(true);
     } else {
-      audioRef.current.pause();
+      audioRef.current?.pause();
       setIsPlaying(false);
     }
   };
 
-  const handleVolumeChange = (event) => {
+  const handleVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const volume = event.target.value;
-    setVolume(volume);
-    audioRef.current.volume = volume;
+    setVolume(Number(volume));
+    if (audioRef.current) audioRef.current.volume = Number(volume);
   };
 
-  const handleProgressChange = (event) => {
+  const handleProgressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const currentTime = event.target.value;
-    audioRef.current.currentTime = currentTime;
+    if (audioRef.current) audioRef.current.currentTime = Number(currentTime);
   };
 
   return (
@@ -55,7 +56,7 @@ export const CustomAudioPlayer = ({ audioURL }) => {
         <label htmlFor="volume" className="text-sm text-gray-600">
           Volume
         </label>
-        <input type="range" id="volume" min="0" max="1" step="0.01" value={volume} onChange={handleVolumeChange} className="w-2/3" />
+        <input type="range" id="volume" min="0" max="1" step="0.01" value={volume} onChange={(e) => handleVolumeChange} className="w-2/3" />
       </div>
 
       {/* Custom progress bar */}

@@ -192,3 +192,67 @@ body {
 .btn:hover {
   border: 1px solid #2d79f3;
 }
+/* / */
+
+.chatbox-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 600px;
+  margin: 0 auto;
+  background: #f7f7f8;
+  font-family: sans-serif;
+}
+
+.chatbox-messages {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.message {
+  max-width: 80%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  word-wrap: break-word;
+}
+
+.message.user {
+  background-color: #27b1b2;
+  color: white;
+  align-self: flex-end;
+}
+
+.message.bot {
+  background-color: #e0e0e0;
+  color: black;
+  align-self: flex-start;
+}
+
+.chatbox-input {
+  display: flex;
+  padding: 10px;
+  background: #ffffff;
+  border-top: 1px solid #ccc;
+}
+
+.chatbox-input input {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  outline: none;
+}
+
+.chatbox-input button {
+  margin-left: 10px;
+  padding: 10px 16px;
+  font-size: 16px;
+  background: #27b1b2;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+}

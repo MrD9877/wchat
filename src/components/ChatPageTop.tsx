@@ -4,8 +4,9 @@ import { useRouter } from "next/navigation";
 import peer from "@/utility/peer";
 import { socket } from "@/socket";
 import { getCookie } from "../utility/getCookie";
+import { Friend } from "@/app/(siteRoutes)/chatpage/[chatId]/page";
 
-export default function ChatPageTop({ friend, room }) {
+export default function ChatPageTop({ friend, room }: { friend: Friend | undefined; room: string | undefined }) {
   // const userId = useSelector((state) => state.userId);
   const router = useRouter();
   const handleBack = () => {
@@ -38,7 +39,7 @@ export default function ChatPageTop({ friend, room }) {
   };
   return (
     <>
-      <div className="bg-weblue h-[9%] top-0 fixed w-screen flex justify-between items-center px-4 rounded-b-3xl">
+      <div className="bg-weblue h-[8svh] fixed top-0 w-screen flex justify-between items-center px-4 rounded-b-3xl">
         <div className="flex items-center gap-4">
           {/* back  */}
           <div>
@@ -58,7 +59,7 @@ export default function ChatPageTop({ friend, room }) {
           {/* name  */}
           <div className="text-white text-lg">{(friend && friend.name) || ""}</div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 justify-center">
           <div>
             {/* call  */}
             <button onClick={handleVoiceCall}>
@@ -83,18 +84,20 @@ export default function ChatPageTop({ friend, room }) {
           </div>
           {/* vectors  */}
           <div>
-            <svg width="4" height="16" viewBox="0 0 4 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M3.69231 14.1538C3.69231 14.6435 3.4978 15.1131 3.15158 15.4593C2.80536 15.8055 2.33578 16 1.84615 16C1.35652 16 0.886947 15.8055 0.540726 15.4593C0.194505 15.1131 0 14.6435 0 14.1538C0 13.6642 0.194505 13.1946 0.540726 12.8484C0.886947 12.5022 1.35652 12.3077 1.84615 12.3077C2.33578 12.3077 2.80536 12.5022 3.15158 12.8484C3.4978 13.1946 3.69231 13.6642 3.69231 14.1538ZM3.69231 8C3.69231 8.48963 3.4978 8.95921 3.15158 9.30543C2.80536 9.65165 2.33578 9.84615 1.84615 9.84615C1.35652 9.84615 0.886947 9.65165 0.540726 9.30543C0.194505 8.95921 0 8.48963 0 8C0 7.51037 0.194505 7.04079 0.540726 6.69457C0.886947 6.34835 1.35652 6.15385 1.84615 6.15385C2.33578 6.15385 2.80536 6.34835 3.15158 6.69457C3.4978 7.04079 3.69231 7.51037 3.69231 8ZM3.69231 1.84615C3.69231 2.33578 3.4978 2.80536 3.15158 3.15158C2.80536 3.4978 2.33578 3.69231 1.84615 3.69231C1.35652 3.69231 0.886947 3.4978 0.540726 3.15158C0.194505 2.80536 0 2.33578 0 1.84615C0 1.35652 0.194505 0.886948 0.540726 0.540727C0.886947 0.194506 1.35652 0 1.84615 0C2.33578 0 2.80536 0.194506 3.15158 0.540727C3.4978 0.886948 3.69231 1.35652 3.69231 1.84615Z"
-                fill="white"
-              />
-            </svg>
+            <button>
+              <svg width="4" height="17" viewBox="0 0 4 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M3.69231 14.1538C3.69231 14.6435 3.4978 15.1131 3.15158 15.4593C2.80536 15.8055 2.33578 16 1.84615 16C1.35652 16 0.886947 15.8055 0.540726 15.4593C0.194505 15.1131 0 14.6435 0 14.1538C0 13.6642 0.194505 13.1946 0.540726 12.8484C0.886947 12.5022 1.35652 12.3077 1.84615 12.3077C2.33578 12.3077 2.80536 12.5022 3.15158 12.8484C3.4978 13.1946 3.69231 13.6642 3.69231 14.1538ZM3.69231 8C3.69231 8.48963 3.4978 8.95921 3.15158 9.30543C2.80536 9.65165 2.33578 9.84615 1.84615 9.84615C1.35652 9.84615 0.886947 9.65165 0.540726 9.30543C0.194505 8.95921 0 8.48963 0 8C0 7.51037 0.194505 7.04079 0.540726 6.69457C0.886947 6.34835 1.35652 6.15385 1.84615 6.15385C2.33578 6.15385 2.80536 6.34835 3.15158 6.69457C3.4978 7.04079 3.69231 7.51037 3.69231 8ZM3.69231 1.84615C3.69231 2.33578 3.4978 2.80536 3.15158 3.15158C2.80536 3.4978 2.33578 3.69231 1.84615 3.69231C1.35652 3.69231 0.886947 3.4978 0.540726 3.15158C0.194505 2.80536 0 2.33578 0 1.84615C0 1.35652 0.194505 0.886948 0.540726 0.540727C0.886947 0.194506 1.35652 0 1.84615 0C2.33578 0 2.80536 0.194506 3.15158 0.540727C3.4978 0.886948 3.69231 1.35652 3.69231 1.84615Z"
+                  fill="white"
+                />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
-      <div className="h-[9vh]"></div>
+      <div className="h-[8svh]"></div>
     </>
   );
 }

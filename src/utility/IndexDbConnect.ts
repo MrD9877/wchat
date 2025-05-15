@@ -1,6 +1,6 @@
 import { resolve } from "path";
 import { onUpgrade } from "./indexDbFunctions";
-type IndexStores = { friendStore: IDBObjectStore; chatStore: IDBObjectStore };
+export type IndexStores = { friendStore: IDBObjectStore; chatStore: IDBObjectStore; emoteStore: IDBObjectStore };
 
 export async function connectIndexDb() {
   const indexedDB = window.indexedDB;
@@ -21,11 +21,12 @@ export async function connectIndexDb() {
       console.log("Database opened successfully");
       const db = request.result;
       // 1
-      const transaction = db.transaction(["friends", "chats"], "readwrite");
+      const transaction = db.transaction(["friends", "chats", "emotes"], "readwrite");
       //2
       const friendStore = transaction.objectStore("friends");
       const chatStore = transaction.objectStore("chats");
-      const stores: IndexStores = { friendStore, chatStore };
+      const emoteStore = transaction.objectStore("emotes");
+      const stores: IndexStores = { friendStore, chatStore, emoteStore };
       transaction.onerror = function () {
         rej(transaction.error);
         console.error("Transaction failed", transaction.error);
