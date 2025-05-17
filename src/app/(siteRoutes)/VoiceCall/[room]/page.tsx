@@ -5,15 +5,17 @@ import { useSelector } from "react-redux";
 import VideoCallNav from "@/components/VideoCallNav";
 import { useRouter } from "next/navigation";
 import Call from "@/components/SetCall";
+import { UserState } from "@/redux/Slice";
 
 function VoiceCall() {
-  const room = useSelector((state) => state.userId);
-  const [localStream, setLocalStream] = useState();
+  const room = useSelector((state: UserState) => state.userId);
+  const [localStream, setLocalStream] = useState<MediaStream>();
   const [callUser, setCallUser] = useState("");
-  const [remoteStream, setRemoteStream] = useState();
+  const [remoteStream, setRemoteStream] = useState<MediaStream>();
   const router = useRouter();
-  const localAudioRef = useRef(null);
-  const remoteAudioRef = useRef(null);
+  const localAudioRef = useRef<HTMLAudioElement>(null);
+  const remoteAudioRef = useRef<HTMLAudioElement>(null);
+  const [isMuted, setIsMuted] = useState(false);
   // start stream
 
   useEffect(() => {
@@ -25,7 +27,7 @@ function VoiceCall() {
   }, []);
 
   // stopSteam
-  const stopMediaStream = (stream) => {
+  const stopMediaStream = (stream: MediaStream) => {
     if (stream) {
       stream.getTracks().forEach((track) => {
         track.stop(); // Stop each track (audio/video)
@@ -35,6 +37,7 @@ function VoiceCall() {
   //   send stream
   const sendStream = async () => {
     try {
+      if (!localStream || !peer.peer) return;
       for (const track of localStream.getTracks()) {
         peer.peer.addTrack(track, localStream);
       }
@@ -44,10 +47,10 @@ function VoiceCall() {
   //   ending the call
 
   const handleEndCall = () => {
-    stopMediaStream(localStream);
-    stopMediaStream(remoteStream);
-    setLocalStream(null);
-    setRemoteStream(null);
+    if (localStream) stopMediaStream(localStream);
+    if (remoteStream) stopMediaStream(remoteStream);
+    setLocalStream(undefined);
+    setRemoteStream(undefined);
     peer.closeConnection();
     router.back();
   };
@@ -76,7 +79,7 @@ function VoiceCall() {
 
       <div className="w-fit mx-auto py-10 z-1 absolute"></div>
       <div className="z-50 absolute  bottom-10 w-screen">
-        <VideoCallNav sendStream={sendStream} handleEndCall={handleEndCall} callUser={callUser} room={room} localStream={localStream} />
+        <VideoCallNav sendStream={sendStream} handleEndCall={handleEndCall} callUser={callUser} room={room} isMuted={isMuted} setIsMuted={setIsMuted} />
       </div>
     </div>
   );

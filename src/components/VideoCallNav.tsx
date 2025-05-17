@@ -5,7 +5,7 @@ interface VideoCallNav {
   sendStream: () => void;
   handleEndCall: () => void;
   callUser: string;
-  room: string;
+  room: string | undefined;
   isMuted: boolean;
   setIsMuted: React.Dispatch<React.SetStateAction<boolean>>;
 }

@@ -8,12 +8,13 @@ import { useSelector } from "react-redux";
 import VideoCallNav from "@/components/VideoCallNav";
 import { useRouter } from "next/navigation";
 import Call from "@/components/SetCall";
+import { UserState } from "@/redux/Slice";
 
 function VideoCall() {
-  const room = useSelector((state) => state.userId);
-  const [localStream, setLocalStream] = useState();
+  const room = useSelector((state: UserState) => state.userId);
+  const [localStream, setLocalStream] = useState<MediaStream>();
   const [callUser, setCallUser] = useState("");
-  const [remoteStream, setRemoteStream] = useState();
+  const [remoteStream, setRemoteStream] = useState<MediaStream>();
   const [isMuted, setIsMuted] = useState(false);
   const router = useRouter();
 
@@ -28,7 +29,7 @@ function VideoCall() {
   }, []);
 
   // stopSteam
-  const stopMediaStream = (stream) => {
+  const stopMediaStream = (stream: MediaStream) => {
     if (stream) {
       stream.getTracks().forEach((track) => {
         track.stop(); // Stop each track (audio/video)
@@ -37,8 +38,8 @@ function VideoCall() {
   };
   //   send stream
   const sendStream = async () => {
-    console.log("triggered2");
     try {
+      if (!localStream || !peer.peer) return;
       for (const track of localStream.getTracks()) {
         peer.peer.addTrack(track, localStream);
       }
@@ -50,10 +51,10 @@ function VideoCall() {
   //   ending the call
 
   const handleEndCall = () => {
-    stopMediaStream(localStream);
-    stopMediaStream(remoteStream);
-    setLocalStream(null);
-    setRemoteStream(null);
+    if (localStream) stopMediaStream(localStream);
+    if (remoteStream) stopMediaStream(remoteStream);
+    setLocalStream(undefined);
+    setRemoteStream(undefined);
     peer.closeConnection();
     router.back();
   };

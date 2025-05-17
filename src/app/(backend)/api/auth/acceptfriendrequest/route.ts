@@ -6,7 +6,6 @@ import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
   await dbConnect();
-  const cookieStore = await cookies();
   const body = await req.json();
   const { email } = body;
   const data = await AuthRequest();

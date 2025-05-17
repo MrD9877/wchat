@@ -70,8 +70,7 @@ export class OAuthClient {
     this.provider = provider;
   }
   private redirectUrl() {
-    return "http://localhost:3000/api/oauth/google";
-    return new URL(this.provider, process.env.OAUTH_URL_BASE);
+    return new URL(this.provider, process.env.NEXT_PUBLIC_URL_BASE);
   }
   private createState(cookies: ReadonlyRequestCookies) {
     const state = crypto.randomBytes(64).toString("hex").normalize();

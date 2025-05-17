@@ -9,6 +9,7 @@ export interface UserState {
   name?: string;
   userId?: string;
   inComingCall: InComingCall;
+  profilePic?: string;
 }
 
 const initialState: UserState = {
@@ -16,16 +17,18 @@ const initialState: UserState = {
   name: undefined,
   userId: "me",
   inComingCall: null,
+  profilePic: undefined,
 };
 
 export const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<{ email: string; name: string; userId: string }>) => {
+    setUser: (state, action: PayloadAction<{ email: string; name: string; userId: string; profilePic: string }>) => {
       state.email = action.payload.email;
       state.name = action.payload.name;
       state.userId = action.payload.userId;
+      state.profilePic = action.payload.profilePic;
     },
     setIncomingCall: (state, action: PayloadAction<{ inComingCall: InComingCall }>) => {
       state.inComingCall = action.payload.inComingCall;

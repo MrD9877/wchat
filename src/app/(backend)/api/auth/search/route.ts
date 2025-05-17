@@ -5,7 +5,7 @@ import { authenticate } from "@/app/(backend)/utility/authUser";
 import { keys } from "@/lib/keys";
 import { cookies } from "next/headers";
 
-export async function POST(req, res) {
+export async function POST(req: Request) {
   await dbConnect();
   const body = await req.json();
   const cookieStore = await cookies();
@@ -22,7 +22,7 @@ export async function POST(req, res) {
     if (!search || search === "" || typeof search !== "string") return new Response(JSON.stringify({ msg: "Please enter valid search string" }), { status: 400 });
     const findUser = await User.find({ $text: { $search: search } });
     const users = findUser.map((user) => {
-      const friend = userInfo.friends.some((item) => item.email === user.email);
+      const friend = userInfo?.friends.some((item) => item.email === user.email);
 
       return { email: user.email, name: user.name, friend };
     });

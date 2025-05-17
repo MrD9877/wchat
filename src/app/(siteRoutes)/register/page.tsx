@@ -32,13 +32,13 @@ export default function Page() {
   }, null);
   return (
     <>
-      <div className="h-[100svh] w-screen flex justify-center items-center text-black bg-weblue">
+      <div className="h-[100svh] w-screen flex justify-center items-center text-black bg-weblue px-4">
         <form className="form" action={submitAction}>
           <div className="flex-column">
             <label>Username </label>
           </div>
           <div className="inputForm">
-            <CircleUserRound height={20} width={20  } />
+            <CircleUserRound height={20} width={20} />
 
             <input type="text" className="input" name="name" id="name" placeholder="Enter your Name" />
           </div>

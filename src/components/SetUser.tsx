@@ -49,7 +49,7 @@ export default function SetUser() {
       const res = await fetch("/api/auth/getUser");
       if (res.status === 200) {
         const data: Usertype = await res.json();
-        dispatch(setUser({ email: data.email, name: data.name, userId: data.userId }));
+        dispatch(setUser({ email: data.email, name: data.name, userId: data.userId, profilePic: data.profilePic }));
         await setOfflineMessages(data.chatPages);
       }
     } catch {}

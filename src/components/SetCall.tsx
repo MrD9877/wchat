@@ -8,11 +8,11 @@ import { useRouter } from "next/navigation";
 import { UserState } from "@/redux/Slice";
 
 interface Call {
-  localStream: MediaStream;
-  remoteStream: MediaStream;
+  localStream: MediaStream | undefined;
+  remoteStream: MediaStream | undefined;
   callUser: string;
-  setLocalStream: React.Dispatch<React.SetStateAction<MediaStream | null>>;
-  setRemoteStream: React.Dispatch<React.SetStateAction<MediaStream | null>>;
+  setLocalStream: React.Dispatch<React.SetStateAction<MediaStream | undefined>>;
+  setRemoteStream: React.Dispatch<React.SetStateAction<MediaStream | undefined>>;
   setCallUser: React.Dispatch<React.SetStateAction<string>>;
 }
 
@@ -35,6 +35,7 @@ export default function Call({ localStream, setLocalStream, remoteStream, setRem
   //   send stream
   const sendStream = async () => {
     try {
+      if (!localStream || !peer.peer) return;
       for (const track of localStream.getTracks()) {
         if (peer.peer) peer.peer.addTrack(track, localStream);
       }
@@ -44,10 +45,10 @@ export default function Call({ localStream, setLocalStream, remoteStream, setRem
   //   ending the call
 
   const handleEndCall = () => {
-    stopMediaStream(localStream);
-    stopMediaStream(remoteStream);
-    setLocalStream(null);
-    setRemoteStream(null);
+    if (localStream) stopMediaStream(localStream);
+    if (remoteStream) stopMediaStream(remoteStream);
+    setLocalStream(undefined);
+    setRemoteStream(undefined);
     peer.closeConnection();
     router.back();
   };

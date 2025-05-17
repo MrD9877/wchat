@@ -1,14 +1,16 @@
+import { FriendInfo } from "@/utility/updateFriend";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import { Users } from "./SearchBar";
 
-export default function FriendPageMain({ page }) {
-  const [request, setRequest] = useState([]);
-  const [friends, setFriends] = useState([]);
-  const [isPending, setPending] = useState([]);
+export default function FriendPageMain({ page }: { page: string }) {
+  const [request, setRequest] = useState<Users>();
+  const [friends, setFriends] = useState<FriendInfo[]>();
+  const [isPending, setPending] = useState<{ [userEmail: string]: boolean | undefined }>({});
   const router = useRouter();
-  const popTost = (msg, success) => {
+  const popTost = (msg: string | number, success?: boolean) => {
     let emote = "❌";
     if (success) emote = "✅";
     toast(`${msg}`, {
@@ -31,15 +33,15 @@ export default function FriendPageMain({ page }) {
       }
     } catch {}
   };
-  const handleSendRequest = async (email, index) => {
+  const handleSendRequest = async (email: string, index: number) => {
     console.log(index);
     setPending((pre) => ({ ...pre, [email]: true }));
     try {
       const res = await fetch("/api/auth/acceptfriendrequest", { method: "POST", body: JSON.stringify({ email }) });
       if (res.status === 200) {
         setRequest((pre) => {
+          if (!pre) return;
           let temp = [...pre];
-          console.log(temp);
           temp.splice(index, 1);
           return temp;
         });
@@ -54,7 +56,7 @@ export default function FriendPageMain({ page }) {
       setPending((pre) => ({ ...pre, [email]: undefined }));
     }
   };
-  const handleFriend = (userId) => {
+  const handleFriend = (userId: string) => {
     router.push(`/chatpage/${userId}`);
   };
   useEffect(() => {
@@ -65,7 +67,7 @@ export default function FriendPageMain({ page }) {
       <div className="px-4 py-2 max-h-[75vh] overflow-scroll">
         <Toaster position="top-center" reverseOrder={false} />
         <div className="divide-y divide-gray-200 ">
-          {friends.length > 0 ? (
+          {friends && friends.length > 0 ? (
             friends.map((friend, index) => {
               return (
                 <button onClick={() => handleFriend(friend.userId)} key={index} className="w-full text-left py-2 focus:outline-none focus-visible:bg-indigo-50">
@@ -91,7 +93,7 @@ export default function FriendPageMain({ page }) {
       <div>
         <Toaster position="top-center" reverseOrder={false} />
         <div>
-          {request.length > 0 ? (
+          {request && request.length > 0 ? (
             <div className=" sm:w-auto  max-w-md p-2 px-2 mx-2 bg-white max-h-[70vh] overflow-scroll my-6">
               <div className="flow-root">
                 <ul role="list" className="divide-y divide-gray-200 ">

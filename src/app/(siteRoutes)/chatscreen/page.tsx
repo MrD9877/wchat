@@ -8,7 +8,7 @@ export default function ChatscreenPage() {
     <div>
       <ChatBoxTopNav />
       <Chatlog />
-      <AddNewBtn />
+      {/* <AddNewBtn /> */}
       <NavBarChatBox />
     </div>
   );

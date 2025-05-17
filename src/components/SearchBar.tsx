@@ -5,9 +5,11 @@ import DisplaySearchResults from "./DisplaySearchResults";
 import OutSideAlart from "./OutSideAlart";
 import { UserState } from "@/redux/Slice";
 
+export type Users = { name: string; email: string; friend: boolean; requestSend: boolean }[];
+
 export default function SearchBar() {
   const [search, setSeach] = useState("");
-  const [result, setResult] = useState([]);
+  const [result, setResult] = useState<Users>();
   const [visible, setVisible] = useState(false);
   const name = useSelector((state: UserState) => state.name);
   const searchResults = useRef<HTMLDivElement>(null);
@@ -18,7 +20,7 @@ export default function SearchBar() {
       const res = await fetch("/api/auth/search", { method: "POST", body: JSON.stringify({ search: e.target.value }) });
       if (res.status === 200) {
         const { users } = await res.json();
-        setResult(users);
+        setResult(users as Users);
         setVisible(users.length > 0);
       }
     } catch {}

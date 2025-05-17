@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { tokenAuth } from "./authToken";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { oneDayInMS } from "./authUser";
+import { TokenDataUser } from "./generateTokens";
 
 async function refreshAccessToken(cookieStore: ReadonlyRequestCookies): Promise<string | false> {
   const refreshTokenString = cookieStore.get("refreshToken")?.value;
@@ -12,10 +13,10 @@ async function refreshAccessToken(cookieStore: ReadonlyRequestCookies): Promise<
   try {
     const data = jwt.verify(refreshTokenString, process.env.LOCAL_SECRET || "") as JwtPayload;
     if (!data) return false;
-    const token = jwt.sign(data, process.env.LOCAL_SECRET || "", { expiresIn: oneDayInMS });
+    const token = jwt.sign({ user: data.user }, process.env.LOCAL_SECRET || "", { expiresIn: oneDayInMS });
     cookieStore.set("accessToken", token);
     return token;
-  } catch {
+  } catch (err) {
     return false;
   }
   //   todo add session authentication
@@ -26,10 +27,11 @@ export async function AuthRequest() {
   let accessTokenString = cookieStore.get("accessToken")?.value;
   if (!accessTokenString) {
     const newToken = await refreshAccessToken(cookieStore);
+
     if (!newToken) return false;
     accessTokenString = newToken;
   }
   const userData = await tokenAuth(accessTokenString);
   if (!userData) return false;
-  return userData;
+  return userData as { user: TokenDataUser };
 }
