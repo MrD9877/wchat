@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   const body = await req.json();
   const { friend, content } = body;
   let chatId;
-  const data = await tokenAuth(cookieStore.get("accessToken").value);
+  const data = await tokenAuth(cookieStore.get("accessToken")?.value || "");
   try {
     if (!data) throw Error();
     const { user } = data;

@@ -12,77 +12,71 @@ const inLargeImage = (src: string[], setShowImage: React.Dispatch<React.SetState
   if (src) setShowImage(src);
 };
 
-export function ImageBubbleSend({ src, msg, time, setShowImage }: ImageBubble) {
-  if (Array.isArray(src)) {
-    return (
-      <>
-        <div onClick={() => inLargeImage(src, setShowImage)} className="bg-weChat px-4 mx-2 py-1 rounded-xl mr-2 w-fit  my-2 h-fit flex items-end flex-col">
-          <div className="grid grid-cols-2 gap-2 h-fit max-w-[250px] py-4 px-2">
-            {src.map((img, index) => {
-              if (index > 3) return;
-              if (index === 3 && src.length > 4)
-                return (
-                  <div key={index} className=" bg-white w-[100] h-[100]  text-black flex justify-center items-center text-2xl font-bold opacity-60">
-                    <div>+{src.length - 3}</div>
-                  </div>
-                );
-              return (
-                <div key={index}>
-                  <div className="bg-white w-[100] h-[100] flex justify-center items-center relative overflow-clip">
-                    <Image style={{ objectFit: "contain" }} className="object-cover" width={100} height={100} src={img} alt={msg} />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="text-xxs px-1 text-gray-600">{time}</div>
-        </div>
-      </>
-    );
-  }
+function DisplayMultipleImage({ src, msg, time, setShowImage, className }: ImageBubble & { className: string }) {
   return (
-    <div onClick={() => inLargeImage([src], setShowImage)} className="flex justify-end w-screen px-2.5">
-      <div className="bg-weChat px-2.5 py-1 rounded-xl mr-2 w-fit flex items-end my-2 h-[200px] flex-col justify-center max-w-[210px]">
-        <Image width={200} height={150} src={src} alt={msg} />
-        <div className="overflow-scroll">{msg ? msg : "image"}</div>
-        <div className="text-xxs px-1 text-gray-600">{time}</div>
+    <div onClick={() => inLargeImage(src, setShowImage)} className={` px-4  py-1 rounded-xl  w-fit  my-2 h-fit flex  flex-col ${className}`}>
+      <div className="grid grid-cols-2 gap-2 h-fit max-w-[250px] py-2 ">
+        {src.map((img, index) => {
+          if (index > 3) return;
+          if (index === 3 && src.length > 4)
+            return (
+              <div key={index} className=" bg-white w-[100] h-[100]  text-black flex justify-center items-center text-2xl font-bold opacity-60">
+                <div>+{src.length - 3}</div>
+              </div>
+            );
+          return (
+            <div key={index}>
+              <div className="bg-white w-[100] h-[100] flex justify-center items-center relative overflow-clip rounded-xl">
+                <Image style={{ objectFit: "contain" }} className="object-cover" width={100} height={100} src={img} alt={msg} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="text-xs px-1 text-gray-600">{time}</div>
+    </div>
+  );
+}
+
+function DisplaySingleImage({ src, msg, time, setShowImage, className }: ImageBubble & { className: string }) {
+  return (
+    <div onClick={() => inLargeImage(Array.isArray(src) ? src : [src], setShowImage)} className={`bg-weChat px-2.5 py-1 rounded-xl  w-fit flex  my-2 max-h-[220px] flex-col justify-center max-w-[210px]  overflow-clip ${className}`}>
+      <div className="max-h-[180px] overflow-clip rounded-xl">
+        <Image width={180} height={150} src={Array.isArray(src) ? src[0] : src} alt={msg} />
+      </div>
+      <div className="flex justify-between w-full items-center min-h-[20px]">
+        <div className="overflow-scroll">{msg && msg}</div>
+        <div className="text-xs px-1 text-gray-600">{time}</div>
       </div>
     </div>
   );
 }
-export function ImageBubbleRecive({ src, msg, time, setShowImage }: ImageBubble) {
-  if (Array.isArray(src)) {
+
+export function ImageBubbleSend({ src, msg, time, setShowImage }: ImageBubble) {
+  if (Array.isArray(src) && src.length > 1) {
     return (
-      <div onClick={() => inLargeImage(src, setShowImage)} className="w-screen flex justify-end">
-        <div className="bg-weChat px-4 mx-2 py-1 rounded-xl mr-2 w-fit  my-2 h-fit flex items-end flex-col">
-          <div className="grid grid-cols-2 gap-2 h-fit max-w-[250px] py-4 px-2">
-            {src.map((img, index) => {
-              if (index > 3) return;
-              if (index === 3 && src.length > 4)
-                return (
-                  <div key={index} className=" bg-white w-[100] h-[100]  text-black flex justify-center items-center text-2xl font-bold opacity-60">
-                    <div>+{src.length - 3}</div>
-                  </div>
-                );
-              return (
-                <div key={index}>
-                  <div className="bg-white w-[100] h-[100] flex justify-center items-center relative overflow-clip">
-                    <Image style={{ objectFit: "contain" }} className="object-cover" width={100} height={100} src={img} alt={msg} />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="text-xxs px-1 text-gray-600">{time}</div>
-        </div>
+      <div className="flex w-screen justify-end  mr-2 px-2.5">
+        <DisplayMultipleImage src={src} msg={msg} time={time} setShowImage={setShowImage} className="bg-weChat items-end" />
       </div>
     );
   }
   return (
-    <div onClick={() => inLargeImage([src], setShowImage)} className="bg-white px-2.5 py-1 rounded-xl mr-2 w-fit flex  my-2 h-[200px] flex-col justify-center max-w-[210px]">
-      <Image width={200} height={150} src={src} alt={msg} />
-      <div className="overflow-scroll">{msg ? msg : "image"}</div>
-      <div className="text-xxs px-1 text-gray-600">{time}</div>
+    <div className="flex justify-end w-screen px-2.5">
+      <DisplaySingleImage src={src} msg={msg} time={time} setShowImage={setShowImage} className="bg-weChat items-end" />
+    </div>
+  );
+}
+export function ImageBubbleRecive({ src, msg, time, setShowImage }: ImageBubble) {
+  if (Array.isArray(src) && src.length > 1) {
+    return (
+      <div className="w-screen ">
+        <DisplayMultipleImage src={src} msg={msg} time={time} setShowImage={setShowImage} className="bg-white" />
+      </div>
+    );
+  }
+  return (
+    <div className="bg-white px-2.5 py-1 rounded-xl mr-2 w-fit flex  my-2 h-[200px] flex-col justify-center max-w-[210px]">
+      <DisplaySingleImage src={src} msg={msg} time={time} setShowImage={setShowImage} className="bg-white " />
     </div>
   );
 }

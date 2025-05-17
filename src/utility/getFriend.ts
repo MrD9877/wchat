@@ -1,4 +1,4 @@
-export async function getFriend(userId) {
+export async function getFriend(userId: string) {
   try {
     const res = await fetch("/api/getFriend", { method: "POST", body: JSON.stringify({ userId }) });
     if (res.status === 200) {
@@ -12,7 +12,7 @@ export async function getFriend(userId) {
   }
 }
 
-export function areDatesOnSameDay(date1, date2) {
+export function areDatesOnSameDay(date1: Date, date2: Date) {
   const d1 = new Date(date1);
   const d2 = new Date(date2);
 

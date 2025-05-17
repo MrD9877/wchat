@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 export default function CallRequestPage({ acceptCall, rejectCall, inComingCall }) {
   return (
     <div style={{ background: "rgba(39, 177, 178,0.8)" }} className="absolute w-screen h-screen top-0 z-50">

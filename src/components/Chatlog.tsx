@@ -1,69 +1,47 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { handleNewFriend } from "../utility/updateFriend";
+import { FriendInfo, handleNewFriend } from "../utility/updateFriend";
 import { socket } from "@/socket";
 import { useRouter } from "next/navigation";
 import { getDisplayTime } from "../utility/convertTime";
 import { onUpgrade } from "../utility/indexDbFunctions";
+import { connectIndexDb } from "@/utility/IndexDbConnect";
+
+type ChatMessageSocket = {
+  message: string;
+  user: string;
+  audio: Buffer<ArrayBufferLike> | undefined;
+  image: Buffer<ArrayBufferLike> | undefined;
+};
 
 export default function Chatlog() {
-  const [friends, setFriends] = useState([]);
-  const [newMessage, setNewMessages] = useState({});
-  const [lastMessage, setLastMessage] = useState({});
+  const [friends, setFriends] = useState<FriendInfo[]>([]);
+  const [newMessage, setNewMessages] = useState<{ [string: string]: number }>({});
+  const [lastMessage, setLastMessage] = useState<{ [string: string]: { message: string; date: Date } }>();
   const router = useRouter();
-  const handleIndexDb = () => {
-    const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
+  const handleIndexDb = async () => {
+    const data = await connectIndexDb();
+    if (!data) return;
+    const { stores } = data;
+    const friendStore = stores.friendStore;
+    const findFriend = friendStore.getAll();
 
-    if (!indexedDB) {
-      console.log("IndexedDB could not be found in this browser.");
-    }
-    // 2
-    const request = indexedDB.open("wchat", 1);
-    request.onerror = function (event) {
-      console.error("An error occurred with IndexedDB");
-      console.error(event);
-    };
-
-    request.onupgradeneeded = onUpgrade;
-
-    request.onsuccess = function () {
-      console.log("Database opened successfully");
-      const db = request.result;
-      // 1
-      const transaction = db.transaction(["friends", "chats"], "readwrite");
-      //2
-      const friendStore = transaction.objectStore("friends");
-      const chatStore = transaction.objectStore("chats");
-      //3
-      //   store.put({ id: 1, colour: "Red", make: "Toyota" });
-      //4
-      const findFriend = friendStore.getAll();
-
-      // 5
-      findFriend.onsuccess = function () {
-        const friends = findFriend.result;
-        setFriends([...structuredClone(friends)]);
-        friends.forEach((friend) => {
-          setNewMessages((pre) => {
-            const temp = { ...pre };
-            temp[friend.userId] = friend.newMessages;
-            return temp;
-          });
+    findFriend.onsuccess = function () {
+      const friends: FriendInfo[] = findFriend.result;
+      setFriends([...structuredClone(friends)]);
+      friends.forEach((friend) => {
+        setNewMessages((pre) => {
+          const temp = { ...pre };
+          temp[friend.userId] = friend.newMessages;
+          return temp;
         });
-      };
-      transaction.oncomplete = function () {
-        console.log("Transaction completed successfully");
-      };
-
-      transaction.onerror = function () {
-        console.error("Transaction failed", transaction.error);
-      };
+      });
     };
   };
   useEffect(() => {
     handleIndexDb();
-    function handleNewMessage(msg) {
+    function handleNewMessage(msg: ChatMessageSocket) {
       setLastMessage((pre) => {
         const temp = { ...pre };
         temp[msg.user] = { message: msg.message, date: new Date() };
@@ -106,7 +84,7 @@ export default function Chatlog() {
                     <div>
                       <h4 className="text-sm font-semibold text-gray-900">{friend.name}</h4>
                       <div className="text-[13px]">
-                        {lastMessage[friend.userId] ? (
+                        {lastMessage && lastMessage[friend.userId] ? (
                           <>
                             <span className="opacity-70">{lastMessage[friend.userId].message} </span>
                             <span className="text-weblue">&middot;{getDisplayTime(lastMessage[friend.userId].date)}</span>

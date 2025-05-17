@@ -1,4 +1,4 @@
-export function urlB64ToUint8Array(base64String) {
+export function urlB64ToUint8Array(base64String: string) {
   // Add padding if necessary (base64 URL encoding doesn't include padding characters '=')
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
 

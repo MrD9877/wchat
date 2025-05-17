@@ -1,7 +1,5 @@
 "use client";
 
-import DisplaySearchResults from "./DisplaySearchResults";
-import OutSideAlart from "./OutSideAlart";
 import SearchBar from "./SearchBar";
 
 export default function ChatBoxTopNav() {

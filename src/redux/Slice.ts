@@ -14,7 +14,7 @@ export interface UserState {
 const initialState: UserState = {
   email: undefined,
   name: undefined,
-  userId: undefined,
+  userId: "me",
   inComingCall: null,
 };
 

@@ -1,8 +1,10 @@
-export function convertTime(string) {
+const monthsString = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+export function convertTime(string: Date) {
   // Get hours and minutes
   const now = new Date(string);
   let hours = now.getHours();
-  let minutes = now.getMinutes();
+  let minutes: string | number = now.getMinutes();
 
   // Determine AM or PM
   const period = hours >= 12 ? "PM" : "AM";
@@ -19,18 +21,18 @@ export function convertTime(string) {
   return formattedTime;
 }
 
-export function getDate(string) {
+export function getDate(string: Date) {
   const now = new Date(string);
   let year = now.getFullYear();
   let month = now.getMonth() + 1;
   let date = now.getDate();
 
   // Format as hh:mm AM/PM
-  const formattedTime = `${date} ${month} ${year}`;
+  const formattedTime = `${date} ${monthsString[month]} ${year}`;
   return formattedTime;
 }
 
-export function timeDifference(string1, string2) {
+export function timeDifference(string1: Date, string2: Date) {
   const date1 = new Date(string1);
   const date2 = new Date(string2);
 
@@ -54,16 +56,15 @@ export function timeDifference(string1, string2) {
   }
 }
 
-export function getDisplayTime(string) {
+export function getDisplayTime(string: Date) {
   const today = getDate(new Date());
   const msgDate = getDate(string);
   if (msgDate === today) {
     return timeDifference(string, new Date());
   } else {
     const day = new Date(string);
-    const options = { month: "short" };
     let date = day.getDate();
-    const month = day.toLocaleString("en-US", options).toLowerCase();
+    const month = day.toLocaleString("en-US", { month: "short" }).toLowerCase();
     return `${date} ${month}`;
   }
 }

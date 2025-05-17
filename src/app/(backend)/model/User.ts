@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
 // Define the interface for the chat page subdocument
-interface IChatPage {
+export interface ChatPage {
   chatId: string;
   lastMessage: {
     date: Date;
@@ -12,7 +12,7 @@ interface IChatPage {
 }
 
 // Define the main user schema interface
-interface IChatPages extends Map<string, IChatPage> {}
+export interface IChatPages extends Map<string, ChatPage> {}
 
 export type Usertype = {
   email: string;
@@ -58,7 +58,7 @@ const userSchema = new Schema<Usertype & Document>({
   friendRequestSend: [{ type: Schema.Types.String }],
   chatPages: {
     type: Map,
-    of: new Schema<IChatPage>({
+    of: new Schema<ChatPage>({
       chatId: {
         type: Schema.Types.String,
         required: true,

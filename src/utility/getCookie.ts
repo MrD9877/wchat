@@ -1,4 +1,4 @@
-export function getCookie(name) {
+export function getCookie(name: string) {
   const nameEQ = name + "=";
   const cookies = document.cookie.split(";");
   for (let i = 0; i < cookies.length; i++) {

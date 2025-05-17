@@ -2,9 +2,9 @@
 import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
-export default function DisplaySearchResults({ array, setArray }) {
+export default function DisplaySearchResults({ array, setArray }: { array: string[]; setArray: React.Dispatch<React.SetStateAction<string[]>> }) {
   const [isPending, setPending] = useState({});
-  const popTost = (msg, success) => {
+  const popTost = (msg: string | number, success?: boolean) => {
     let emote = "❌";
     if (success) emote = "✅";
     toast(`${msg}`, {

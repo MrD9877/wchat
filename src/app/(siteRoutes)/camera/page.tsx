@@ -24,7 +24,7 @@ export default function CaremaPage() {
   const sendImage = async () => {
     const accessToken = getCookie("accessToken");
     socket.emit("private message", room, { message: caption, accessToken, image: dataUri });
-    handleIndexDb(caption, room, dataUri, userId);
+    if (room && dataUri && userId) handleIndexDb(caption, room, dataUri, userId, undefined);
     router.back();
   };
 

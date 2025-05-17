@@ -3,12 +3,12 @@ import React, { useState, useEffect, useActionState } from "react";
 import { socket } from "@/socket"; // Import socket from the singleton
 import { useRouter } from "next/navigation";
 import { getCookie } from "../utility/getCookie";
-export default function ConnectToServer({ room }) {
+export default function ConnectToServer(room: String | undefined) {
   const router = useRouter();
 
   useEffect(() => {
     console.log("here");
-    const handleWelcome = async (msg) => {
+    const handleWelcome = async (msg: string | number) => {
       if (msg === 401) {
         socket.off("welcome", handleWelcome);
         const res = await fetch("/api/refreshAuth");
@@ -28,5 +28,5 @@ export default function ConnectToServer({ room }) {
       socket.emit("leaveRoom", room);
     };
   }, []);
-  return <div></div>;
+  return [];
 }

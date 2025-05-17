@@ -3,12 +3,12 @@ import { setUser, setIncomingCall, UserState } from "@/redux/Slice";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import ConnectToServer from "./ConnectToServer";
+import ConnectToServer from "../hooks/ConnectToServer";
 import { setOfflineMessages } from "../utility/updateDbMessages";
 import { socket } from "@/socket";
 import peer from "@/utility/peer";
 import CallRequestPage from "./CallRequestPage";
-import useNetworkStatus from "./NetworkStatus";
+import { Usertype } from "@/app/(backend)/model/User";
 
 export default function SetUser() {
   const dispatch = useDispatch();
@@ -17,13 +17,7 @@ export default function SetUser() {
   const { userId, inComingCall } = useSelector((state: UserState) => ({ userId: state.userId, inComingCall: state.inComingCall }));
   const router = useRouter();
   const [calling, setCalling] = useState(false);
-  const isOnline = useNetworkStatus();
-
-  useEffect(() => {
-    if (isOnline) {
-      console.log("User is back online");
-    }
-  }, [isOnline]);
+  const voids = ConnectToServer(userId);
 
   const rejectCall = () => {
     if (inComingCall) socket.emit("closeCall", { from: userId, to: inComingCall.from });
@@ -54,7 +48,7 @@ export default function SetUser() {
     try {
       const res = await fetch("/api/auth/getUser");
       if (res.status === 200) {
-        const data = await res.json();
+        const data: Usertype = await res.json();
         dispatch(setUser({ email: data.email, name: data.name, userId: data.userId }));
         await setOfflineMessages(data.chatPages);
       }
@@ -89,7 +83,6 @@ export default function SetUser() {
   if (userId)
     return (
       <div>
-        <ConnectToServer room={userId} />
         {calling && (
           <>
             <CallRequestPage acceptCall={acceptCall} rejectCall={rejectCall} inComingCall={inComingCall} />

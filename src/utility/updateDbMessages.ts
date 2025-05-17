@@ -1,9 +1,10 @@
+import { IChatPage, IChatPages } from "@/app/(backend)/model/User";
 import { generateRandom } from "../app/(backend)/utility/random";
 import { getDate } from "./convertTime";
 import { onUpgrade } from "./indexDbFunctions";
 
-const updateDb = (userId, val, data) => {
-  const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
+const updateDb = (userId: string, val: IChatPage, data) => {
+  const indexedDB = window.indexedDB;
 
   if (!indexedDB) {
     console.log("IndexedDB could not be found in this browser.");
@@ -62,18 +63,14 @@ const updateDb = (userId, val, data) => {
       fetch("/api/auth/clearChat", { method: "POST", body: JSON.stringify({ chatId: val.chatId }) });
       console.log("Transaction completed successfully");
     };
-
-    transaction.onerror = function () {
-      console.error("Transaction failed", transaction.error);
-    };
   };
 };
 
-export const updateFriend = async (userId, val) => {
+export const updateFriend = async (userId: string, val: IChatPage) => {
   try {
     const res = await fetch("/api/auth/getChat", { method: "POST", body: JSON.stringify({ chatId: val.chatId }) });
     if (res.status === 200) {
-      const { chats } = await res.json();
+      const { chats }: { chats: IChatPage } = await res.json();
       chats.chats.forEach((chat) => {
         updateDb(userId, val, chat);
       });
@@ -81,7 +78,7 @@ export const updateFriend = async (userId, val) => {
   } catch {}
 };
 
-export async function setOfflineMessages(chats) {
+export async function setOfflineMessages(chats: IChatPages) {
   for (const [userId, val] of Object.entries(chats)) {
     await updateFriend(userId, val);
     fetch("/api/auth/clearChat", { method: "POST", body: JSON.stringify({ userId }) });

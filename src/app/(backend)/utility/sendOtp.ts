@@ -6,6 +6,7 @@ export async function sendOtp(email: string, name: string) {
   const client = await connectRedis();
   try {
     const otp = random < 1000 ? `0${random}` : `${random}`;
+    console.log({ otp });
     await client.connect();
     await client.setEx(`otp-${email}`, 60 * 5, otp);
     await sendEmail(otp, name, email);

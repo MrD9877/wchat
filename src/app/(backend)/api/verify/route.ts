@@ -3,7 +3,6 @@ import { generateAccessToken, generateRefreshToken, generateSession } from "../.
 import dbConnect from "../../lib/DbConnect";
 import { User } from "../../model/User";
 import { connectRedis } from "../../utility/redis";
-import { oneDayInMS } from "../../utility/authUser";
 import { setCokies } from "../../utility/setCokie";
 
 export async function POST(req: Request) {

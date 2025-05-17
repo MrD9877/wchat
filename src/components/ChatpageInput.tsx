@@ -18,12 +18,14 @@ interface ChatInputComponent {
   textMessage: string;
   setTextMessage: Dispatch<SetStateAction<string>>;
   setChat: Dispatch<SetStateAction<Chat[]>>;
-  handleFocus: () => void;
+  showInput: () => void;
   emojiKeyBoard: boolean;
   setEmojiKeyBoard: Dispatch<SetStateAction<boolean>>;
+  clearTimer: () => void;
+  scrollToBottom: () => void;
 }
 
-export default function ChatpageInput({ setChat, room, setTextMessage, textMessage, handleFocus, emojiKeyBoard, setEmojiKeyBoard }: ChatInputComponent) {
+export default function ChatpageInput({ scrollToBottom, clearTimer, setChat, room, setTextMessage, textMessage, showInput, emojiKeyBoard, setEmojiKeyBoard }: ChatInputComponent) {
   const [files, setFile] = useState<File[] | null>(null);
   const [sendVisible, setSendVisible] = useState(false);
   const userId = useSelector((state: UserState) => state.userId);
@@ -70,7 +72,7 @@ export default function ChatpageInput({ setChat, room, setTextMessage, textMessa
     const image = src.length > 0 ? src : null;
     //to do userid error handling
 
-    if (!userId) return;
+    if (!userId || !room) return;
 
     setChat((pre) => {
       if (pre.length > 0 && getDate(pre[pre.length - 1].date) == getDate(new Date())) {
@@ -85,13 +87,14 @@ export default function ChatpageInput({ setChat, room, setTextMessage, textMessa
       }
     });
     // save in localstorage
-    handleIndexDb(textMessage, room, image, userId, undefined);
+    await handleIndexDb(textMessage, room, image, userId, undefined);
     const accessToken = getCookie("accessToken");
     socket.emit("private message", room, { message: textMessage, accessToken, image });
     socket.on("tokenExpire", handleExpire);
     setTextMessage("");
     setSrc([]);
     setFile(null);
+    scrollToBottom();
   };
 
   const handleEmote = () => {
@@ -158,10 +161,13 @@ export default function ChatpageInput({ setChat, room, setTextMessage, textMessa
                 {/* input  */}
                 <input
                   ref={textInput}
-                  onBlur={() => setChanges(!changesInInpur)}
+                  onBlur={() => {
+                    setChanges(!changesInInpur);
+                    clearTimer();
+                  }}
                   onFocus={() => {
                     setChanges(!changesInInpur);
-                    handleFocus();
+                    showInput();
                   }}
                   value={textMessage ? textMessage : ""}
                   onChange={(e) => setTextMessage(e.target.value)}

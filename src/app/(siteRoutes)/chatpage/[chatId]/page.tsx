@@ -8,12 +8,13 @@ import { ImageBubbleRecive, ImageBubbleSend } from "@/components/ImageBubble";
 import { handleAudioChunk } from "@/utility/AudioChunkConverter";
 import { convertTime, getDate } from "@/utility/convertTime";
 import { socket } from "@/socket";
-import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { UserState } from "@/redux/Slice";
-import { connectIndexDb } from "@/utility/IndexDbConnect";
 import ShowImageAndVideo from "@/components/ShowImageAndVideo";
+import useSelectItem from "@/hooks/useSelectItem";
+import useScrollToInput from "@/hooks/useScrollToInput";
+import useGetRoom from "@/hooks/useGetRoom";
 
 export type ChatReference = {
   chatId: string;
@@ -37,63 +38,27 @@ export type Chat = {
   }[];
 };
 
+export type ItemSelected = {
+  type: "text" | "image" | "audio" | "video";
+  content: string;
+};
+
 export default function ChatPage() {
-  const chatBox = useRef<HTMLDivElement>(null);
-  const chatPageDiv = useRef<HTMLDivElement>(null);
   const [emojiKeyBoard, setEmojiKeyBoard] = useState(false);
-
-  const [chat, setChat] = useState<Chat[]>([]);
-  const pathname = usePathname();
-  const [room, setRoom] = useState<string>();
-  const userId = useSelector((state: UserState) => state.userId);
-  const [friend, setFriend] = useState<Friend>();
   const [textMessage, setTextMessage] = useState("");
-  const placeholder = useRef<HTMLDivElement>(null);
-  const interval = useRef<NodeJS.Timeout>(null);
+  const [chat, setChat] = useState<Chat[]>([]);
   const [showImage, setShowImage] = useState<string[] | null>(null);
+  const { itemSelected, longPressEvents, clearSelected } = useSelectItem();
 
-  const handleFocus = () => {
-    setEmojiKeyBoard(false);
-    if (interval.current) {
-      clearInterval(interval.current);
-    }
-    interval.current = setInterval(() => {
-      placeholder.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 100);
-  };
+  const placeholder = useRef<HTMLDivElement>(null);
+  const placeholder2 = useRef<HTMLDivElement>(null);
 
-  const handleIndexDb = async (room: string) => {
-    const db = await connectIndexDb();
-    if (!db) return false;
-    const { transaction, stores } = db;
-    const findFriend = stores.friendStore.get(room);
-    // 5
-    const temp: Chat[] = [];
-    findFriend.onsuccess = function () {
-      const friend: Friend = findFriend.result;
-      setFriend(friend);
-      if (friend && friend.chats) {
-        friend.chats.forEach((chat) => {
-          const findChat = stores.chatStore.get(chat.chatId);
-          findChat.onsuccess = function () {
-            const chats = findChat.result.chats;
-            temp.push({ date: chat.date, chats: structuredClone(chats) });
-          };
-        });
-      }
-    };
-    transaction.oncomplete = function () {
-      setChat([...temp]);
-      console.log("Transaction completed successfully");
-    };
-  };
+  const userId = useSelector((state: UserState) => state.userId);
 
-  useEffect(() => {
-    const id = pathname.split("/");
-    const room = id[id.length - 1];
-    setRoom(room);
-    handleIndexDb(room);
-  }, [pathname]);
+  const { clearTimer, showInput, scrollToBottom } = useScrollToInput(setEmojiKeyBoard, placeholder2, placeholder);
+
+  const { room, friend } = useGetRoom(setChat);
+
   // for received msg
   useEffect(() => {
     const handleNewMessage = ({ message, user, image, audio }: { message: string; user: string; image?: string[]; audio?: Blob[] }) => {
@@ -117,6 +82,7 @@ export default function ChatPage() {
           return temp;
         }
       });
+      scrollToBottom();
     };
     socket.on("chat message", handleNewMessage);
     return () => {
@@ -124,17 +90,13 @@ export default function ChatPage() {
     };
   }, [chat]);
 
-  useEffect(() => {
-    if (chatBox.current) chatBox.current.scrollTop = chatBox.current.scrollHeight;
-  }, [chat]);
-
   return (
     <div className="h-[100svh]">
       <ShowImageAndVideo sources={showImage} setSrc={setShowImage} />
-      <ChatPageTop room={room} friend={friend} />
-      <div ref={chatPageDiv} style={{ height: "92svh", background: "url('/chatpageBg.png')" }} className="grid grid-rows-12 bg-sky-100  z-10">
+      <ChatPageTop room={room} friend={friend} itemSelected={itemSelected} clearSelected={clearSelected} />
+      <div style={{ height: "92svh", background: "url('/chatpageBg.png')" }} className="grid grid-rows-12 bg-sky-100  z-10">
         {/* chat */}
-        <div ref={chatBox} className="overflow-scroll row-span-11">
+        <div className="overflow-scroll row-span-11">
           {chat.map((chatBydates, index) => {
             const day = getDate(chatBydates.date);
             return (
@@ -146,7 +108,7 @@ export default function ChatPage() {
                     if (msg.user === room) {
                       if (msg.image) {
                         return (
-                          <div key={index}>
+                          <div {...longPressEvents} key={index}>
                             <ImageBubbleRecive src={msg.image} time={time} msg={msg.message} setShowImage={setShowImage} />
                           </div>
                         );
@@ -159,8 +121,8 @@ export default function ChatPage() {
                         );
                       } else {
                         return (
-                          <div key={index}>
-                            <ChatbubblesIn time={time}>{msg.message}</ChatbubblesIn>
+                          <div {...longPressEvents} data-type="text" data-content={msg.message} key={index}>
+                            <ChatbubblesIn time={time} text={msg.message} />
                           </div>
                         );
                       }
@@ -181,8 +143,8 @@ export default function ChatPage() {
                         );
                       } else {
                         return (
-                          <div key={index}>
-                            <ChatbubblesOut time={time}>{msg.message}</ChatbubblesOut>
+                          <div {...longPressEvents} data-type="text" data-content={msg.message} key={index}>
+                            <ChatbubblesOut time={time} text={msg.message} />
                           </div>
                         );
                       }
@@ -191,10 +153,11 @@ export default function ChatPage() {
               </div>
             );
           })}
+          <div ref={placeholder} className="mt-2"></div>
         </div>
-        <ChatpageInput handleFocus={handleFocus} emojiKeyBoard={emojiKeyBoard} setEmojiKeyBoard={setEmojiKeyBoard} setChat={setChat} room={room} textMessage={textMessage} setTextMessage={setTextMessage} />
+        <ChatpageInput scrollToBottom={scrollToBottom} clearTimer={clearTimer} showInput={showInput} emojiKeyBoard={emojiKeyBoard} setEmojiKeyBoard={setEmojiKeyBoard} setChat={setChat} room={room} textMessage={textMessage} setTextMessage={setTextMessage} />
         {emojiKeyBoard && <EmoteKeyBoard setTextMessage={setTextMessage} />}
-        <div ref={placeholder} className="mt-2"></div>
+        <div ref={placeholder2} className="mt-2"></div>
       </div>
     </div>
   );
