@@ -1,38 +1,24 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
-import toast, { Toaster } from "react-hot-toast";
+import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/Slice";
 import TopHeader from "@/components/TopHeader";
 import WeButton from "@/utility/WeButton";
 import { InputOTPControlled } from "@/components/OTPInput";
+import { toast } from "sonner";
 
 export default function VerifyPage() {
   const [value, setValue] = useState("");
-  const [count, setCount] = useState(0);
   const router = useRouter();
   const dispatch = useDispatch();
   const params = useSearchParams();
   const email = params.get("email");
 
-  const popTost = (msg: string | number, success?: boolean) => {
-    let emote = "❌";
-    if (success) emote = "✅";
-    toast(`${msg}`, {
-      icon: `${emote}`,
-      style: {
-        borderRadius: "10px",
-        background: "#333",
-        color: "#fff",
-      },
-    });
-  };
-
   const handleSubmit = async () => {
     const otp = value;
     if (otp.length < 4) {
-      popTost("please input valid otp");
+      toast("please input valid otp");
       return;
     }
     try {
@@ -44,12 +30,12 @@ export default function VerifyPage() {
         router.push("/chatscreen");
       } else if (res.status === 400) {
         const data = await res.json();
-        popTost(data.msg);
+        toast(data.msg);
       } else {
-        popTost(res.status);
+        toast(res.status);
       }
     } catch {
-      popTost("Internal Server Error");
+      toast("Internal Server Error");
     }
   };
 
@@ -57,19 +43,18 @@ export default function VerifyPage() {
     try {
       const res = await fetch("/api/resendOTP");
       if (res.status === 201) {
-        popTost("New OTP Generated", true);
+        toast("New OTP Generated");
       } else {
         const data = await res.json();
-        popTost(data.msg);
+        toast(data.msg);
       }
     } catch {
-      popTost("Error 500");
+      toast("Error 500");
     }
   };
 
   return (
     <div>
-      <Toaster position="top-center" reverseOrder={false} />
       <TopHeader topic="OTP verification" description="Please enter your correct OTP for number verification process" />
       <div className="flex flex-col justify-center items-center h-[50vh] gap-10">
         <InputOTPControlled value={value} setValue={setValue} />

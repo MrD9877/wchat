@@ -1,13 +1,9 @@
-"use client";
+import React from "react";
 
-import { UserState } from "@/redux/Slice";
-import { useSelector } from "react-redux";
-
-export default function Page() {
-  const profilePic = useSelector((state: UserState) => state.profilePic);
+export default function page() {
   return (
-    <div className="h-[400svh] ">
-      <img src={`https://webnovel-d.s3.eu-north-1.amazonaws.com/${profilePic}`} alt="sc" />
+    <div>
+      <img src="https://webnovel-d.s3.eu-north-1.amazonaws.com/ab431760b3087b853f5d79770a9e7c2f66919e1bade947ea6f7bfd01c04d6821" alt="" />
     </div>
   );
 }

@@ -44,8 +44,8 @@ function DisplaySingleImage({ src, msg, time, setShowImage, className }: ImageBu
       <div className="max-h-[180px] overflow-clip rounded-xl">
         <Image width={180} height={150} src={Array.isArray(src) ? src[0] : src} alt={msg} />
       </div>
-      <div className="flex justify-between w-full items-center min-h-[20px]">
-        <div className="overflow-scroll">{msg && msg}</div>
+      <div style={{ justifyContent: msg ? "space-between" : "flex-end" }} className="flex   w-full items-center min-h-[20px]">
+        {msg && <div className="overflow-scroll">{msg}</div>}
         <div className="text-xs px-1 text-gray-600">{time}</div>
       </div>
     </div>

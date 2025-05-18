@@ -1,25 +1,14 @@
 "use client";
 import React, { useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
 import { Users } from "./SearchBar";
 import { useSelector } from "react-redux";
 import { UserState } from "@/redux/Slice";
+import { toast } from "sonner";
 
 export default function DisplaySearchResults({ array, setArray }: { array: Users | undefined; setArray: React.Dispatch<React.SetStateAction<Users | undefined>> }) {
   const [isPending, setPending] = useState<{ [email: string]: boolean | undefined }>({});
   const email = useSelector((state: UserState) => state.email);
-  const popTost = (msg: string | number, success?: boolean) => {
-    let emote = "❌";
-    if (success) emote = "✅";
-    toast(`${msg}`, {
-      icon: `${emote}`,
-      style: {
-        borderRadius: "10px",
-        background: "#333",
-        color: "#fff",
-      },
-    });
-  };
+
   const handleSendRequest = async (email: string, index: number) => {
     setPending((pre) => ({ ...pre, [email]: true }));
     try {
@@ -32,10 +21,10 @@ export default function DisplaySearchResults({ array, setArray }: { array: Users
           return temp;
         });
       } else if (res.status === 404) {
-        popTost(404);
+        toast(404);
       } else {
         const { msg } = await res.json();
-        popTost(msg);
+        toast(msg);
       }
       setPending((pre) => ({ ...pre, [email]: undefined }));
     } catch {
@@ -46,7 +35,6 @@ export default function DisplaySearchResults({ array, setArray }: { array: Users
   if (array)
     return (
       <div className=" sm:w-auto  max-w-md  border border-black rounded-lg shadow p-2 px-4 mx-3 bg-white z-10 block absolute">
-        <Toaster position="top-center" reverseOrder={false} />
         <div className="flow-root">
           <ul role="list" className="divide-y divide-gray-200 ">
             {array.map((user, index) => {

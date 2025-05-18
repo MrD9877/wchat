@@ -22,14 +22,15 @@ export async function uploadProfilePic(dataUri: string | undefined, profilePicId
   if (!url) return;
   console.log(url);
   try {
-    await fetch(url, {
+    const upload = await fetch(url, {
       method: "PUT",
       body: buffer,
       headers: {
-        "Content-Type": "png",
+        "Content-Type": "image/png",
       },
       mode: "cors",
     });
+    console.log(upload.status);
   } catch (err) {
     console.log(err);
   }

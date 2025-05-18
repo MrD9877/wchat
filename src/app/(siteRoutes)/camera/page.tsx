@@ -4,7 +4,7 @@ import { getCookie } from "@/utility/getCookie";
 import { handleIndexDb } from "@/utility/saveMessageLocalDB";
 import { socket } from "@/socket";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Camera from "react-html5-camera-photo";
 import "react-html5-camera-photo/build/css/index.css";
 import { useSelector } from "react-redux";
@@ -13,12 +13,14 @@ import { UserState } from "@/redux/Slice";
 export default function CaremaPage() {
   const [dataUri, setDataUri] = useState<string>();
   const [faceMode, setFaceMode] = useState<"environment" | "user" | undefined>("environment");
-  const [caption, setCaption] = useState("");
-  const router = useRouter();
   const [visible, setVisible] = useState(true);
-  const userId = useSelector((state: UserState) => state.userId);
-  const searchParams = useSearchParams();
+  const [caption, setCaption] = useState("");
+  const captionInput = useRef<HTMLInputElement>(null);
 
+  const userId = useSelector((state: UserState) => state.userId);
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const room = searchParams.get("room");
 
   const sendImage = async () => {
@@ -38,6 +40,13 @@ export default function CaremaPage() {
       setVisible(true);
     }, 1000);
   };
+
+  const focusInput = () => {
+    if (captionInput.current) {
+      captionInput.current.focus();
+    }
+  };
+
   return (
     <div className="bg-black h-screen w-screen pt-10  text-white overflow-hidden">
       <button onClick={() => router.back()} className="px-1.5 py-1  flex items-center m-4 absolute z-50 bg-black w-fit rounded-full opacity-45 ">
@@ -48,10 +57,10 @@ export default function CaremaPage() {
       <div>
         {dataUri && dataUri !== "" ? (
           <>
-            <img src={dataUri || ""} alt="capture Image" />
+            {dataUri && <img src={dataUri} alt="capture Image" />}
             <div className="bottom-0 absolute">
-              <div className="mx-5 bg-gray-800 rounded-2xl my-2 h-10 flex items-center">
-                <input value={caption ? caption : ""} onChange={(e) => setCaption(e.target.value)} className="bg-gray-800 px-2 mx-2 outline-none" type="text" placeholder="Add caption..." />
+              <div onClick={focusInput} className="mx-5 bg-gray-800 rounded-2xl my-2 h-10 flex items-center">
+                <input ref={captionInput} value={caption ? caption : ""} onChange={(e) => setCaption(e.target.value)} className="bg-gray-800 px-2 mx-2 outline-none" type="text" placeholder="Add caption..." />
               </div>
               <div className="w-screen flex justify-between px-5 py-3 items-center bg-gray-800 ">
                 <div className="px-2 py-1 rounded-2xl bg-gray-900">name</div>

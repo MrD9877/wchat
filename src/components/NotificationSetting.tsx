@@ -31,8 +31,6 @@ export default function NotificationSetting() {
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
       await subscribe();
-    } else {
-      console.log("Permission denied for notifications.");
     }
   };
 
@@ -44,7 +42,6 @@ export default function NotificationSetting() {
     if (isChecked.notification) {
       requestPermission();
     }
-    console.log(isChecked);
   }, [isChecked]);
 
   return (
@@ -56,7 +53,7 @@ export default function NotificationSetting() {
             <li className="flex border-y py-2">
               <span className="font-bold w-24 mr-2">Notification:</span>
               <label className="inline-flex items-center cursor-pointer">
-                <input onChange={handleToggle} checked={isChecked.notification} type="checkbox" value="notification" className="sr-only peer" />
+                <input onChange={handleToggle} checked={isChecked.notification || false} type="checkbox" value="notification" className="sr-only peer" />
                 <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
               </label>
             </li>

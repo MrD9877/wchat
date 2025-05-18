@@ -3,7 +3,7 @@ import { User } from "@/app/(backend)/model/User";
 import { authenticate } from "@/app/(backend)/utility/authUser";
 import { cookies } from "next/headers";
 
-export async function POST(req, res) {
+export async function POST(req: Request) {
   await dbConnect();
   const cookieStore = await cookies();
   const body = await req.json();

@@ -20,8 +20,6 @@ export type Usertype = {
   name: string;
   profilePic: string;
   friends: Array<{
-    name: string;
-    email: string;
     userId: string;
   }>;
   subscribe: any; // You can further type this if needed
@@ -46,8 +44,6 @@ const userSchema = new Schema<Usertype & Document>({
   },
   friends: [
     {
-      name: { type: Schema.Types.String },
-      email: { type: Schema.Types.String },
       userId: { type: Schema.Types.String },
     },
   ],

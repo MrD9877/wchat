@@ -25,6 +25,7 @@ export type Friend = {
   id: string;
   name: string;
   chats: ChatReference[];
+  profilePic: string;
 };
 
 export type Chat = {
@@ -108,7 +109,7 @@ export default function ChatPage() {
                     if (msg.user === room) {
                       if (msg.image) {
                         return (
-                          <div {...longPressEvents} key={index}>
+                          <div {...longPressEvents} data-type="image" data-content={msg.message} {...longPressEvents} key={index}>
                             <ImageBubbleRecive src={msg.image} time={time} msg={msg.message} setShowImage={setShowImage} />
                           </div>
                         );
@@ -129,7 +130,7 @@ export default function ChatPage() {
                     } else if (msg.user === userId) {
                       if (msg.image) {
                         return (
-                          <div key={index}>
+                          <div {...longPressEvents} data-type="image" data-content={msg.message} key={index}>
                             <ImageBubbleSend src={msg.image} time={time} msg={msg.message} setShowImage={setShowImage} />
                           </div>
                         );

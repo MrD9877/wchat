@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { getDisplayTime } from "../utility/convertTime";
 import { onUpgrade } from "../utility/indexDbFunctions";
 import { connectIndexDb } from "@/utility/IndexDbConnect";
+import ImageWithFallBack from "./ImageWithFallBack";
 
 type ChatMessageSocket = {
   message: string;
@@ -69,7 +70,6 @@ export default function Chatlog() {
           {friends &&
             friends.length > 0 &&
             friends.map((friend) => {
-              console.log(friend);
               if (!friend.name || !friend.profilePic) {
                 handleNewFriend(friend.userId).then(() => {
                   console.log("done");
@@ -79,7 +79,7 @@ export default function Chatlog() {
               return (
                 <button key={friend.userId} onClick={() => router.push(`chatpage/${friend.userId}`)} className="w-full text-left py-2 focus:outline-none focus-visible:bg-indigo-50">
                   <div className="flex items-center">
-                    <Image className="rounded-full items-start flex-shrink-0 mr-3" src="https://res.cloudinary.com/dc6deairt/image/upload/v1638102932/user-32-01_pfck4u.jpg" width="32" height="32" alt="Marie Zulfikar" />
+                    <ImageWithFallBack className="rounded-full items-start flex-shrink-0 mr-3" src={`${process.env.NEXT_PUBLIC_AWS_URL}/${friend?.profilePic}}`} width={32} height={32} alt="dp" />
                     <div>
                       <h4 className="text-sm font-semibold text-gray-900">{friend.name}</h4>
                       <div className="text-[13px]">

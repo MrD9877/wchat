@@ -12,6 +12,7 @@ import AudioInputUI from "./AudioInputUI";
 import AttachPhotoUI from "./AttachPhotoUI";
 import { UserState } from "@/redux/Slice";
 import { Chat } from "@/app/(siteRoutes)/chatpage/[chatId]/page";
+import useFiles from "@/hooks/useFiles";
 
 interface ChatInputComponent {
   room: string | undefined;
@@ -26,36 +27,14 @@ interface ChatInputComponent {
 }
 
 export default function ChatpageInput({ scrollToBottom, clearTimer, setChat, room, setTextMessage, textMessage, showInput, emojiKeyBoard, setEmojiKeyBoard }: ChatInputComponent) {
-  const [files, setFile] = useState<File[] | null>(null);
   const [sendVisible, setSendVisible] = useState(false);
   const userId = useSelector((state: UserState) => state.userId);
-  const [src, setSrc] = useState<string[]>([]);
   const router = useRouter();
   const textInput = useRef<HTMLInputElement>(null);
   const [audioRecording, setAudioRecording] = useState(false);
   const [changesInInpur, setChanges] = useState(false);
+  const { src, setSrc, files, setFile, fileSelected } = useFiles();
 
-  const fileSelected = (event: ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files) {
-      const fileArray = Array.from(files);
-      setFile(fileArray);
-    }
-  };
-
-  const updateSrc = () => {
-    if (!files) return;
-    files.forEach((file) => {
-      const render = new FileReader();
-      render.onload = (e) => {
-        const result = e.target?.result;
-        if (typeof result === "string") {
-          setSrc((pre) => [...pre, result]);
-        }
-      };
-      render.readAsDataURL(file);
-    });
-  };
   const handleExpire = async () => {
     const res = await fetch("/api/refreshAuth");
     if (res.status === 200) {
@@ -114,12 +93,6 @@ export default function ChatpageInput({ scrollToBottom, clearTimer, setChat, roo
   const handleEndAudio = () => {
     setAudioRecording(false);
   };
-
-  useEffect(() => {
-    if (files) {
-      updateSrc();
-    }
-  }, [files]);
 
   useEffect(() => {
     if (files) return;

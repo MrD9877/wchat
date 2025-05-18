@@ -5,8 +5,10 @@ import peer from "@/utility/peer";
 import { socket } from "@/socket";
 import { getCookie } from "../utility/getCookie";
 import { Friend, ItemSelected } from "@/app/(siteRoutes)/chatpage/[chatId]/page";
-import { CopyIcon, Trash2Icon, X } from "lucide-react";
+import { CopyIcon, Share, Trash2Icon, X } from "lucide-react";
 import { copyToClipboard } from "@/utility/copyToClipboard";
+import { handleShare } from "@/utility/shareData";
+import ImageWithFallBack from "./ImageWithFallBack";
 
 export default function ChatPageTop({ friend, room, itemSelected, clearSelected }: { friend: Friend | undefined; room: string | undefined; itemSelected: ItemSelected | undefined; clearSelected: () => void }) {
   // const userId = useSelector((state) => state.userId);
@@ -56,13 +58,14 @@ export default function ChatPageTop({ friend, room, itemSelected, clearSelected 
           </div>
           {/* profile pic  */}
           <button onClick={OpenProfile}>
-            <Image className="rounded-full items-start flex-shrink-0 " src="https://res.cloudinary.com/dc6deairt/image/upload/v1638102932/user-32-01_pfck4u.jpg" width="36" height="36" alt="Marie Zulfikar" />
+            <ImageWithFallBack className="rounded-full items-start flex-shrink-0 " src={`${process.env.NEXT_PUBLIC_AWS_URL}/${friend?.profilePic}}`} width={36} height={36} alt="dp" />
           </button>
           {/* name  */}
           <div className="text-white text-lg">{(friend && friend.name) || ""}</div>
         </div>
         {itemSelected ? (
           <div className="flex items-center gap-5 justify-center mr-3 text-white">
+            {/* copy  */}
             {itemSelected.type === "text" && (
               <button
                 className="hover:text-blue-800"
@@ -74,6 +77,11 @@ export default function ChatPageTop({ friend, room, itemSelected, clearSelected 
                 <CopyIcon />
               </button>
             )}
+            {/* share  */}
+            <button onClick={() => handleShare(itemSelected.content, itemSelected.type)}>
+              <Share />
+            </button>
+            {/* delete  */}
             <button
               className="hover:text-red-800"
               onClick={() => {
@@ -82,6 +90,7 @@ export default function ChatPageTop({ friend, room, itemSelected, clearSelected 
             >
               <Trash2Icon />
             </button>
+            {/* close  */}
             <button onClick={clearSelected}>
               <X />
             </button>

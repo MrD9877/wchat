@@ -1,27 +1,16 @@
 import { FriendInfo } from "@/utility/updateFriend";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
 import { Users } from "./SearchBar";
+import { toast } from "sonner";
+import ImageWithFallBack from "./ImageWithFallBack";
 
 export default function FriendPageMain({ page }: { page: string }) {
   const [request, setRequest] = useState<Users>();
-  const [friends, setFriends] = useState<FriendInfo[]>();
+  const [friends, setFriends] = useState<Omit<FriendInfo, "newMessages" | "lastMessage">[]>();
   const [isPending, setPending] = useState<{ [userEmail: string]: boolean | undefined }>({});
   const router = useRouter();
-  const popTost = (msg: string | number, success?: boolean) => {
-    let emote = "❌";
-    if (success) emote = "✅";
-    toast(`${msg}`, {
-      icon: `${emote}`,
-      style: {
-        borderRadius: "10px",
-        background: "#333",
-        color: "#fff",
-      },
-    });
-  };
+
   const getData = async () => {
     try {
       const res = await fetch("/api/auth/userFriends", { method: "GET" });
@@ -46,10 +35,10 @@ export default function FriendPageMain({ page }: { page: string }) {
           return temp;
         });
       } else if (res.status === 404) {
-        popTost(404);
+        toast(404);
       } else {
         const { msg } = await res.json();
-        popTost(msg);
+        toast(msg);
       }
       setPending((pre) => ({ ...pre, [email]: undefined }));
     } catch {
@@ -65,17 +54,16 @@ export default function FriendPageMain({ page }: { page: string }) {
   if (page === "friends") {
     return (
       <div className="px-4 py-2 max-h-[75vh] overflow-scroll">
-        <Toaster position="top-center" reverseOrder={false} />
         <div className="divide-y divide-gray-200 ">
           {friends && friends.length > 0 ? (
             friends.map((friend, index) => {
+              console.log(friend);
               return (
                 <button onClick={() => handleFriend(friend.userId)} key={index} className="w-full text-left py-2 focus:outline-none focus-visible:bg-indigo-50">
                   <div className="flex items-center">
-                    <Image className="rounded-full items-start flex-shrink-0 mr-3" src="https://res.cloudinary.com/dc6deairt/image/upload/v1638102932/user-32-01_pfck4u.jpg" width="32" height="32" alt="Marie Zulfikar" />
+                    <ImageWithFallBack className="rounded-full items-start flex-shrink-0 mr-3 w-[32px] h-[32px]" src={`${process.env.NEXT_PUBLIC_AWS_URL}/${friend.profilePic}?t=${Date.now()}`} width={32} height={32} alt="profile pic" />
                     <div>
                       <h4 className="text-sm font-semibold text-gray-900">{friend.name}</h4>
-                      <div className="text-[13px]">The video chat ended · 2hrs</div>
                     </div>
                   </div>
                 </button>
@@ -91,7 +79,6 @@ export default function FriendPageMain({ page }: { page: string }) {
   if (page === "request") {
     return (
       <div>
-        <Toaster position="top-center" reverseOrder={false} />
         <div>
           {request && request.length > 0 ? (
             <div className=" sm:w-auto  max-w-md p-2 px-2 mx-2 bg-white max-h-[70vh] overflow-scroll my-6">

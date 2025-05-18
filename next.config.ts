@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "webnovel-d.s3.eu-north-1.amazonaws.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
 };
