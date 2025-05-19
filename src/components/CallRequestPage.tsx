@@ -1,10 +1,12 @@
-export default function CallRequestPage({ acceptCall, rejectCall, inComingCall }) {
+import { UserState } from "@/redux/Slice";
+
+export default function CallRequestPage({ acceptCall, rejectCall, inComingCall }: { acceptCall: () => void; rejectCall: () => void; inComingCall: UserState["inComingCall"] }) {
   return (
     <div style={{ background: "rgba(39, 177, 178,0.8)" }} className="absolute w-screen h-screen top-0 z-50">
       <div className="h-[80vh] flex flex-col justify-center items-center">
-        <div className="text-2xl font-bold">{inComingCall.name.toUpperCase()}</div>
+        <div className="text-2xl font-bold">{inComingCall?.name.toUpperCase()}</div>
         <div className="flex justify-center items-center">
-          {inComingCall.type == "video" ? (
+          {inComingCall?.type == "video" ? (
             <>
               Video Call
               <svg className="mx-1 bg" width="17" height="14" viewBox="0 0 17 14" fill="none" xmlns="http://www.w3.org/2000/svg">

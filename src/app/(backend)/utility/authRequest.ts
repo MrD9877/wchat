@@ -4,8 +4,8 @@ import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adap
 import { cookies } from "next/headers";
 import { tokenAuth } from "./authToken";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { oneDayInMS } from "./authUser";
 import { TokenDataUser } from "./generateTokens";
+import { oneDayInMS } from "./random";
 
 async function refreshAccessToken(cookieStore: ReadonlyRequestCookies): Promise<string | false> {
   const refreshTokenString = cookieStore.get("refreshToken")?.value;

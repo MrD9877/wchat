@@ -5,7 +5,7 @@ export type FriendInfo = { name: string; email: string; profilePic: string; user
 export const updateNewFriendInDb = async (userId: string, friendInfo: FriendInfo) => {
   const data = await connectIndexDb();
   if (!data) return;
-  const { stores, transaction } = data;
+  const { stores } = data;
   const friendStore = stores.friendStore;
 
   const findFriend = friendStore.get(userId);

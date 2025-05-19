@@ -1,21 +1,19 @@
 import dbConnect from "@/app/(backend)/lib/DbConnect";
 import { ChatPage } from "@/app/(backend)/model/Chatpages";
 import { User } from "@/app/(backend)/model/User";
-import { authenticate } from "@/app/(backend)/utility/authUser";
+import { AuthRequest } from "@/app/(backend)/utility/authRequest";
 import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
   await dbConnect();
   const body = await req.json();
   const cookieStore = await cookies();
-  const token = await authenticate(cookieStore);
+  const data = await AuthRequest();
 
-  if (!token) {
-    return new Response(JSON.stringify({ msg: "Unauthorize" }), { status: 401 });
-  }
-  const { user } = token;
   const { userId, chatId } = body;
   try {
+    if (!data) return new Response(JSON.stringify({ msg: "Login to continue" }), { status: 401 });
+    const { user } = data;
     if (userId) {
       const userInfo = await User.findOne({ email: user.email });
       if (!userInfo) return new Response(JSON.stringify({ msg: "what are you doing!!!" }), { status: 400 });

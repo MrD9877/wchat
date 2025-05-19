@@ -10,7 +10,12 @@ export interface ChatPage {
   newMessages: number;
   date: Date;
 }
-
+export type FriendRequest = {
+  name: string;
+  email: string;
+  userId: string;
+  profilePic: string;
+};
 // Define the main user schema interface
 export interface IChatPages extends Map<string, ChatPage> {}
 
@@ -23,7 +28,7 @@ export type Usertype = {
     userId: string;
   }>;
   subscribe: any; // You can further type this if needed
-  friendRequests: any[]; // You can type this more specifically if needed
+  friendRequests: FriendRequest[]; // You can type this more specifically if needed
   friendRequestSend: string[];
   chatPages: IChatPages;
 };
@@ -50,7 +55,14 @@ const userSchema = new Schema<Usertype & Document>({
   subscribe: {
     type: Schema.Types.Mixed,
   },
-  friendRequests: [{ type: Schema.Types.Mixed }],
+  friendRequests: [
+    {
+      name: { type: Schema.Types.String },
+      email: { type: Schema.Types.String },
+      userId: { type: Schema.Types.String },
+      profilePic: { type: Schema.Types.String },
+    },
+  ],
   friendRequestSend: [{ type: Schema.Types.String }],
   chatPages: {
     type: Map,

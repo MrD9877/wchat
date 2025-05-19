@@ -79,6 +79,7 @@ export default function SetUser() {
       socket.off("requestCall", handleCallRequest);
       socket.off("closeCall", handleCallRequestClosed);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inComingCall, pathname]);
   if (userId)
     return (

@@ -11,7 +11,7 @@ export default function HomePage() {
 
   return (
     <div>
-      <div className="w-screen h-screen flex justify-center items-center bg-weblue">
+      <div className="w-screen h-[100svh] flex justify-center items-center bg-weblue">
         <div>
           <svg width="100" height="90" viewBox="0 0 100 90" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path

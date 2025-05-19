@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { generateAccessToken, generateRefreshToken } from "./generateTokens";
-import { oneDayInMS } from "./authUser";
+import { oneDayInMS } from "./random";
 
 export async function setCokies(email: string, name: string, profilePic: string, userId: string) {
   "use server";

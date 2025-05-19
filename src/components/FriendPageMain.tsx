@@ -1,56 +1,21 @@
-import { FriendInfo } from "@/utility/updateFriend";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Users } from "./SearchBar";
-import { toast } from "sonner";
+/* eslint-disable @next/next/no-img-element */
+import useFriendAndRequests from "@/hooks/useFriendAndRequests";
 import ImageWithFallBack from "./ImageWithFallBack";
+import { Dispatch, SetStateAction, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-export default function FriendPageMain({ page }: { page: string }) {
-  const [request, setRequest] = useState<Users>();
-  const [friends, setFriends] = useState<Omit<FriendInfo, "newMessages" | "lastMessage">[]>();
-  const [isPending, setPending] = useState<{ [userEmail: string]: boolean | undefined }>({});
+export default function FriendPageMain({ page, setNumber }: { page: string; setNumber: Dispatch<SetStateAction<number | undefined>> }) {
   const router = useRouter();
-
-  const getData = async () => {
-    try {
-      const res = await fetch("/api/auth/userFriends", { method: "GET" });
-      if (res.status === 200) {
-        const { requests, friends } = await res.json();
-        console.log(friends);
-        setRequest(requests);
-        setFriends(friends);
-      }
-    } catch {}
-  };
-  const handleSendRequest = async (email: string, index: number) => {
-    console.log(index);
-    setPending((pre) => ({ ...pre, [email]: true }));
-    try {
-      const res = await fetch("/api/auth/acceptfriendrequest", { method: "POST", body: JSON.stringify({ email }) });
-      if (res.status === 200) {
-        setRequest((pre) => {
-          if (!pre) return;
-          let temp = [...pre];
-          temp.splice(index, 1);
-          return temp;
-        });
-      } else if (res.status === 404) {
-        toast(404);
-      } else {
-        const { msg } = await res.json();
-        toast(msg);
-      }
-      setPending((pre) => ({ ...pre, [email]: undefined }));
-    } catch {
-      setPending((pre) => ({ ...pre, [email]: undefined }));
-    }
-  };
+  const { request, friends, isPending, handleSendRequest } = useFriendAndRequests(page);
   const handleFriend = (userId: string) => {
     router.push(`/chatpage/${userId}`);
   };
   useEffect(() => {
-    getData();
-  }, [page]);
+    if (request) {
+      setNumber(request.length);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [request]);
   if (page === "friends") {
     return (
       <div className="px-4 py-2 max-h-[75vh] overflow-scroll">
@@ -90,7 +55,7 @@ export default function FriendPageMain({ page }: { page: string }) {
                       <li key={index} className="p-3 sm:p-4 ">
                         <div className="flex items-center">
                           <div className="flex-shrink-0">
-                            <img className="w-8 h-8 rounded-full" src={"/getStarted.png"} alt="Neil image" />
+                            <ImageWithFallBack className="rounded-full items-start flex-shrink-0  w-[32px] h-[32px]" src={`${process.env.NEXT_PUBLIC_AWS_URL}/${user.profilePic}?t=${Date.now()}`} width={32} height={32} alt="profile pic" />
                           </div>
                           <div className="flex-1 min-w-0 ms-4 max-w-[60%] overflow-x-scroll">
                             <p className="text-sm font-medium text-black truncate ">Email: {user.email}</p>
