@@ -1,65 +1,31 @@
 "use client";
-import Image from "next/image";
 import { useEffect, useState } from "react";
-import { FriendInfo, handleNewFriend } from "../utility/updateFriend";
-import { socket } from "@/socket";
 import { useRouter } from "next/navigation";
 import { getDisplayTime } from "../utility/convertTime";
-import { onUpgrade } from "../utility/indexDbFunctions";
-import { connectIndexDb } from "@/utility/IndexDbConnect";
 import ImageWithFallBack from "./ImageWithFallBack";
-
-type ChatMessageSocket = {
-  message: string;
-  user: string;
-  audio: Buffer<ArrayBufferLike> | undefined;
-  image: Buffer<ArrayBufferLike> | undefined;
-};
+import { getFriends, SavedDbFriends } from "@/utility/saveAndRetrievedb";
+import { useSelector } from "react-redux";
+import { UserState } from "@/redux/Slice";
 
 export default function Chatlog() {
-  const [friends, setFriends] = useState<FriendInfo[]>([]);
-  const [newMessage, setNewMessages] = useState<{ [string: string]: number }>({});
-  const [lastMessage, setLastMessage] = useState<{ [string: string]: { message: string; date: Date } }>();
+  const [friends, setFriends] = useState<SavedDbFriends[]>([]);
   const router = useRouter();
-  const handleIndexDb = async () => {
-    const data = await connectIndexDb();
-    if (!data) return;
-    const { stores } = data;
-    const friendStore = stores.friendStore;
-    const findFriend = friendStore.getAll();
+  const clientId = useSelector((state: UserState) => state.userId);
 
-    findFriend.onsuccess = function () {
-      const friends: FriendInfo[] = findFriend.result;
-      setFriends([...structuredClone(friends)]);
-      friends.forEach((friend) => {
-        setNewMessages((pre) => {
-          const temp = { ...pre };
-          temp[friend.userId] = friend.newMessages;
-          return temp;
-        });
-      });
-    };
+  const handleIndexDb = async () => {
+    if (!clientId) return;
+    try {
+      const data = await getFriends(clientId);
+      data.reverse();
+      setFriends(data);
+    } catch (err) {
+      console.log(err);
+    }
   };
   useEffect(() => {
     handleIndexDb();
-    function handleNewMessage(msg: ChatMessageSocket) {
-      setLastMessage((pre) => {
-        const temp = { ...pre };
-        temp[msg.user] = { message: msg.message, date: new Date() };
-        return temp;
-      });
-      setNewMessages((pre) => {
-        const temp = { ...pre };
-        if (temp[msg.user]) {
-          temp[msg.user] += 1;
-        } else {
-          temp[msg.user] = 1;
-        }
-        return temp;
-      });
-    }
-    socket.on("chat message", handleNewMessage);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientId]);
 
   return (
     <div className="overflow-scroll">
@@ -70,12 +36,6 @@ export default function Chatlog() {
           {friends &&
             friends.length > 0 &&
             friends.map((friend) => {
-              if (!friend.name || !friend.profilePic) {
-                handleNewFriend(friend.userId).then(() => {
-                  console.log("done");
-                });
-              }
-
               return (
                 <button key={friend.userId} onClick={() => router.push(`chatpage/${friend.userId}`)} className="w-full text-left py-2 focus:outline-none focus-visible:bg-indigo-50">
                   <div className="flex items-center">
@@ -83,22 +43,15 @@ export default function Chatlog() {
                     <div>
                       <h4 className="text-sm font-semibold text-gray-900">{friend.name}</h4>
                       <div className="text-[13px]">
-                        {lastMessage && lastMessage[friend.userId] ? (
+                        {friend.lastMessage && (
                           <>
-                            <span className="opacity-70">{lastMessage[friend.userId].message} </span>
-                            <span className="text-weblue">&middot;{getDisplayTime(lastMessage[friend.userId].date)}</span>
+                            <span className="opacity-70">{friend.lastMessage} </span>
+                            <span className="text-weblue">&middot;{getDisplayTime(friend.lastMessageDate)}</span>
                           </>
-                        ) : (
-                          friend.lastMessage && (
-                            <>
-                              <span className="opacity-70">{friend.lastMessage.message} </span>
-                              <span className="text-weblue">&middot;{getDisplayTime(friend.lastMessage.date)}</span>
-                            </>
-                          )
                         )}
                       </div>
                     </div>
-                    {newMessage && newMessage[friend.userId] && <div className="absolute right-10 bg-weblue px-2 text-[12px] text-white py-0.5 rounded-full">{newMessage[friend.userId]}</div>}
+                    {friend.newMessage && <div className="absolute right-10 bg-weblue px-2 text-[12px] text-white py-0.5 rounded-full">{friend.newMessage}</div>}
                   </div>
                 </button>
               );

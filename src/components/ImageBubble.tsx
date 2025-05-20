@@ -2,8 +2,8 @@ import Image from "next/image";
 import React from "react";
 
 type ImageBubble = {
-  src: string[];
-  msg: string;
+  src: string[] | string;
+  msg: string | undefined;
   time: string;
   setShowImage: React.Dispatch<React.SetStateAction<string[] | null>>;
 };
@@ -12,7 +12,7 @@ const inLargeImage = (src: string[], setShowImage: React.Dispatch<React.SetState
   if (src) setShowImage(src);
 };
 
-function DisplayMultipleImage({ src, msg, time, setShowImage, className }: ImageBubble & { className: string }) {
+function DisplayMultipleImage({ src, msg, time, setShowImage, className }: Omit<ImageBubble, "src"> & { className: string; src: string[] }) {
   return (
     <div onClick={() => inLargeImage(src, setShowImage)} className={` px-4  py-1 rounded-xl  w-fit  my-2 h-fit flex  flex-col ${className}`}>
       <div className="grid grid-cols-2 gap-2 h-fit max-w-[250px] py-2 ">
@@ -27,7 +27,7 @@ function DisplayMultipleImage({ src, msg, time, setShowImage, className }: Image
           return (
             <div key={index}>
               <div className="bg-white w-[100] h-[100] flex justify-center items-center relative overflow-clip rounded-xl">
-                <Image style={{ objectFit: "contain" }} className="object-cover" width={100} height={100} src={img} alt={msg} />
+                <Image style={{ objectFit: "contain" }} className="object-cover" width={100} height={100} src={img} alt={msg || "image"} />
               </div>
             </div>
           );
@@ -42,7 +42,7 @@ function DisplaySingleImage({ src, msg, time, setShowImage, className }: ImageBu
   return (
     <div onClick={() => inLargeImage(Array.isArray(src) ? src : [src], setShowImage)} className={`bg-weChat px-2.5 py-1 rounded-xl  w-fit flex  my-2 max-h-[220px] flex-col justify-center max-w-[210px]  overflow-clip ${className}`}>
       <div className="max-h-[180px] overflow-clip rounded-xl">
-        <Image width={180} height={150} src={Array.isArray(src) ? src[0] : src} alt={msg} />
+        <Image width={180} height={150} src={Array.isArray(src) ? src[0] : src} alt={msg || "image"} />
       </div>
       <div style={{ justifyContent: msg ? "space-between" : "flex-end" }} className="flex   w-full items-center min-h-[20px]">
         {msg && <div className="overflow-scroll">{msg}</div>}

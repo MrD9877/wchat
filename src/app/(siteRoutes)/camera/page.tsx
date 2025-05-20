@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import { getCookie } from "@/utility/getCookie";
-import { handleIndexDb } from "@/utility/saveMessageLocalDB";
 import { socket } from "@/socket";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useRef, useState } from "react";
@@ -9,6 +8,9 @@ import Camera from "react-html5-camera-photo";
 import "react-html5-camera-photo/build/css/index.css";
 import { useSelector } from "react-redux";
 import { UserState } from "@/redux/Slice";
+import { saveMessageForUser } from "@/utility/saveAndRetrievedb";
+import { generateRandom } from "@/app/(backend)/utility/random";
+import { updateFriend } from "@/utility/updateFriend";
 
 export default function CaremaPage() {
   const [dataUri, setDataUri] = useState<string>();
@@ -26,7 +28,13 @@ export default function CaremaPage() {
   const sendImage = async () => {
     const accessToken = getCookie("accessToken");
     socket.emit("private message", room, { message: caption, accessToken, image: dataUri });
-    if (room && dataUri && userId) handleIndexDb(caption, room, dataUri, userId, undefined);
+    if (room && dataUri && userId)
+      try {
+        await saveMessageForUser(userId, { message: caption, image: dataUri, audio: undefined, video: undefined, sender: true, id: generateRandom(16) }, room);
+        await updateFriend({ clientId: userId, userId: room, image: dataUri, message: caption, audio: undefined });
+      } catch (err) {
+        console.log(err);
+      }
     router.back();
   };
 

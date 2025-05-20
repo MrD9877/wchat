@@ -4,7 +4,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ConnectToServer from "../hooks/ConnectToServer";
-import { setOfflineMessages } from "../utility/updateDbMessages";
 import { socket } from "@/socket";
 import peer from "@/utility/peer";
 import CallRequestPage from "./CallRequestPage";
@@ -18,6 +17,8 @@ export default function SetUser() {
   const router = useRouter();
   const [calling, setCalling] = useState(false);
   const voids = ConnectToServer(userId);
+
+  const setOfflineMessages = (r: any) => {};
 
   const rejectCall = () => {
     if (inComingCall) socket.emit("closeCall", { from: userId, to: inComingCall.from });

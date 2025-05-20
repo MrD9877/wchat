@@ -1,19 +1,27 @@
 import { socket } from "@/socket";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, Dispatch, SetStateAction } from "react";
 import { getCookie } from "../utility/getCookie";
-import { handleIndexDb } from "../utility/saveMessageLocalDB";
-import { getDate } from "../utility/convertTime";
 import { useSelector } from "react-redux";
+import { SavedDbMessages, saveMessageForUser } from "@/utility/saveAndRetrievedb";
+import { UserState } from "@/redux/Slice";
+import { generateRandom } from "@/app/(backend)/utility/random";
+import { updateFriend } from "@/utility/updateFriend";
 
-const AudioRecorder = ({ audioRecording, room, setChat }) => {
-  const mediaRecorderRef = useRef(null); // Reference for MediaRecorder
-  const audioChunksRef = useRef([]); // To store the audio data chunks
-  const userId = useSelector((state) => state.userId);
+type AudioRecorderType = {
+  setChat: Dispatch<SetStateAction<SavedDbMessages[]>>;
+  room: string;
+  audioRecording: boolean;
+};
+
+const AudioRecorder = ({ audioRecording, room, setChat }: AudioRecorderType) => {
+  const mediaRecorderRef = useRef<MediaRecorder>(null); // Reference for MediaRecorder
+  const audioChunksRef = useRef<Blob[]>([]); // To store the audio data chunks
+  const userId = useSelector((state: UserState) => state.userId);
 
   // Request access to the microphone
-  const startMedia = async () => {
+  const startMedia = async (): Promise<void> => {
     if (navigator.mediaDevices) {
-      const promise = new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         navigator.mediaDevices
           .getUserMedia({ audio: true })
           .then((stream) => {
@@ -28,7 +36,6 @@ const AudioRecorder = ({ audioRecording, room, setChat }) => {
             reject();
           });
       });
-      await promise;
     }
   };
 
@@ -54,26 +61,17 @@ const AudioRecorder = ({ audioRecording, room, setChat }) => {
       mediaRecorderRef.current.stop();
 
       // Wait for the recording to finish before accessing audioChunks
-      mediaRecorderRef.current.onstop = () => {
-        // Send the audio chunks via socket (if necessary)
-        setChat((pre) => {
-          if (pre.length > 0 && getDate(pre[pre.length - 1].date) == getDate(new Date())) {
-            const latest = pre.length - 1;
-            const temp = structuredClone(pre);
-            const saveMessage = { date: new Date(), message: undefined, user: userId, audio: audioChunksRef.current };
-            temp[latest].chats.push(saveMessage);
-            return temp;
-          } else {
-            const temp = [...pre];
-            temp.push({ date: new Date(), chats: [{ ...saveMessage }] });
-            return temp;
-          }
-        });
-        handleIndexDb(undefined, room, undefined, userId, audioChunksRef.current);
-        const accessToken = getCookie("accessToken");
-        socket.emit("private message", room, { audio: structuredClone(audioChunksRef.current), accessToken });
-
-        stopMediaStream(); // Custom function to stop media stream
+      mediaRecorderRef.current.onstop = async () => {
+        if (userId) {
+          // Send the audio chunks via socket (if necessary)
+          const id = generateRandom(16);
+          setChat((pre) => [...pre, { message: undefined, sender: true, audio: audioChunksRef.current, userId: room, image: undefined, video: undefined, id, timestamp: Date.now() }]);
+          await saveMessageForUser(userId, { message: undefined, sender: true, audio: audioChunksRef.current, image: undefined, video: undefined, id }, room);
+          await updateFriend({ clientId: userId, userId: room, image: undefined, message: undefined, audio: audioChunksRef.current });
+          const accessToken = getCookie("accessToken");
+          socket.emit("private message", room, { audio: structuredClone(audioChunksRef.current), accessToken });
+        }
+        stopMediaStream();
       };
     }
   };
@@ -85,9 +83,10 @@ const AudioRecorder = ({ audioRecording, room, setChat }) => {
     if (!audioRecording) {
       stopRecording();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [audioRecording]);
 
-  return <></>;
+  return [];
 };
 
 export default AudioRecorder;

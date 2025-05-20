@@ -7,7 +7,6 @@ export default function ConnectToServer(room: String | undefined) {
   const router = useRouter();
 
   useEffect(() => {
-    console.log("here");
     const handleWelcome = async (msg: string | number) => {
       if (msg === 401) {
         socket.off("welcome", handleWelcome);

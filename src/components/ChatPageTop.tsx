@@ -1,23 +1,47 @@
 "use client";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import peer from "@/utility/peer";
 import { socket } from "@/socket";
 import { getCookie } from "../utility/getCookie";
-import { Friend, ItemSelected } from "@/app/(siteRoutes)/chatpage/[chatId]/page";
+import { ItemSelected } from "@/app/(siteRoutes)/chatpage/[chatId]/page";
 import { CopyIcon, Share, Trash2Icon, X } from "lucide-react";
 import { copyToClipboard } from "@/utility/copyToClipboard";
 import { handleShare } from "@/utility/shareData";
 import ImageWithFallBack from "./ImageWithFallBack";
+import { deleteMessage, SavedDbFriends, SavedDbMessages } from "@/utility/saveAndRetrievedb";
+import { Dispatch, SetStateAction } from "react";
+import { deleteFromArray } from "@/utility/deleteFromArray";
+import { UserState } from "@/redux/Slice";
+import { useSelector } from "react-redux";
 
-export default function ChatPageTop({ friend, room, itemSelected, clearSelected }: { friend: Friend | undefined; room: string | undefined; itemSelected: ItemSelected | undefined; clearSelected: () => void }) {
-  // const userId = useSelector((state) => state.userId);
+type ChatTopType = {
+  setChat: Dispatch<SetStateAction<SavedDbMessages[]>>;
+  friend: SavedDbFriends | null | undefined;
+  room: string | undefined;
+  itemSelected: ItemSelected | undefined;
+  clearSelected: () => void;
+  chat: SavedDbMessages[];
+};
+
+export default function ChatPageTop({ friend, room, itemSelected, clearSelected, setChat, chat }: ChatTopType) {
+  const clientId = useSelector((state: UserState) => state.userId);
   const router = useRouter();
   const handleBack = () => {
     router.back();
   };
   const OpenProfile = () => {
     router.push("/");
+  };
+
+  const deleteSelected = async () => {
+    if (itemSelected && clientId && itemSelected.id) {
+      const deleteFromDb = await deleteMessage(clientId, itemSelected.id);
+      if (deleteFromDb) {
+        const arr = await deleteFromArray(chat, itemSelected?.index);
+        setChat(arr);
+      }
+    }
+    clearSelected();
   };
 
   const handleVideoCall = async () => {
@@ -85,7 +109,7 @@ export default function ChatPageTop({ friend, room, itemSelected, clearSelected 
             <button
               className="hover:text-red-800"
               onClick={() => {
-                clearSelected();
+                deleteSelected();
               }}
             >
               <Trash2Icon />

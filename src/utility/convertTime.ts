@@ -1,6 +1,6 @@
 const monthsString = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-export function convertTime(string: Date) {
+export function convertTime(string: number) {
   // Get hours and minutes
   const now = new Date(string);
   let hours = now.getHours();
@@ -21,7 +21,7 @@ export function convertTime(string: Date) {
   return formattedTime;
 }
 
-export function getDate(string: Date) {
+export function getDate(string: number) {
   const now = new Date(string);
   let year = now.getFullYear();
   let month = now.getMonth() + 1;
@@ -32,7 +32,7 @@ export function getDate(string: Date) {
   return formattedTime;
 }
 
-export function timeDifference(string1: Date, string2: Date) {
+export function timeDifference(string1: number, string2: number) {
   const date1 = new Date(string1);
   const date2 = new Date(string2);
 
@@ -56,11 +56,11 @@ export function timeDifference(string1: Date, string2: Date) {
   }
 }
 
-export function getDisplayTime(string: Date) {
-  const today = getDate(new Date());
+export function getDisplayTime(string: number) {
+  const today = getDate(Date.now());
   const msgDate = getDate(string);
   if (msgDate === today) {
-    return timeDifference(string, new Date());
+    return timeDifference(string, Date.now());
   } else {
     const day = new Date(string);
     let date = day.getDate();

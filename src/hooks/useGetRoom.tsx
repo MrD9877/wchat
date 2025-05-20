@@ -1,39 +1,28 @@
 "use client";
-import { Chat, Friend } from "@/app/(siteRoutes)/chatpage/[chatId]/page";
-import { connectIndexDb } from "@/utility/IndexDbConnect";
+import { UserState } from "@/redux/Slice";
+import { checkFriendData, getMessagesSortedByTime, SavedDbFriends, SavedDbMessages } from "@/utility/saveAndRetrievedb";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
-export default function useGetRoom(setChat: React.Dispatch<React.SetStateAction<Chat[]>>) {
-  const [friend, setFriend] = useState<Friend>();
+export default function useGetRoom(setChat: React.Dispatch<React.SetStateAction<SavedDbMessages[]>>) {
+  const [friend, setFriend] = useState<SavedDbFriends | null | undefined>();
+  const clientId = useSelector((state: UserState) => state.userId);
 
   const [room, setRoom] = useState<string>();
 
   const pathname = usePathname();
 
   const handleIndexDb = async (room: string) => {
-    const db = await connectIndexDb();
-    if (!db) return false;
-    const { transaction, stores } = db;
-    const findFriend = stores.friendStore.get(room);
-    // 5
-    const temp: Chat[] = [];
-    findFriend.onsuccess = function () {
-      const friend: Friend = findFriend.result;
-      setFriend(friend);
-      if (friend && friend.chats) {
-        friend.chats.forEach((chat) => {
-          const findChat = stores.chatStore.get(chat.chatId);
-          findChat.onsuccess = function () {
-            const chats = findChat.result.chats;
-            temp.push({ date: chat.date, chats: structuredClone(chats) });
-          };
-        });
-      }
-    };
-    transaction.oncomplete = function () {
-      setChat([...temp]);
-    };
+    if (!clientId) return;
+    try {
+      const chat = await getMessagesSortedByTime(clientId, room);
+      setChat(chat);
+      const friendInfo = await checkFriendData(clientId, room);
+      setFriend(friendInfo);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   useEffect(() => {
@@ -41,6 +30,6 @@ export default function useGetRoom(setChat: React.Dispatch<React.SetStateAction<
     const room = id[id.length - 1];
     setRoom(room);
     handleIndexDb(room);
-  }, [pathname]);
+  }, [pathname, clientId]);
   return { room, friend } as const;
 }

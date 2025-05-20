@@ -1,24 +1,24 @@
 "use client";
 import { socket } from "@/socket";
 import Link from "next/link";
-import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { getDate } from "../utility/convertTime";
 import { getCookie } from "../utility/getCookie";
 import { useRouter } from "next/navigation";
-import { handleIndexDb } from "../utility/saveMessageLocalDB";
 import AudioRecorder from "./AudioRecording";
 import AudioInputUI from "./AudioInputUI";
 import AttachPhotoUI from "./AttachPhotoUI";
 import { UserState } from "@/redux/Slice";
-import { Chat } from "@/app/(siteRoutes)/chatpage/[chatId]/page";
 import useFiles from "@/hooks/useFiles";
+import { SavedDbMessages, saveMessageForUser } from "@/utility/saveAndRetrievedb";
+import { generateRandom } from "@/app/(backend)/utility/random";
+import { updateFriend } from "@/utility/updateFriend";
 
 interface ChatInputComponent {
-  room: string | undefined;
+  room: string;
   textMessage: string;
   setTextMessage: Dispatch<SetStateAction<string>>;
-  setChat: Dispatch<SetStateAction<Chat[]>>;
+  setChat: Dispatch<SetStateAction<SavedDbMessages[]>>;
   showInput: () => void;
   emojiKeyBoard: boolean;
   setEmojiKeyBoard: Dispatch<SetStateAction<boolean>>;
@@ -34,7 +34,8 @@ export default function ChatpageInput({ scrollToBottom, clearTimer, setChat, roo
   const [audioRecording, setAudioRecording] = useState(false);
   const [changesInInpur, setChanges] = useState(false);
   const { src, setSrc, files, setFile, fileSelected } = useFiles();
-
+  const audioRecorder = AudioRecorder({ audioRecording, room, setChat });
+  void audioRecorder;
   const handleExpire = async () => {
     const res = await fetch("/api/refreshAuth");
     if (res.status === 200) {
@@ -46,27 +47,19 @@ export default function ChatpageInput({ scrollToBottom, clearTimer, setChat, roo
   };
 
   const sendMsg = async () => {
-    textInput.current?.focus();
+    console.log("send");
     if (src.length < 1 && textMessage === "") return;
-    const image = src.length > 0 ? src : null;
-    //to do userid error handling
-
+    const image = src.length > 0 ? src : undefined;
     if (!userId || !room) return;
-
-    setChat((pre) => {
-      if (pre.length > 0 && getDate(pre[pre.length - 1].date) == getDate(new Date())) {
-        const latest = pre.length - 1;
-        const temp = structuredClone(pre);
-        temp[latest].chats.push({ date: new Date(), message: textMessage, user: userId, image });
-        return temp;
-      } else {
-        const temp = [...pre];
-        temp.push({ date: new Date(), chats: [{ date: new Date(), message: textMessage, user: userId, image }] });
-        return temp;
-      }
-    });
+    const id = generateRandom(16);
+    setChat((pre) => [...pre, { message: textMessage, sender: true, id, userId: room, timestamp: Date.now(), image, audio: undefined, video: undefined }]);
     // save in localstorage
-    await handleIndexDb(textMessage, room, image, userId, undefined);
+    try {
+      await saveMessageForUser(userId, { message: textMessage, image, audio: undefined, video: undefined, sender: true, id }, room);
+      await updateFriend({ clientId: userId, userId: room, image, message: textMessage, audio: undefined });
+    } catch (err) {
+      console.log(err);
+    }
     const accessToken = getCookie("accessToken");
     socket.emit("private message", room, { message: textMessage, accessToken, image });
     socket.on("tokenExpire", handleExpire);
@@ -146,6 +139,8 @@ export default function ChatpageInput({ scrollToBottom, clearTimer, setChat, roo
                   onChange={(e) => setTextMessage(e.target.value)}
                   className="w-[70%] outline-none px-2 text-lg h-auto overflow-y-scroll"
                   accept="image/*"
+                  id=""
+                  name="text-input"
                 />
                 {/* attachment  */}
                 <div>
@@ -174,7 +169,6 @@ export default function ChatpageInput({ scrollToBottom, clearTimer, setChat, roo
           </div>
           {/* audio  */}
           <div style={{ display: sendVisible ? "none" : "", background: audioRecording ? "green" : "" }} className="bg-weblue px-4 py-2 rounded-full">
-            <AudioRecorder audioRecording={audioRecording} room={room} setChat={setChat} />
             <button onTouchStart={handleStartAudioRecord} onTouchEnd={handleEndAudio}>
               <svg width="18" height="28" viewBox="0 0 18 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -185,20 +179,31 @@ export default function ChatpageInput({ scrollToBottom, clearTimer, setChat, roo
             </button>
           </div>
           {/* send  */}
-          <div style={{ display: sendVisible ? "" : "none" }} className="bg-weblue px-4 pt-[15px] pb-2 rounded-full">
-            <button onClick={sendMsg}>
-              <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8.3208 12L19.3208 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path
-                  d="M19.3209 1L12.8209 19C12.777 19.0957 12.7066 19.1769 12.6179 19.2338C12.5293 19.2906 12.4262 19.3209 12.3209 19.3209C12.2156 19.3209 12.1125 19.2906 12.0238 19.2338C11.9352 19.1769 11.8647 19.0957 11.8209 19L8.32087 12L1.32087 8.5C1.22513 8.45613 1.144 8.38569 1.08712 8.29705C1.03024 8.20842 1 8.10532 1 8C1 7.89468 1.03024 7.79158 1.08712 7.70295C1.144 7.61431 1.22513 7.54387 1.32087 7.5L19.3209 1Z"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          </div>
+          <label htmlFor="text-input">
+            <div style={{ display: sendVisible ? "" : "none" }} className="bg-weblue px-4 pt-[15px] pb-2 rounded-full">
+              <button
+                onMouseDown={(e) => {
+                  e.preventDefault(); // Prevents focus loss
+                  sendMsg();
+                }}
+                onTouchStart={(e) => {
+                  e.preventDefault(); // For mobile
+                  sendMsg();
+                }}
+              >
+                <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8.3208 12L19.3208 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path
+                    d="M19.3209 1L12.8209 19C12.777 19.0957 12.7066 19.1769 12.6179 19.2338C12.5293 19.2906 12.4262 19.3209 12.3209 19.3209C12.2156 19.3209 12.1125 19.2906 12.0238 19.2338C11.9352 19.1769 11.8647 19.0957 11.8209 19L8.32087 12L1.32087 8.5C1.22513 8.45613 1.144 8.38569 1.08712 8.29705C1.03024 8.20842 1 8.10532 1 8C1 7.89468 1.03024 7.79158 1.08712 7.70295C1.144 7.61431 1.22513 7.54387 1.32087 7.5L19.3209 1Z"
+                    stroke="white"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </div>
+          </label>
         </div>
       </div>
     </div>

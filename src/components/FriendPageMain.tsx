@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import useFriendAndRequests from "@/hooks/useFriendAndRequests";
 import ImageWithFallBack from "./ImageWithFallBack";
 import { Dispatch, SetStateAction, useEffect } from "react";
@@ -6,10 +5,8 @@ import { useRouter } from "next/navigation";
 
 export default function FriendPageMain({ page, setNumber }: { page: string; setNumber: Dispatch<SetStateAction<number | undefined>> }) {
   const router = useRouter();
-  const { request, friends, isPending, handleSendRequest } = useFriendAndRequests(page);
-  const handleFriend = (userId: string) => {
-    router.push(`/chatpage/${userId}`);
-  };
+  const { request, friends, isPending, handleAcceptRequest } = useFriendAndRequests(page);
+
   useEffect(() => {
     if (request) {
       setNumber(request.length);
@@ -24,7 +21,7 @@ export default function FriendPageMain({ page, setNumber }: { page: string; setN
             friends.map((friend, index) => {
               console.log(friend);
               return (
-                <button onClick={() => handleFriend(friend.userId)} key={index} className="w-full text-left py-2 focus:outline-none focus-visible:bg-indigo-50">
+                <button onClick={() => router.push(`/chatpage/${friend.userId}`)} key={index} className="w-full text-left py-2 focus:outline-none focus-visible:bg-indigo-50">
                   <div className="flex items-center">
                     <ImageWithFallBack className="rounded-full items-start flex-shrink-0 mr-3 w-[32px] h-[32px]" src={`${process.env.NEXT_PUBLIC_AWS_URL}/${friend.profilePic}?t=${Date.now()}`} width={32} height={32} alt="profile pic" />
                     <div>
@@ -63,7 +60,7 @@ export default function FriendPageMain({ page, setNumber }: { page: string; setN
                           </div>
                           <div className="flex flex-col ml-3">
                             {isPending[userEmail] === undefined ? (
-                              <button style={{ width: "75px" }} onClick={() => handleSendRequest(userEmail, index)} className="weButton ">
+                              <button style={{ width: "75px" }} onClick={() => handleAcceptRequest(userEmail, index, user.userId)} className="weButton ">
                                 Accept
                               </button>
                             ) : (

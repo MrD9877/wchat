@@ -5,7 +5,6 @@ import { AuthRequest } from "@/app/(backend)/utility/authRequest";
 export async function GET() {
   await dbConnect();
   const data = await AuthRequest();
-  console.log({ data });
   try {
     if (!data) return new Response(JSON.stringify({ msg: "login to continue.." }), { status: 401 });
     const user = data.user;

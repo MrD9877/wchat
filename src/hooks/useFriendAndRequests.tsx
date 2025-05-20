@@ -1,30 +1,32 @@
 import { FriendRequest } from "@/app/(backend)/model/User";
-import { Users } from "@/components/SearchBar";
-import { FriendInfo } from "@/utility/updateFriend";
+import { UserState } from "@/redux/Slice";
+import { FriendInfo, handleUpdateDb } from "@/utility/updateFriend";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { toast } from "sonner";
 
 export default function useFriendAndRequests(page: string) {
   const [request, setRequest] = useState<FriendRequest[]>();
   const [friends, setFriends] = useState<Omit<FriendInfo, "newMessages" | "lastMessage">[]>();
   const [isPending, setPending] = useState<{ [userEmail: string]: boolean | undefined }>({});
+  const clientId = useSelector((state: UserState) => state.userId);
 
   const getData = async () => {
     try {
       const res = await fetch("/api/auth/userFriends", { method: "GET" });
       if (res.status === 200) {
         const { requests, friends } = await res.json();
-        console.log(friends);
         setRequest(requests);
         setFriends(friends);
       }
     } catch {}
   };
-  const handleSendRequest = async (email: string, index: number) => {
+  const handleAcceptRequest = async (email: string, index: number, userId: string) => {
     setPending((pre) => ({ ...pre, [email]: true }));
     try {
       const res = await fetch("/api/auth/acceptfriendrequest", { method: "POST", body: JSON.stringify({ email }) });
       if (res.status === 200) {
+        await handleUpdateDb(userId, clientId);
         setRequest((pre) => {
           if (!pre) return;
           let temp = [...pre];
@@ -46,5 +48,5 @@ export default function useFriendAndRequests(page: string) {
   useEffect(() => {
     getData();
   }, [page]);
-  return { request, friends, isPending, handleSendRequest } as const;
+  return { request, friends, isPending, handleAcceptRequest } as const;
 }
