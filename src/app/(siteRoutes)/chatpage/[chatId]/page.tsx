@@ -44,7 +44,11 @@ export default function ChatPage() {
 
   // for received msg
   const handleNewMessage = async ({ message, user, image, audio }: { message: string; user: string; image?: string[]; audio?: Blob[] }) => {
-    if (!clientId || !room) return;
+    if (!clientId || !room) {
+      //todo
+      console.log({ clientId, room });
+      return;
+    }
     try {
       const id = generateRandom(16);
       await saveMessageForUser(clientId, { message: message, audio, image, sender: false, id }, room);
@@ -75,7 +79,7 @@ export default function ChatPage() {
       socket.off("chat message", handleNewMessage);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [room, clientId]);
 
   useEffect(() => {
     handleOldChat();
@@ -98,15 +102,14 @@ export default function ChatPage() {
             if (!item.sender) {
               if (item.image) {
                 return (
-                  <div {...longPressEvents} data-type="image" data-content={item.message} data-index={index} data-id={item.id} {...longPressEvents} key={index}>
+                  <div {...longPressEvents} data-type="image" data-content={item.image} data-index={index} data-id={item.id} {...longPressEvents} key={index}>
                     <ImageBubbleRecive src={item.image} time={time} msg={item.message} setShowImage={setShowImage} />
                   </div>
                 );
-              } else if (item.audio) {
-                const audioURL = handleAudioChunk(item.audio);
+              } else if (item.audio && typeof item.audio === "string") {
                 return (
-                  <div key={index}>
-                    <AudioBubbleIn url={audioURL} />
+                  <div {...longPressEvents} data-type="audio" data-content={item.audio} data-index={index} key={index} data-id={item.id}>
+                    <AudioBubbleIn url={item.audio} />
                   </div>
                 );
               } else if (item.message) {
@@ -123,12 +126,11 @@ export default function ChatPage() {
                     <ImageBubbleSend src={item.image} time={time} msg={item.message} setShowImage={setShowImage} />
                   </div>
                 );
-              } else if (item.audio) {
+              } else if (item.audio && typeof item.audio !== "string") {
                 const audioURL = handleAudioChunk(item.audio);
                 return (
-                  <div key={index}>
+                  <div {...longPressEvents} data-type="audio" data-content={item.audio} data-index={index} key={index} data-id={item.id}>
                     <AudioBubbleOut url={audioURL} />
-                    {/* <CustomAudioPlayer audioURL={audioURL} /> */}
                   </div>
                 );
               } else if (item.message) {

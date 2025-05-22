@@ -1,1 +1,137 @@
-if(!self.define){let e,s={};const i=(i,t)=>(i=new URL(i+".js",t).href,s[i]||new Promise((s=>{if("document"in self){const e=document.createElement("script");e.src=i,e.onload=s,document.head.appendChild(e)}else e=i,importScripts(i),s()})).then((()=>{let e=s[i];if(!e)throw new Error(`Module ${i} didn’t register its module`);return e})));self.define=(t,a)=>{const c=e||("document"in self?document.currentScript.src:"")||location.href;if(s[c])return;let n={};const r=e=>i(e,c),o={module:{uri:c},exports:n,require:r};s[c]=Promise.all(t.map((e=>o[e]||r(e)))).then((e=>(a(...e),n)))}}define(["./workbox-4754cb34"],(function(e){"use strict";importScripts(),self.skipWaiting(),e.clientsClaim(),e.precacheAndRoute([{url:"/Group 68.svg",revision:"669a21ef2f0fd09418a9d78f51291187"},{url:"/Vector.svg",revision:"e3a5d53aded095b8f2b368605e80183e"},{url:"/_next/app-build-manifest.json",revision:"cfba1b715f227783dc547f94454de6f8"},{url:"/_next/static/HCNeYUZfxi5rhYGHQXt27/_buildManifest.js",revision:"3df1d5e30202dcc9bd7e8488e48e3f94"},{url:"/_next/static/HCNeYUZfxi5rhYGHQXt27/_ssgManifest.js",revision:"b6652df95db52feb4daf4eca35380933"},{url:"/_next/static/chunks/1269-656b6b5039e9e192.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/1319-4880370886dc8ae5.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/1517-4cd8b18eb809cab1.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/2802-b976226d27f68f7f.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/4bd1b696-38e7943f5d9a2b6d.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/5037-4a848a9ead8ee845.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/5203.f4b97ab553880bca.js",revision:"f4b97ab553880bca"},{url:"/_next/static/chunks/5463-28067729d4c81c24.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/5565-16bb11780f908199.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/5672-f7a44f0c3e517035.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/6218.ba8ff6176d4fd6f6.js",revision:"ba8ff6176d4fd6f6"},{url:"/_next/static/chunks/7264-dc845e8827e347ec.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/8173-bb0a7a7b8400ad50.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/8943-01adbc31ac784958.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/aaea2bcf-7f9693a96caf85ed.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(backend)/api/auth/acceptfriendrequest/route-c4bececf3779cfe2.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(backend)/api/auth/chat/route-1f852210676376b7.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(backend)/api/auth/clearChat/route-61bea404e0ab0079.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(backend)/api/auth/getChat/route-021ae0657384bbb4.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(backend)/api/auth/getUser/route-1a19471e4c7d4148.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(backend)/api/auth/search/route-3ba1f02e12d649a3.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(backend)/api/auth/sendfriendrequest/route-b3d2814fbdc2b084.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(backend)/api/auth/userFriends/route-2f7d08e01a37fde3.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(backend)/api/getEmote/route-474d477f879c76a3.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(backend)/api/getEmoteGroup/route-2a6680dee336ad3b.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(backend)/api/getFriend/route-c122a454a2e6337d.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(backend)/api/login/route-07b1d5d0b93cd42f.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(backend)/api/refreshAuth/route-9247c62cdbd17dd9.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(backend)/api/register/route-725d264cec2157e4.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(backend)/api/resendOTP/route-3dde8713e90b2b6d.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(backend)/api/uploadEmote/route-0788a5645fb32d0e.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(backend)/api/verify/route-8870184c9ed025fd.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(siteRoutes)/VoiceCall/%5Broom%5D/page-4d462340725ea23a.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(siteRoutes)/camera/%5Broom%5D/page-e7493bb63007be5a.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(siteRoutes)/chatpage/%5BchatId%5D/page-b9b0bd81d7d8df48.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(siteRoutes)/chatscreen/page-7bfe2528a95e93fc.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(siteRoutes)/friends/page-edc8a8e83a1110f6.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(siteRoutes)/getstarted/page-9b463ae6d105d032.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(siteRoutes)/login/page-c6b40c0ace9c3c6b.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(siteRoutes)/register/page-c2240738a8ab8851.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(siteRoutes)/setting/page-7e71dc907fad8e65.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(siteRoutes)/test/page-2c1a3024f63feed3.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(siteRoutes)/uploadEmoji/page-9f264ae220a816e0.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(siteRoutes)/verify/page-c03ca3d1149fc9e3.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/(siteRoutes)/videoCall/%5Broom%5D/page-91046ca63513e79f.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/_not-found/page-8cfe9e0d1d709191.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/layout-c8af57b917417f92.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/app/page-1bce0ca4cf5fe37b.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/framework-28674b8561f5ef2a.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/main-a0c8af98431d60b9.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/main-app-cba7ae5cf6946f5b.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/pages/_app-f9efafe803d2ac1c.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/pages/_error-c6b7a272f5d23717.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/chunks/polyfills-42372ed130431b0a.js",revision:"846118c33b2c0e922d7b3a7676f81f6f"},{url:"/_next/static/chunks/reactPlayerDailyMotion.2d7f62b1cdf9ffbd.js",revision:"2d7f62b1cdf9ffbd"},{url:"/_next/static/chunks/reactPlayerFacebook.8502939ea26e1d88.js",revision:"8502939ea26e1d88"},{url:"/_next/static/chunks/reactPlayerFilePlayer.24a63faf1023065f.js",revision:"24a63faf1023065f"},{url:"/_next/static/chunks/reactPlayerKaltura.4ebdbebadeef16a4.js",revision:"4ebdbebadeef16a4"},{url:"/_next/static/chunks/reactPlayerMixcloud.fe36c66c85248da9.js",revision:"fe36c66c85248da9"},{url:"/_next/static/chunks/reactPlayerMux.6397dd06f667d0ca.js",revision:"6397dd06f667d0ca"},{url:"/_next/static/chunks/reactPlayerPreview.c9c18039dd8503eb.js",revision:"c9c18039dd8503eb"},{url:"/_next/static/chunks/reactPlayerSoundCloud.dbcd05e3bfd8fcb0.js",revision:"dbcd05e3bfd8fcb0"},{url:"/_next/static/chunks/reactPlayerStreamable.8a1af58fa272ffe3.js",revision:"8a1af58fa272ffe3"},{url:"/_next/static/chunks/reactPlayerTwitch.913267024947c7b1.js",revision:"913267024947c7b1"},{url:"/_next/static/chunks/reactPlayerVidyard.d4dc8c96c46a4b52.js",revision:"d4dc8c96c46a4b52"},{url:"/_next/static/chunks/reactPlayerVimeo.b868a1558c3d9644.js",revision:"b868a1558c3d9644"},{url:"/_next/static/chunks/reactPlayerWistia.60eaa477f9e6b703.js",revision:"60eaa477f9e6b703"},{url:"/_next/static/chunks/reactPlayerYouTube.ee2b472fc4198bdc.js",revision:"ee2b472fc4198bdc"},{url:"/_next/static/chunks/webpack-0a88ca13933ac812.js",revision:"HCNeYUZfxi5rhYGHQXt27"},{url:"/_next/static/css/0f27ec934ea42669.css",revision:"0f27ec934ea42669"},{url:"/_next/static/css/2a98df5f6cd29213.css",revision:"2a98df5f6cd29213"},{url:"/_next/static/css/7a0593d1684c588e.css",revision:"7a0593d1684c588e"},{url:"/_next/static/media/569ce4b8f30dc480-s.p.woff2",revision:"ef6cefb32024deac234e82f932a95cbd"},{url:"/_next/static/media/747892c23ea88013-s.woff2",revision:"a0761690ccf4441ace5cec893b82d4ab"},{url:"/_next/static/media/93f479601ee12b01-s.p.woff2",revision:"da83d5f06d825c5ae65b7cca706cb312"},{url:"/_next/static/media/ba015fad6dcf6784-s.woff2",revision:"8ea4f719af3312a055caf09f34c89a77"},{url:"/acceptCall.gif",revision:"b803fa867982b411962724e01f7ce180"},{url:"/bi_volume-down-fill.svg",revision:"2b793f6cdccdfeb7f5cec1ae52bba5a1"},{url:"/chatpageBg.png",revision:"7920234deca93aecd5ede523816ac7ab"},{url:"/firebase-messaging-sw.js",revision:"e65a517113b9897d897ca7cf83d5bad1"},{url:"/fluent_mic-16-filled.svg",revision:"9a708e59a31bcecc433b50e0b1e7156b"},{url:"/getStarted.png",revision:"cbbd40b52ad82d72c9e429cab506716b"},{url:"/icons/icon-128.png",revision:"9da735a5fc2deea80963f9df8a17305c"},{url:"/icons/icon-144.png",revision:"b3fc3acd90fd1e9777dda7641f89e092"},{url:"/icons/icon-152.png",revision:"0eb8399ea0e9420376198e4b56ef3cf4"},{url:"/icons/icon-16.png",revision:"47bceecdec3ef242fbcfd0902ba48866"},{url:"/icons/icon-180.png",revision:"38fc949bca78aa611b4b48c8f6d191d2"},{url:"/icons/icon-192.png",revision:"f65d8f319d796d684f551fee45aaf9b1"},{url:"/icons/icon-256.png",revision:"1b3b69b395e52dd8ce52ffe4c5b8ac28"},{url:"/icons/icon-48.png",revision:"97eb20b56792563d0a4aa8ca31de1994"},{url:"/icons/icon-512.png",revision:"cd52b83b1f900ce10603b6d2f8e5294c"},{url:"/icons/icon-64.png",revision:"fabaa3663385947e452d839319f641ee"},{url:"/icons/icon-72.png",revision:"9f554cbe7c134cc751e19ef766183dd5"},{url:"/icons/icon-96.png",revision:"b59b91b17b7be1ebd524e1762ac6aad1"},{url:"/manifest.json",revision:"5ba72de7041b5d05fe1e1c9bb876d455"},{url:"/rotate-camera-right-svgrepo-com.svg",revision:"5d89c37e79895f976871923ded8b4b1b"},{url:"/rotate-svgrepo-com.svg",revision:"6f5d42dce6fdf58c1033c6e3ece577cb"},{url:"/worker.js",revision:"9b3e304a3bad21ce044fee1cbccd40d4"}],{ignoreURLParametersMatching:[]}),e.cleanupOutdatedCaches(),e.registerRoute("/",new e.NetworkFirst({cacheName:"start-url",plugins:[{cacheWillUpdate:async({request:e,response:s,event:i,state:t})=>s&&"opaqueredirect"===s.type?new Response(s.body,{status:200,statusText:"OK",headers:s.headers}):s}]}),"GET"),e.registerRoute(/^https:\/\/fonts\.(?:gstatic)\.com\/.*/i,new e.CacheFirst({cacheName:"google-fonts-webfonts",plugins:[new e.ExpirationPlugin({maxEntries:4,maxAgeSeconds:31536e3})]}),"GET"),e.registerRoute(/^https:\/\/fonts\.(?:googleapis)\.com\/.*/i,new e.StaleWhileRevalidate({cacheName:"google-fonts-stylesheets",plugins:[new e.ExpirationPlugin({maxEntries:4,maxAgeSeconds:604800})]}),"GET"),e.registerRoute(/\.(?:eot|otf|ttc|ttf|woff|woff2|font.css)$/i,new e.StaleWhileRevalidate({cacheName:"static-font-assets",plugins:[new e.ExpirationPlugin({maxEntries:4,maxAgeSeconds:604800})]}),"GET"),e.registerRoute(/\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,new e.StaleWhileRevalidate({cacheName:"static-image-assets",plugins:[new e.ExpirationPlugin({maxEntries:64,maxAgeSeconds:86400})]}),"GET"),e.registerRoute(/\/_next\/image\?url=.+$/i,new e.StaleWhileRevalidate({cacheName:"next-image",plugins:[new e.ExpirationPlugin({maxEntries:64,maxAgeSeconds:86400})]}),"GET"),e.registerRoute(/\.(?:mp3|wav|ogg)$/i,new e.CacheFirst({cacheName:"static-audio-assets",plugins:[new e.RangeRequestsPlugin,new e.ExpirationPlugin({maxEntries:32,maxAgeSeconds:86400})]}),"GET"),e.registerRoute(/\.(?:mp4)$/i,new e.CacheFirst({cacheName:"static-video-assets",plugins:[new e.RangeRequestsPlugin,new e.ExpirationPlugin({maxEntries:32,maxAgeSeconds:86400})]}),"GET"),e.registerRoute(/\.(?:js)$/i,new e.StaleWhileRevalidate({cacheName:"static-js-assets",plugins:[new e.ExpirationPlugin({maxEntries:32,maxAgeSeconds:86400})]}),"GET"),e.registerRoute(/\.(?:css|less)$/i,new e.StaleWhileRevalidate({cacheName:"static-style-assets",plugins:[new e.ExpirationPlugin({maxEntries:32,maxAgeSeconds:86400})]}),"GET"),e.registerRoute(/\/_next\/data\/.+\/.+\.json$/i,new e.StaleWhileRevalidate({cacheName:"next-data",plugins:[new e.ExpirationPlugin({maxEntries:32,maxAgeSeconds:86400})]}),"GET"),e.registerRoute(/\.(?:json|xml|csv)$/i,new e.NetworkFirst({cacheName:"static-data-assets",plugins:[new e.ExpirationPlugin({maxEntries:32,maxAgeSeconds:86400})]}),"GET"),e.registerRoute((({url:e})=>{if(!(self.origin===e.origin))return!1;const s=e.pathname;return!s.startsWith("/api/auth/")&&!!s.startsWith("/api/")}),new e.NetworkFirst({cacheName:"apis",networkTimeoutSeconds:10,plugins:[new e.ExpirationPlugin({maxEntries:16,maxAgeSeconds:86400})]}),"GET"),e.registerRoute((({url:e})=>{if(!(self.origin===e.origin))return!1;return!e.pathname.startsWith("/api/")}),new e.NetworkFirst({cacheName:"others",networkTimeoutSeconds:10,plugins:[new e.ExpirationPlugin({maxEntries:32,maxAgeSeconds:86400})]}),"GET"),e.registerRoute((({url:e})=>!(self.origin===e.origin)),new e.NetworkFirst({cacheName:"cross-origin",networkTimeoutSeconds:10,plugins:[new e.ExpirationPlugin({maxEntries:32,maxAgeSeconds:3600})]}),"GET")}));
+"use client";
+
+export const SETTING_CACHES = {
+  CACHE_NAME: "settings",
+  CACHE_URL: "/network_mode",
+  CACHE_HEADER: "x-network_mode",
+};
+
+export const NETWORK_MODE_GROUP = {
+  ONLINE_MODE: "Online mode",
+  SEMI_OFFLINE: "Semi-offline",
+  OFFLINE_MODE: "Offline Mode",
+  inputsType: "radio",
+};
+
+export const version = 1;
+
+const cacheWithDomain = ["hinds-app-media.s3.eu-north-1.amazonaws.com"];
+
+const cacheNameArray = [`default-version-${version}`, `javascript-version-${version}`, `html-version-${version}`, `css-version-${version}`, SETTING_CACHES.CACHE_URL];
+
+////////////////////////////////////////////////
+
+self.addEventListener("install", (ev) => {
+  self.skipWaiting();
+  // ev.waitUntil(deleteOldCaches());
+});
+
+self.addEventListener("activate", (ev) => {
+  ev.waitUntil(clients.claim());
+});
+self.addEventListener("fetch", (ev) => {
+  ev.respondWith(
+    (async () => {
+      const res = await handleRequest(ev);
+      return res;
+    })()
+  );
+});
+
+self.addEventListener("message", (ev) => {
+  console.log(ev.data);
+  if (ev.data === "confirmOnline") {
+    // ev.waitUntil(confirmOnlineFn(ev));
+  }
+  if (ev.data.msg === "clearCache") {
+    ev.waitUntil(deleteCache(ev.data.url));
+  }
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+const deleteCache = async (url) => {
+  const cache = await caches.open("media");
+  const c = await cache.keys();
+  console.log(c);
+  await cache.delete(url);
+};
+
+const deleteOldCaches = async () => {
+  const cachesArr = await caches.keys();
+
+  for (let i = 0; i < cachesArr.length; i++) {
+    const currCache = cachesArr[i];
+    if (!cacheNameArray.includes(currCache)) {
+      await caches.delete(currCache);
+    }
+  }
+};
+
+async function confirmOnlineFn(ev) {
+  let confirmOnline = false;
+  try {
+    const res = await fetch("/globe.svg", { method: "HEAD" });
+    if (res.ok) {
+      confirmOnline = true;
+    }
+  } catch (err) {
+    console.log(err);
+    confirmOnline = false;
+  }
+  if (ev.source && "id" in ev.source) {
+    const client = await clients.get(ev.source.id);
+    client?.postMessage({ confirmOnline });
+  }
+  return confirmOnline;
+}
+
+const fetchAndSaveInCaches = async (req) => {
+  const cachesName = "media";
+  try {
+    const response = await fetch(req);
+    const cache = await caches.open(cachesName);
+    await cache.delete(req.url);
+    await cache.put(req.url, response.clone());
+    return response;
+  } catch {
+    return null;
+  }
+};
+
+const getNetworkMode = async (ev) => {
+  const request = ev.request;
+  try {
+    if (request.headers.has(SETTING_CACHES.CACHE_HEADER)) {
+      const mode = request.headers.get(SETTING_CACHES.CACHE_HEADER);
+      return mode;
+    }
+    const res = await caches.match(SETTING_CACHES.CACHE_URL);
+    if (res && res.headers.has(SETTING_CACHES.CACHE_HEADER)) {
+      const mode = res.headers.get(SETTING_CACHES.CACHE_HEADER);
+      return mode;
+    }
+  } catch {
+    return null;
+  }
+};
+
+const getClient = async (ev) => {
+  const client = await clients.get(ev.clientId);
+  return client;
+};
+
+async function handleRequest(ev) {
+  const url = new URL(ev.request.url);
+  if (cacheWithDomain.includes(url.hostname)) {
+    const cacheRes = await caches.match(`${ev.request.url}`);
+    if (cacheRes) return cacheRes;
+    else {
+      const res = await fetchAndSaveInCaches(ev.request);
+      if (res) return res;
+      return new Response();
+    }
+  } else {
+    return await fetch(ev.request);
+  }
+}

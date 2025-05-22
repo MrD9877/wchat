@@ -11,6 +11,7 @@ import { UserState } from "@/redux/Slice";
 import { saveMessageForUser } from "@/utility/saveAndRetrievedb";
 import { generateRandom } from "@/app/(backend)/utility/random";
 import { updateFriend } from "@/utility/updateFriend";
+import { uploadImageAndGetUrl } from "@/utility/uploadAndGetUrl";
 
 export default function CaremaPage() {
   const [dataUri, setDataUri] = useState<string>();
@@ -27,7 +28,13 @@ export default function CaremaPage() {
 
   const sendImage = async () => {
     const accessToken = getCookie("accessToken");
-    socket.emit("private message", room, { message: caption, accessToken, image: dataUri });
+    if (!dataUri) return;
+    const url = await uploadImageAndGetUrl({ image: dataUri });
+    if (!url) {
+      /// todo handle image not upload
+      return;
+    }
+    socket.emit("private message", room, { message: caption, accessToken, image: url });
     if (room && dataUri && userId)
       try {
         await saveMessageForUser(userId, { message: caption, image: dataUri, audio: undefined, video: undefined, sender: true, id: generateRandom(16) }, room);

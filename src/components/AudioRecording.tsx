@@ -6,6 +6,7 @@ import { SavedDbMessages, saveMessageForUser } from "@/utility/saveAndRetrievedb
 import { UserState } from "@/redux/Slice";
 import { generateRandom } from "@/app/(backend)/utility/random";
 import { updateFriend } from "@/utility/updateFriend";
+import { uploadImageAndGetUrl } from "@/utility/uploadAndGetUrl";
 
 type AudioRecorderType = {
   setChat: Dispatch<SetStateAction<SavedDbMessages[]>>;
@@ -64,12 +65,17 @@ const AudioRecorder = ({ audioRecording, room, setChat }: AudioRecorderType) => 
       mediaRecorderRef.current.onstop = async () => {
         if (userId) {
           // Send the audio chunks via socket (if necessary)
+          const url = await uploadImageAndGetUrl({ audio: audioChunksRef.current });
+          if (!url) {
+            // todo no url
+            return;
+          }
           const id = generateRandom(16);
           setChat((pre) => [...pre, { message: undefined, sender: true, audio: audioChunksRef.current, userId: room, image: undefined, video: undefined, id, timestamp: Date.now() }]);
           await saveMessageForUser(userId, { message: undefined, sender: true, audio: audioChunksRef.current, image: undefined, video: undefined, id }, room);
           await updateFriend({ clientId: userId, userId: room, image: undefined, message: undefined, audio: audioChunksRef.current });
           const accessToken = getCookie("accessToken");
-          socket.emit("private message", room, { audio: structuredClone(audioChunksRef.current), accessToken });
+          socket.emit("private message", room, { audio: url, accessToken });
         }
         stopMediaStream();
       };

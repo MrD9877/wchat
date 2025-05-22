@@ -1,23 +1,11 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
-// Define the interface for the chat page subdocument
-export interface ChatPage {
-  chatId: string;
-  lastMessage: {
-    date: Date;
-    message: string;
-  };
-  newMessages: number;
-  date: Date;
-}
 export type FriendRequest = {
   name: string;
   email: string;
   userId: string;
   profilePic: string;
 };
-// Define the main user schema interface
-export interface IChatPages extends Map<string, ChatPage> {}
 
 export type Usertype = {
   email: string;
@@ -27,13 +15,12 @@ export type Usertype = {
   friends: Array<{
     userId: string;
   }>;
-  subscribe: any; // You can further type this if needed
-  friendRequests: FriendRequest[]; // You can type this more specifically if needed
+  subscribe: any;
+  friendRequests: FriendRequest[];
   friendRequestSend: string[];
-  chatPages: IChatPages;
+  chats: string[];
 };
-export interface IUser extends Document, Usertype {}
-// Define the schema for the user
+export interface IUser extends Usertype, Document {}
 const userSchema = new Schema<Usertype & Document>({
   email: {
     type: Schema.Types.String,
@@ -64,27 +51,7 @@ const userSchema = new Schema<Usertype & Document>({
     },
   ],
   friendRequestSend: [{ type: Schema.Types.String }],
-  chatPages: {
-    type: Map,
-    of: new Schema<ChatPage>({
-      chatId: {
-        type: Schema.Types.String,
-        required: true,
-      },
-      lastMessage: {
-        date: { type: Schema.Types.Date },
-        message: { type: Schema.Types.String },
-      },
-      newMessages: {
-        type: Schema.Types.Number,
-        default: 0,
-      },
-      date: {
-        type: Schema.Types.Date,
-      },
-    }),
-    default: {},
-  },
+  chats: [{ type: String }],
 });
 
 // Define a text index on email and name

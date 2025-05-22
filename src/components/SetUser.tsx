@@ -8,6 +8,7 @@ import { socket } from "@/socket";
 import peer from "@/utility/peer";
 import CallRequestPage from "./CallRequestPage";
 import { Usertype } from "@/app/(backend)/model/User";
+import ServiceWorkerClass from "@/utility/ServiceWorker";
 
 export default function SetUser() {
   const dispatch = useDispatch();
@@ -51,7 +52,6 @@ export default function SetUser() {
       if (res.status === 200) {
         const data: Usertype = await res.json();
         dispatch(setUser({ email: data.email, name: data.name, userId: data.userId, profilePic: data.profilePic }));
-        await setOfflineMessages(data.chatPages);
       }
     } catch {}
   };
@@ -82,6 +82,10 @@ export default function SetUser() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inComingCall, pathname]);
+
+  useEffect(() => {
+    ServiceWorkerClass.init();
+  }, []);
   if (userId)
     return (
       <div>

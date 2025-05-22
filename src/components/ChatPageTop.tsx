@@ -13,6 +13,7 @@ import { Dispatch, SetStateAction } from "react";
 import { deleteFromArray } from "@/utility/deleteFromArray";
 import { UserState } from "@/redux/Slice";
 import { useSelector } from "react-redux";
+import ServiceWorkerClass from "@/utility/ServiceWorker";
 
 type ChatTopType = {
   setChat: Dispatch<SetStateAction<SavedDbMessages[]>>;
@@ -39,6 +40,9 @@ export default function ChatPageTop({ friend, room, itemSelected, clearSelected,
       if (deleteFromDb) {
         const arr = await deleteFromArray(chat, itemSelected?.index);
         setChat(arr);
+      }
+      if (itemSelected.type !== "text" && deleteFromDb) {
+        ServiceWorkerClass.clearCache(itemSelected.content);
       }
     }
     clearSelected();

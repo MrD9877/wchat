@@ -5,7 +5,7 @@ export type SavedDbMessages = {
   id: string;
   userId: string;
   message?: string;
-  audio?: Blob[] | undefined;
+  audio?: Blob[] | string | undefined;
   image?: string[] | string | undefined;
   video?: string | undefined;
   timestamp: number;

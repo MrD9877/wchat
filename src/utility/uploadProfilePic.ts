@@ -14,7 +14,6 @@ const getUrl = async () => {
 };
 
 export async function uploadProfilePic(dataUri: string | undefined, profilePicId: string | undefined) {
-  console.log({ dataUri, profilePicId });
   if (!dataUri || !profilePicId) return;
   const base64 = dataUri.replace(/^data:image\/\w+;base64,/, "");
   const buffer = Buffer.from(base64, "base64");

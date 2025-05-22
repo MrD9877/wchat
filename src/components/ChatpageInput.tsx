@@ -13,6 +13,7 @@ import useFiles from "@/hooks/useFiles";
 import { SavedDbMessages, saveMessageForUser } from "@/utility/saveAndRetrievedb";
 import { generateRandom } from "@/app/(backend)/utility/random";
 import { updateFriend } from "@/utility/updateFriend";
+import { uploadImageAndGetUrl } from "@/utility/uploadAndGetUrl";
 
 interface ChatInputComponent {
   room: string;
@@ -50,7 +51,15 @@ export default function ChatpageInput({ scrollToBottom, clearTimer, setChat, roo
     console.log("send");
     if (src.length < 1 && textMessage === "") return;
     const image = src.length > 0 ? src : undefined;
+    const urls: string[] = [];
     if (!userId || !room) return;
+    if (image) {
+      for (let i = 0; i < image.length; i++) {
+        const dataUri = image[i];
+        const url = await uploadImageAndGetUrl({ image: dataUri });
+        if (url) urls.push(url);
+      }
+    }
     const id = generateRandom(16);
     setChat((pre) => [...pre, { message: textMessage, sender: true, id, userId: room, timestamp: Date.now(), image, audio: undefined, video: undefined }]);
     // save in localstorage
@@ -61,7 +70,7 @@ export default function ChatpageInput({ scrollToBottom, clearTimer, setChat, roo
       console.log(err);
     }
     const accessToken = getCookie("accessToken");
-    socket.emit("private message", room, { message: textMessage, accessToken, image });
+    socket.emit("private message", room, { message: textMessage, accessToken, image: urls.length > 0 ? urls : undefined });
     socket.on("tokenExpire", handleExpire);
     setTextMessage("");
     setSrc([]);

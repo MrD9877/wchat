@@ -28,6 +28,7 @@ export default function useGetRoom(setChat: React.Dispatch<React.SetStateAction<
   useEffect(() => {
     const id = pathname.split("/");
     const room = id[id.length - 1];
+    console.log({ room });
     setRoom(room);
     handleIndexDb(room);
   }, [pathname, clientId]);
