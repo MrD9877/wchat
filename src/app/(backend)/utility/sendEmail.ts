@@ -1,3 +1,4 @@
+"use server";
 import Content from "@/components/OTPEmail";
 import { Resend } from "resend";
 

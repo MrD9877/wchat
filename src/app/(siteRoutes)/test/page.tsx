@@ -1,20 +1,18 @@
 "use client";
-import useFiles from "@/hooks/useFiles";
-import { uploadImageAndGetUrl } from "@/utility/uploadAndGetUrl";
-import React, { useState } from "react";
+
+import Camera from "@/components/Camera";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function Page() {
-  const { fileSelected, src } = useFiles();
-  const [url, setUrl] = useState<string>();
-  async function upload() {
-    const url = await uploadImageAndGetUrl({ image: src[0] });
-    if (url) setUrl(url);
+  const dispatch = useDispatch();
+  const [image, setImage] = useState<boolean>(false);
+
+  function toggle() {
+    document.startViewTransition(() => {
+      setImage(!image);
+    });
   }
-  return (
-    <div>
-      <input type="file" accept="image/*" onChange={fileSelected} />
-      <button onClick={upload}>UPLOAD</button>
-      {url && <img src={url} alt="image" />}
-    </div>
-  );
+
+  return <Camera />;
 }

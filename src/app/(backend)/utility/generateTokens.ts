@@ -1,3 +1,4 @@
+"use server";
 import jwt from "jsonwebtoken";
 import { Session } from "../model/session";
 import { sessionAuth } from "./authToken";

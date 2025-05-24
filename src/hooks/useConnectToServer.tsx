@@ -3,7 +3,7 @@ import React, { useState, useEffect, useActionState } from "react";
 import { socket } from "@/socket"; // Import socket from the singleton
 import { useRouter } from "next/navigation";
 import { getCookie } from "../utility/getCookie";
-export default function ConnectToServer(room: String | undefined) {
+export default function useConnectToServer(room: String | undefined) {
   const router = useRouter();
 
   useEffect(() => {
@@ -26,6 +26,6 @@ export default function ConnectToServer(room: String | undefined) {
       socket.off("welcome", handleWelcome);
       socket.emit("leaveRoom", room);
     };
-  }, []);
+  }, [room, router]);
   return [];
 }

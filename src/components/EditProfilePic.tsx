@@ -1,14 +1,15 @@
 "use client";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { ArrowLeftSquare, CameraIcon, GalleryHorizontal, Images, LucideProps, MoveLeft, Trash2Icon, User, X } from "lucide-react";
+import { CameraIcon, Images, Trash2Icon, User, X } from "lucide-react";
 import useFiles from "@/hooks/useFiles";
 import { uploadProfilePic } from "@/utility/uploadProfilePic";
-import { useSelector } from "react-redux";
-import { UserState } from "@/redux/Slice";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading, UserState } from "@/redux/Slice";
 import ImageTaken from "./ImageTaken";
+import { toast } from "sonner";
 
-function EditOptionsCard({ text, children, callbackfn }: { text: string; children: React.ReactNode; callbackfn: () => void }) {
+function EditOptionsCard({ text, children, callbackfn }: { text: string; children: React.ReactNode; callbackfn?: () => void }) {
   return (
     <div className="border border-gray-500 rounded-xl flex justify-center items-center flex-col p-3 select-none" onClick={callbackfn}>
       {children}
@@ -17,15 +18,25 @@ function EditOptionsCard({ text, children, callbackfn }: { text: string; childre
   );
 }
 
-export default function EditProfilePic({ setLoading }: { setLoading: React.Dispatch<React.SetStateAction<boolean>> }) {
+export default function EditProfilePic() {
   const router = useRouter();
   const { src, fileSelected } = useFiles();
+  const profilePicId = useSelector((state: UserState) => state.profilePic);
+  const dispatch = useDispatch();
+
+  const sendImage = async (dataUri: string) => {
+    await uploadProfilePic(dataUri, profilePicId);
+    toast(`Profile image updated successfully.
+         Please refresh the page to see the changes`);
+    dispatch(setLoading(false));
+    router.push("/setting");
+  };
 
   return (
-    <div>
-      <div className="absolute z-30 h-[100svh] w-screen bg-black/20 flex items-end flex-col">
+    <div style={{ viewTransitionName: "EditBox" }}>
+      <div className="absolute z-100 h-[100svh] w-screen bg-black/20 flex items-end flex-col">
         {src.length > 0 ? (
-          <ImageTaken setLoading={setLoading} dataUri={src[0]} />
+          <ImageTaken dataUri={src[0]} sendImage={sendImage} />
         ) : (
           <>
             <div className="h-[78svh] w-screen" onClick={() => router.back()}></div>
@@ -45,11 +56,11 @@ export default function EditProfilePic({ setLoading }: { setLoading: React.Dispa
                 </EditOptionsCard>
                 <input id="dropzone-file" className="hidden" type="file" onChange={fileSelected} accept="image/*"></input>
                 <label htmlFor="dropzone-file">
-                  <EditOptionsCard text="Gallery" callbackfn={() => console.log("camera")}>
+                  <EditOptionsCard text="Gallery">
                     <Images className="text-green-500" />
                   </EditOptionsCard>
                 </label>
-                <EditOptionsCard text="Avatar" callbackfn={() => console.log("camera")}>
+                <EditOptionsCard text="Avatar" callbackfn={() => router.push("avatar")}>
                   <User className="text-green-500" />
                 </EditOptionsCard>
               </div>

@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "@/utility/singIn";
 import { toast } from "sonner";
-import { CircleUserRound, PersonStandingIcon } from "lucide-react";
+import { CircleUserRound } from "lucide-react";
 
 export default function Page() {
   const router = useRouter();
@@ -16,7 +16,7 @@ export default function Page() {
     try {
       const res = await fetch("/api/register", { method: "POST", credentials: "include", body: JSON.stringify({ name, email }) });
       if (res.status === 201) {
-        router.push("/verify");
+        router.push(`/verify?email=${email}`);
       } else if (res.status === 400) {
         const data = await res.json();
         toast(data.msg);

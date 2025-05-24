@@ -1,14 +1,15 @@
 "use client";
-import { UserState } from "@/redux/Slice";
+import { setLoading, UserState } from "@/redux/Slice";
 import { MoveLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
-export default function EditName({ setLoading }: { setLoading: React.Dispatch<React.SetStateAction<boolean>> }) {
+export default function EditName() {
   const router = useRouter();
   const [data, setData] = useState("");
   const { name } = useSelector((state: UserState) => ({ email: state.email, name: state.name }));
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (name) {
@@ -17,14 +18,17 @@ export default function EditName({ setLoading }: { setLoading: React.Dispatch<Re
   }, [name]);
 
   const saveChange = async () => {
-    setLoading(true);
+    dispatch(setLoading(true));
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_URL_BASE}/api/auth/editProfile`, { method: "POST", body: JSON.stringify({ newName: data }) });
       console.log(res);
       if (res.ok) {
         router.back();
       }
-    } catch {}
+    } catch {
+    } finally {
+      dispatch(setLoading(false));
+    }
   };
 
   return (

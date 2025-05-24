@@ -1,10 +1,7 @@
-import dbConnect from "../../lib/DbConnect";
-import { Emotes } from "../../model/Emotes";
-import { connectRedis } from "../../utility/redis";
-import { sendEmail } from "../../utility/sendEmail";
+import { NextResponse } from "next/server";
+import { getAndSetAvatarDp } from "../../utility/setInitialAvatar";
 
-export async function POST(req: Request) {
-  const client = await connectRedis();
-  await client.connect();
-  await client.set("hello", "world");
+export async function GET(req: Request) {
+  const result = await getAndSetAvatarDp("js", "test2");
+  return new NextResponse(JSON.stringify({ result }), { status: 200 });
 }

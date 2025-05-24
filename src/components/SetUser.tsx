@@ -3,12 +3,12 @@ import { setUser, setIncomingCall, UserState } from "@/redux/Slice";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import ConnectToServer from "../hooks/ConnectToServer";
 import { socket } from "@/socket";
 import peer from "@/utility/peer";
 import CallRequestPage from "./CallRequestPage";
 import { Usertype } from "@/app/(backend)/model/User";
 import ServiceWorkerClass from "@/utility/ServiceWorker";
+import useConnectToServer from "../hooks/useConnectToServer";
 
 export default function SetUser() {
   const dispatch = useDispatch();
@@ -17,7 +17,7 @@ export default function SetUser() {
   const { userId, inComingCall } = useSelector((state: UserState) => ({ userId: state.userId, inComingCall: state.inComingCall }));
   const router = useRouter();
   const [calling, setCalling] = useState(false);
-  const voids = ConnectToServer(userId);
+  const voids = useConnectToServer(userId);
 
   const setOfflineMessages = (r: any) => {};
 

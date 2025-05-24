@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 type Props = React.HTMLAttributes<HTMLDivElement>;
@@ -7,5 +8,5 @@ export default function ImageWithFallBack({ src, alt, width, height, className }
   useEffect(() => {
     setImageSrc(src);
   }, [src]);
-  return <Image src={imageSrc} alt={alt} width={width} height={height} className={`object-fill ${className}`} onError={() => setImageSrc("/getStarted.png")} />;
+  return <img src={imageSrc} alt={alt} width={width} height={height} className={`object-fill ${className}`} onError={() => setImageSrc("/getStarted.png")} />;
 }

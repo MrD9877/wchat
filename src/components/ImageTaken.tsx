@@ -1,29 +1,40 @@
-import { UserState } from "@/redux/Slice";
-import { uploadProfilePic } from "@/utility/uploadProfilePic";
-import { useRouter } from "next/navigation";
-import React from "react";
-import { useSelector } from "react-redux";
+/* eslint-disable @next/next/no-img-element */
+import { setLoading, UserState } from "@/redux/Slice";
+import React, { useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-export default function ImageTaken({ dataUri, setLoading, back }: { dataUri: string; setLoading: React.Dispatch<React.SetStateAction<boolean>>; back?: number }) {
-  const profilePicId = useSelector((state: UserState) => state.profilePic);
-  const router = useRouter();
+export type ImageTakenType = { dataUri: string; sendImage: (data: string, caption?: string) => Promise<void>; isCaption?: boolean };
 
-  const sendImage = async () => {
-    await uploadProfilePic(dataUri, profilePicId);
-    if (back) window.history.go(-2);
-    else router.back();
-  };
+export default function ImageTaken({ dataUri, sendImage, isCaption = false }: ImageTakenType) {
+  const [caption, setCaption] = useState<string>();
+  const captionInput = useRef<HTMLInputElement>(null);
+  const dispatch = useDispatch();
+
+  function focusInput() {
+    if (captionInput.current) {
+      captionInput.current.focus();
+    }
+  }
   return (
     <>
-      <img src={dataUri || ""} alt="capture Image" />
+      {dataUri && (
+        <div className="w-screen h-[90svh] flex items-center justify-center">
+          <img src={dataUri} alt="capture Image" className="max-w-screen max-h-[100svh] " style={{ viewTransitionName: "capturedImage" }} />
+        </div>
+      )}
       <div className="bottom-0 absolute">
+        {isCaption && (
+          <div onClick={focusInput} className="mx-5 bg-gray-800 rounded-2xl my-2 h-10 flex items-center">
+            <input ref={captionInput} value={caption ? caption : ""} onChange={(e) => setCaption(e.target.value)} className="bg-gray-800 px-2 mx-2 outline-none" type="text" placeholder="Add caption..." />
+          </div>
+        )}
         <div className="w-screen flex justify-between px-5 py-3 items-center bg-gray-800 ">
-          <div className="px-2 py-1 rounded-2xl bg-gray-900">name</div>
+          <div className="px-2 py-1 rounded-2xl bg-gray-900">Image</div>
           <div className="bg-weblue px-4 pt-[15px] pb-2 rounded-full w-fit">
             <button
               onClick={() => {
-                sendImage();
-                setLoading(true);
+                dispatch(setLoading(true));
+                sendImage(dataUri, caption);
               }}
             >
               <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">

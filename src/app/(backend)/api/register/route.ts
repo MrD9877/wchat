@@ -3,6 +3,7 @@ import dbConnect from "../../lib/DbConnect";
 import { User } from "../../model/User";
 import { sendOtp } from "../../utility/sendOtp";
 import { generateRandom } from "../../utility/random";
+import { getAndSetAvatarDp } from "../../utility/setInitialAvatar";
 
 export async function POST(request: Request) {
   await dbConnect();
@@ -20,6 +21,7 @@ export async function POST(request: Request) {
       const user = new User({ email, name, profilePic, userId });
       await user.save();
     }
+    await getAndSetAvatarDp(name, profilePic);
     const { msg, status } = await sendOtp(email, name);
     cookieStore.set("email", JSON.stringify({ email, name }));
     return new Response(JSON.stringify({ msg }), { status });

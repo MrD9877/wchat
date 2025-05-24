@@ -1,23 +1,8 @@
-"use client";
-
-export const SETTING_CACHES = {
-  CACHE_NAME: "settings",
-  CACHE_URL: "/network_mode",
-  CACHE_HEADER: "x-network_mode",
-};
-
-export const NETWORK_MODE_GROUP = {
-  ONLINE_MODE: "Online mode",
-  SEMI_OFFLINE: "Semi-offline",
-  OFFLINE_MODE: "Offline Mode",
-  inputsType: "radio",
-};
-
 export const version = 1;
 
-const cacheWithDomain = ["hinds-app-media.s3.eu-north-1.amazonaws.com"];
+const MAX_AGE = 12 * 60 * 60 * 1000;
 
-const cacheNameArray = [`default-version-${version}`, `javascript-version-${version}`, `html-version-${version}`, `css-version-${version}`, SETTING_CACHES.CACHE_URL];
+const cacheWithDomain = ["hinds-app-media.s3.eu-north-1.amazonaws.com"];
 
 ////////////////////////////////////////////////
 
@@ -57,39 +42,11 @@ const deleteCache = async (url) => {
   await cache.delete(url);
 };
 
-const deleteOldCaches = async () => {
-  const cachesArr = await caches.keys();
-
-  for (let i = 0; i < cachesArr.length; i++) {
-    const currCache = cachesArr[i];
-    if (!cacheNameArray.includes(currCache)) {
-      await caches.delete(currCache);
-    }
-  }
-};
-
-async function confirmOnlineFn(ev) {
-  let confirmOnline = false;
-  try {
-    const res = await fetch("/globe.svg", { method: "HEAD" });
-    if (res.ok) {
-      confirmOnline = true;
-    }
-  } catch (err) {
-    console.log(err);
-    confirmOnline = false;
-  }
-  if (ev.source && "id" in ev.source) {
-    const client = await clients.get(ev.source.id);
-    client?.postMessage({ confirmOnline });
-  }
-  return confirmOnline;
-}
-
 const fetchAndSaveInCaches = async (req) => {
   const cachesName = "media";
   try {
     const response = await fetch(req);
+
     const cache = await caches.open(cachesName);
     await cache.delete(req.url);
     await cache.put(req.url, response.clone());
@@ -99,39 +56,52 @@ const fetchAndSaveInCaches = async (req) => {
   }
 };
 
-const getNetworkMode = async (ev) => {
-  const request = ev.request;
-  try {
-    if (request.headers.has(SETTING_CACHES.CACHE_HEADER)) {
-      const mode = request.headers.get(SETTING_CACHES.CACHE_HEADER);
-      return mode;
-    }
-    const res = await caches.match(SETTING_CACHES.CACHE_URL);
-    if (res && res.headers.has(SETTING_CACHES.CACHE_HEADER)) {
-      const mode = res.headers.get(SETTING_CACHES.CACHE_HEADER);
-      return mode;
-    }
-  } catch {
-    return null;
-  }
-};
-
-const getClient = async (ev) => {
-  const client = await clients.get(ev.clientId);
-  return client;
-};
-
 async function handleRequest(ev) {
   const url = new URL(ev.request.url);
-  if (cacheWithDomain.includes(url.hostname)) {
+  if ("webnovel-d.s3.eu-north-1.amazonaws.com" === url.hostname && ev.request.method === "GET") {
     const cacheRes = await caches.match(`${ev.request.url}`);
-    if (cacheRes) return cacheRes;
-    else {
-      const res = await fetchAndSaveInCaches(ev.request);
-      if (res) return res;
-      return new Response();
+    if (cacheRes) {
+      const cachedDate = new Date(cacheRes.headers.get("media-cache-time"));
+      const age = Date.now() - cachedDate.getTime();
+      console.log(age);
+      if (age < MAX_AGE) {
+        return cacheRes;
+      } else {
+        return fetchAndCacheWithExpireDate(ev.request);
+      }
+    } else {
+      return fetchAndCacheWithExpireDate(ev.request);
     }
   } else {
-    return await fetch(ev.request);
+    try {
+      return await fetch(ev.request);
+    } catch {}
+  }
+}
+
+async function fetchAndCacheWithExpireDate(request) {
+  try {
+    const cache = await caches.open("media");
+    const response = await fetch(`${request.url}?ts=${Date.now()}`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Content-Type": "image/png",
+      },
+    });
+    if (!response || response.status !== 200) throw Error();
+    const headers = new Headers(response.headers);
+    headers.append("media-cache-time", new Date().toISOString());
+    const editedResponse = new Response(response.body, {
+      headers,
+      status: response.status,
+      statusText: "ok",
+    });
+    cache.put(request, editedResponse.clone());
+    return editedResponse;
+  } catch (err) {
+    console.log(err);
+
+    return new Response("", { status: 400 });
   }
 }

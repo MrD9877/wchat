@@ -1,60 +1,27 @@
-/* eslint-disable @next/next/no-img-element */
-"use client";
-import { useRouter, useSearchParams } from "next/navigation";
-import React, { useState } from "react";
-import Camera from "react-html5-camera-photo";
-import "react-html5-camera-photo/build/css/index.css";
-import Loading from "@/components/Loading";
-import ImageTaken from "@/components/ImageTaken";
+import Camera from "@/components/Camera";
+import { setLoading, UserState } from "@/redux/Slice";
+import { uploadProfilePic } from "@/utility/uploadProfilePic";
+import { useRouter } from "next/router";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
 
-export default function CaremaPage() {
-  const [dataUri, setDataUri] = useState<string>();
-  const [faceMode, setFaceMode] = useState<"environment" | "user" | undefined>("environment");
+export default function EditProfileCameraPage() {
+  const profilePicId = useSelector((state: UserState) => state.profilePic);
+  const dispatch = useDispatch();
   const router = useRouter();
-  const [visible, setVisible] = useState(true);
-  const [loading, setLoading] = useState(false);
 
-  function handleTakePhotoAnimationDone(dataUri: string) {
-    setDataUri(dataUri);
-  }
-  const toggleCamera = () => {
-    setFaceMode(faceMode === "environment" ? "user" : "environment");
-    setVisible(false);
-    setTimeout(() => {
-      setVisible(true);
-    }, 1000);
+  const sendImage = async (dataUri: string) => {
+    await uploadProfilePic(dataUri, profilePicId);
+    toast(`Profile image updated successfully.
+         Please refresh the page to see the changes`);
+    dispatch(setLoading(false));
+    router.push("/setting");
   };
-  if (loading) return <Loading />;
+
   return (
-    <div className="bg-black h-[100svh] w-screen pt-10  text-white overflow-hidden absolute top-0 z-50">
-      <button onClick={() => router.back()} className="px-1.5 py-1  flex items-center m-4 absolute z-50 bg-black w-fit rounded-full opacity-45 ">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M16 8L8 16M8.00001 8L16 16" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </button>
-      <div>
-        {dataUri && dataUri !== "" ? (
-          <ImageTaken setLoading={setLoading} dataUri={dataUri} back={2} />
-        ) : (
-          <>
-            <div>
-              <div tabIndex={10} className=" flex items-center my-4 px-4 absolute z-10  w-full justify-end  ">
-                <button className="w-fit px-1.5 py-1 bg-black  rounded-full opacity-45" onClick={toggleCamera}>
-                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M22.0028 3V7.49704C22.0028 7.77482 21.7776 8 21.4998 8V8C21.2999 8 21.12 7.88104 21.034 7.70059C19.4262 4.32948 15.9866 2 12.0028 2C6.81746 2 2.55391 5.94668 2.05219 11" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M6 16.4V9.39365C6 9.06228 6.26863 8.79365 6.6 8.79365H7.77283C7.97677 8.79365 8.16674 8.69006 8.2772 8.51863L9.7228 6.27502C9.83326 6.10359 10.0232 6 10.2272 6H13.7728C13.9768 6 14.1667 6.10359 14.2772 6.27502L15.7228 8.51863C15.8333 8.69006 16.0232 8.79365 16.2272 8.79365H17.4C17.7314 8.79365 18 9.06228 18 9.39365V16.4C18 16.7314 17.7314 17 17.4 17H6.6C6.26863 17 6 16.7314 6 16.4Z" stroke="#000000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M12 14C13.1046 14 14 13.1046 14 12C14 10.8954 13.1046 10 12 10C10.8954 10 10 10.8954 10 12C10 13.1046 10.8954 14 12 14Z" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M2.05078 21V16.503C2.05078 16.2252 2.27596 16 2.55374 16V16C2.75366 16 2.93357 16.119 3.01963 16.2994C4.62737 19.6705 8.06703 22 12.0508 22C17.2361 22 21.4997 18.0533 22.0014 13" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </button>
-              </div>
-              <div style={{ display: visible ? "block" : "none" }} className="h-fit w-screen absolute bottom-20 flex" tabIndex={0}>
-                <Camera onTakePhotoAnimationDone={handleTakePhotoAnimationDone} isFullscreen={false} isImageMirror={false} idealFacingMode={faceMode} />
-              </div>
-            </div>
-          </>
-        )}
-      </div>
+    <div>
+      <Camera sendImage={sendImage} />
     </div>
   );
 }

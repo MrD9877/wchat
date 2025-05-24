@@ -1,4 +1,3 @@
-import { generateRandom } from "@/app/(backend)/utility/random";
 import { handleUpdateDb } from "./updateFriend";
 
 export type SavedDbMessages = {
@@ -31,12 +30,13 @@ export type FriendUpdate = {
 
 export function openChatDB(clientId: string) {
   return new Promise((resolve: (r: IDBDatabase) => void, reject) => {
-    const request = indexedDB.open(`ChatDB-${clientId}`, 1);
+    const request = indexedDB.open(`ChatDB-${clientId}`, 2);
 
     request.onupgradeneeded = function () {
       const db = request.result;
       const messageStore = db.createObjectStore("messages", { keyPath: "id" });
       const friendStore = db.createObjectStore("friends", { keyPath: "userId" });
+      const mediaStore = db.createObjectStore("media", { keyPath: "url" });
       messageStore.createIndex("userId", "userId", { unique: false });
       messageStore.createIndex("timestamp", "timestamp", { unique: false });
       messageStore.createIndex("userId_timestamp", ["userId", "timestamp"], { unique: false });
@@ -215,4 +215,33 @@ export async function deleteMessage(clientId: string, messageId: string) {
   } catch {
     return false;
   }
+}
+
+export async function saveMediaInDb(clientId: string, url: string, blob: Blob) {
+  const db = await openChatDB(clientId);
+  const tx = db.transaction("media", "readwrite");
+  const store = tx.objectStore("media");
+  store.add({ url: url, blob });
+  return new Promise((res: (r: string) => void, rej: () => void) => {
+    tx.oncomplete = () => {
+      res("done");
+    };
+    tx.onerror = () => {
+      rej();
+    };
+  });
+}
+export async function getMediaInDb(clientId: string, url: string) {
+  const db = await openChatDB(clientId);
+  const tx = db.transaction("media", "readwrite");
+  const store = tx.objectStore("media");
+  const mediaRequest = store.get(url);
+  return new Promise((res: (r: Blob) => void, rej: () => void) => {
+    mediaRequest.onsuccess = () => {
+      const data = mediaRequest.result;
+
+      if (data) res(data.blob);
+      else rej();
+    };
+  });
 }

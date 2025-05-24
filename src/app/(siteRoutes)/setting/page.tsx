@@ -1,5 +1,13 @@
+import NavBarChatBox from "@/components/NavBarChatBox";
+import PageWrapper from "@/components/PageWrapper";
 import React from "react";
 
 export default function page() {
-  return <div></div>;
+  return (
+    <>
+      <PageWrapper>
+        <NavBarChatBox />
+      </PageWrapper>
+    </>
+  );
 }

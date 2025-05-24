@@ -30,6 +30,18 @@ export const uploadImage: UploadImage = async (fileId, secure?: boolean) => {
   return presignedUrl;
 };
 
+export const uploadImageDirectly = async (fileId: string, buffer: string | Blob | Uint8Array<ArrayBufferLike> | Buffer<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | ReadableStream<any>, ContentType?: string, secure?: boolean) => {
+  const params = {
+    Bucket: secure ? process.env.AWS_HINDS_APP_MEDIA_BUCKET_NAME : bucketName,
+    Key: fileId,
+    Body: buffer,
+    ContentType: ContentType || "image/svg+xml",
+  };
+  const command = new PutObjectCommand(params);
+  const result = await s3.send(command);
+  return result;
+};
+
 export const getImageSigned = async (id: string) => {
   const params = {
     Bucket: process.env.AWS_HINDS_APP_MEDIA_BUCKET_NAME,

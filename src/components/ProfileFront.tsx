@@ -49,12 +49,11 @@ export default function ProfileFront() {
         <img alt="image" src="https://vojislavd.com/ta-template-demo/assets/img/profile-background.jpg" className="w-full h-full object-cover " />
       </div>
       <div className="flex flex-col items-center -mt-20">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <ImageWithFallBack className="w-32 h-32 border-4 border-white rounded-full" src={`${process.env.NEXT_PUBLIC_AWS_URL}/${profilePic}?t=${Date.now()}`} alt="profile Image" width={120} height={120} />
+        {profilePic && <ImageWithFallBack className="w-32 h-32 border-4 border-white rounded-full" src={`${process.env.NEXT_PUBLIC_AWS_URL}/${profilePic}`} alt="profile Image" width={120} height={120} />}
         {logedIn && (
           <div className="flex flex-col items-center space-x-2 mt-2">
             <Link href={"setting/editProfile?edit=profilePic"}>
-              <span className="text-blue-500 rounded-full p-1 text-xs select-none" title="Verified">
+              <span className="text-blue-500 rounded-full p-1 text-xs select-none" title="Verified" style={{ viewTransitionName: "EditBox" }}>
                 EDIT
               </span>
             </Link>

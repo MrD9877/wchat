@@ -10,6 +10,7 @@ import "swiper/css/pagination";
 import "swiper/css/scrollbar";
 import PwaCustumServicePush from "../components/AddserviceWorker";
 import { ReactNode } from "react";
+import Loading from "@/components/Loading";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           {/* <PwaCustumServicePush /> */}
           <SetUser />
+          <Loading />
           <GetMessages />
           {children}
           <Toaster />

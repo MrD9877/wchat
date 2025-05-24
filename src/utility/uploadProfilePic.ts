@@ -13,23 +13,31 @@ const getUrl = async () => {
   }
 };
 
-export async function uploadProfilePic(dataUri: string | undefined, profilePicId: string | undefined) {
-  if (!dataUri || !profilePicId) return;
-  const base64 = dataUri.replace(/^data:image\/\w+;base64,/, "");
-  const buffer = Buffer.from(base64, "base64");
+export async function uploadProfilePic(dataUri: string | undefined, profilePicId: string | undefined, bufferData?: Buffer<ArrayBuffer>, contentType?: string) {
+  if (!profilePicId) return;
+  let buffer: Buffer<ArrayBuffer>;
+
+  if (dataUri) {
+    const base64 = dataUri.replace(/^data:image\/\w+;base64,/, "");
+    buffer = Buffer.from(base64, "base64");
+  } else if (bufferData) {
+    buffer = bufferData;
+  } else {
+    return;
+  }
   const url = await getUrl();
   if (!url) return;
-  console.log(url);
   try {
     const upload = await fetch(url, {
       method: "PUT",
       body: buffer,
       headers: {
-        "Content-Type": "image/png",
+        "Content-Type": contentType || "image/png",
       },
       mode: "cors",
     });
-    console.log(upload.status);
+    const cache = await caches.open("media");
+    const d = await cache.delete(`${process.env.NEXT_PUBLIC_AWS_URL}/${profilePicId}`);
   } catch (err) {
     console.log(err);
   }

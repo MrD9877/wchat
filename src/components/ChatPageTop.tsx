@@ -9,7 +9,7 @@ import { copyToClipboard } from "@/utility/copyToClipboard";
 import { handleShare } from "@/utility/shareData";
 import ImageWithFallBack from "./ImageWithFallBack";
 import { deleteMessage, SavedDbFriends, SavedDbMessages } from "@/utility/saveAndRetrievedb";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
 import { deleteFromArray } from "@/utility/deleteFromArray";
 import { UserState } from "@/redux/Slice";
 import { useSelector } from "react-redux";
@@ -33,6 +33,8 @@ export default function ChatPageTop({ friend, room, itemSelected, clearSelected,
   const OpenProfile = () => {
     router.push("/");
   };
+
+  useEffect(() => {}, [friend]);
 
   const deleteSelected = async () => {
     if (itemSelected && clientId && itemSelected.id) {
@@ -85,9 +87,7 @@ export default function ChatPageTop({ friend, room, itemSelected, clearSelected,
             </button>
           </div>
           {/* profile pic  */}
-          <button onClick={OpenProfile}>
-            <ImageWithFallBack className="rounded-full items-start flex-shrink-0 " src={`${process.env.NEXT_PUBLIC_AWS_URL}/${friend?.profilePic}}`} width={36} height={36} alt="dp" />
-          </button>
+          <button onClick={OpenProfile}>{<ImageWithFallBack className="rounded-full items-start flex-shrink-0 " src={`${process.env.NEXT_PUBLIC_AWS_URL}/${friend?.profilePic}`} width={36} height={36} alt="dp" />}</button>
           {/* name  */}
           <div className="text-white text-lg">{(friend && friend.name) || ""}</div>
         </div>
