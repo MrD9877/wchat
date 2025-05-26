@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { setLoading, UserState } from "@/redux/Slice";
 import React, { useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 export type ImageTakenType = { dataUri: string; sendImage: (data: string, caption?: string) => Promise<void>; isCaption?: boolean };
 

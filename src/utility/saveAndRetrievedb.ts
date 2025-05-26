@@ -67,10 +67,13 @@ export async function saveMessageForUser(clientId: string, data: Omit<SavedDbMes
     timestamp: Date.now(),
     sender: data.sender,
   };
-
+  console.log(message);
   store.add(message);
 
-  return tx.oncomplete;
+  return new Promise((resolve: (v: void) => void, reject) => {
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
 }
 export async function saveFriends(clientId: string, data: SavedDbFriends) {
   const db = await openChatDB(clientId);

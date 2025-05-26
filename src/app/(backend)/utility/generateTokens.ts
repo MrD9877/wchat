@@ -12,14 +12,14 @@ export interface TokenDataUser {
   profilePic: string;
 }
 
-export function generateAccessToken(user: TokenDataUser, expiresIn: number) {
+export async function generateAccessToken(user: TokenDataUser, expiresIn: number) {
   try {
     return jwt.sign({ user }, process.env.LOCAL_SECRET || "", { expiresIn });
   } catch {
     return false;
   }
 }
-export function generateRefreshToken(user: TokenDataUser) {
+export async function generateRefreshToken(user: TokenDataUser) {
   try {
     return jwt.sign({ user }, process.env.LOCAL_SECRET || "", { expiresIn: "100d" });
   } catch {

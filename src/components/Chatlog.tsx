@@ -39,7 +39,7 @@ export default function Chatlog() {
               return (
                 <button key={friend.userId} onClick={() => router.push(`chatpage/${friend.userId}`)} className="w-full text-left py-2 focus:outline-none focus-visible:bg-indigo-50">
                   <div className="flex items-center">
-                    <ImageWithFallBack className="rounded-full items-start flex-shrink-0 mr-3" src={`${process.env.NEXT_PUBLIC_AWS_URL}/${friend?.profilePic}}`} width={32} height={32} alt="dp" />
+                    <ImageWithFallBack className="rounded-full items-start flex-shrink-0 mr-3" src={`${process.env.NEXT_PUBLIC_AWS_URL}/${friend.profilePic}`} width={32} height={32} alt="dp" />
                     <div>
                       <h4 className="text-sm font-semibold text-gray-900">{friend.name}</h4>
                       <div className="text-[13px]">

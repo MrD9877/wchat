@@ -1,11 +1,5 @@
 "use client";
-
-import { urlB64ToUint8Array } from "@/utility/b64ToUint8";
-import NavBarChatBox from "../../../components/NavBarChatBox";
-import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { UserState } from "@/redux/Slice";
+import React from "react";
 import ProfileFront from "@/components/ProfileFront";
 import UserInoCard from "@/components/UserInoCard";
 import NotificationSetting from "@/components/NotificationSetting";

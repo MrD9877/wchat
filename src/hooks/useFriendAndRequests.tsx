@@ -1,13 +1,14 @@
 import { FriendRequest } from "@/app/(backend)/model/User";
 import { UserState } from "@/redux/Slice";
-import { FriendInfo, handleUpdateDb } from "@/utility/updateFriend";
+import { handleUpdateDb } from "@/utility/updateFriend";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
+export type FriendInfo = { name: string; email: string; profilePic: string; userId: string };
 
 export default function useFriendAndRequests(page: string) {
   const [request, setRequest] = useState<FriendRequest[]>();
-  const [friends, setFriends] = useState<Omit<FriendInfo, "newMessages" | "lastMessage">[]>();
+  const [friends, setFriends] = useState<FriendInfo[]>();
   const [isPending, setPending] = useState<{ [userEmail: string]: boolean | undefined }>({});
   const clientId = useSelector((state: UserState) => state.userId);
 

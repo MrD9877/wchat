@@ -6,7 +6,6 @@ import { AuthRequest } from "@/app/(backend)/utility/authRequest";
 
 export async function POST(request: Request) {
   await dbConnect();
-  const cookieStore = await cookies();
   const body = await request.json();
   const data = await AuthRequest();
 

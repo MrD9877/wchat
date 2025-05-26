@@ -5,7 +5,8 @@ import React from "react";
 import { useSelector } from "react-redux";
 
 export default function UserInoCard() {
-  const { userName, email } = useSelector((state: UserState) => ({ userName: state.name, email: state.email }));
+  const userName = useSelector((state: UserState) => state.name);
+  const email = useSelector((state: UserState) => state.email);
   const logedIn = useLoggedIn();
   return (
     <div className="my-4  flex flex-col 2xl:flex-row space-y-4 2xl:space-y-0 2xl:space-x-4">

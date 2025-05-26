@@ -70,7 +70,7 @@ export class OAuthClient {
     this.provider = provider;
   }
   private redirectUrl() {
-    return new URL(this.provider, process.env.NEXT_PUBLIC_URL_BASE);
+    return `${process.env.NEXT_PUBLIC_URL_BASE}/api/oauth/${this.provider}`;
   }
   private createState(cookies: ReadonlyRequestCookies) {
     const state = crypto.randomBytes(64).toString("hex").normalize();

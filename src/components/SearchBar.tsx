@@ -5,7 +5,7 @@ import DisplaySearchResults from "./DisplaySearchResults";
 import OutSideAlart from "./OutSideAlart";
 import { UserState } from "@/redux/Slice";
 
-export type Users = { name: string; email: string; friend: boolean; requestSend: boolean }[];
+export type Users = { name: string; email: string; friend: boolean; requestSend: boolean; profilePic: string }[];
 
 export default function SearchBar() {
   const [search, setSeach] = useState("");

@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 export default function EditName() {
   const router = useRouter();
   const [data, setData] = useState("");
-  const { name } = useSelector((state: UserState) => ({ email: state.email, name: state.name }));
+  const name = useSelector((state: UserState) => state.name);
   const dispatch = useDispatch();
 
   useEffect(() => {

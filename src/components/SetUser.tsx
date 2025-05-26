@@ -9,17 +9,26 @@ import CallRequestPage from "./CallRequestPage";
 import { Usertype } from "@/app/(backend)/model/User";
 import ServiceWorkerClass from "@/utility/ServiceWorker";
 import useConnectToServer from "../hooks/useConnectToServer";
+import useGetMessages from "@/hooks/useGetMessages";
+import useInAppNotification from "./InAppNotification";
 
 export default function SetUser() {
   const dispatch = useDispatch();
   const exceptions = ["/login", "/register", "/verify"];
   const pathname = usePathname();
-  const { userId, inComingCall } = useSelector((state: UserState) => ({ userId: state.userId, inComingCall: state.inComingCall }));
+  const userId = useSelector((state: UserState) => state.userId);
+  const inComingCall = useSelector((state: UserState) => state.inComingCall);
   const router = useRouter();
   const [calling, setCalling] = useState(false);
   const voids = useConnectToServer(userId);
+  const voids2 = useGetMessages(userId);
+  const n = useInAppNotification();
 
-  const setOfflineMessages = (r: any) => {};
+  const setOfflineMessages = async () => {
+    try {
+      // const res = await fetch("/api/auth");
+    } catch {}
+  };
 
   const rejectCall = () => {
     if (inComingCall) socket.emit("closeCall", { from: userId, to: inComingCall.from });
@@ -52,6 +61,7 @@ export default function SetUser() {
       if (res.status === 200) {
         const data: Usertype = await res.json();
         dispatch(setUser({ email: data.email, name: data.name, userId: data.userId, profilePic: data.profilePic }));
+        setOfflineMessages();
       }
     } catch {}
   };
@@ -71,8 +81,6 @@ export default function SetUser() {
   }, [inComingCall]);
 
   useEffect(() => {
-    if (exceptions.includes(pathname)) return;
-    getUser();
     socket.on("requestCall", handleCallRequest);
     socket.on("closeCall", handleCallRequestClosed);
 
@@ -81,11 +89,15 @@ export default function SetUser() {
       socket.off("closeCall", handleCallRequestClosed);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inComingCall, pathname]);
+  }, [inComingCall]);
 
   useEffect(() => {
+    if (exceptions.includes(pathname)) return;
+    getUser();
     ServiceWorkerClass.init();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
   if (userId)
     return (
       <div>

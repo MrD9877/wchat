@@ -2,7 +2,7 @@
 import { getCookie } from "@/utility/getCookie";
 import { socket } from "@/socket";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useRef, useState } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading, UserState } from "@/redux/Slice";
 import { saveMessageForUser } from "@/utility/saveAndRetrievedb";
@@ -26,10 +26,11 @@ export default function CaremaPage() {
       /// todo handle image not upload
       return;
     }
-    socket.emit("private message", room, { message: caption, accessToken, image: url });
+    const id = generateRandom(8);
+    socket.emit("private message", room, { message: caption, accessToken, image: url, id });
     if (room && dataUri && userId)
       try {
-        await saveMessageForUser(userId, { message: caption, image: dataUri, audio: undefined, video: undefined, sender: true, id: generateRandom(16) }, room);
+        await saveMessageForUser(userId, { message: caption, image: dataUri, audio: undefined, video: undefined, sender: true, id }, room);
         await updateFriend({ clientId: userId, userId: room, image: dataUri, message: caption, audio: undefined });
       } catch (err) {
         console.log(err);

@@ -1,7 +1,7 @@
 import dbConnect from "@/app/(backend)/lib/DbConnect";
 import { User } from "@/app/(backend)/model/User";
 import { tokenAuth } from "@/app/(backend)/utility/authToken";
-import { FriendInfo } from "@/utility/updateFriend";
+import { FriendInfo } from "@/hooks/useFriendAndRequests";
 import { cookies } from "next/headers";
 
 export async function GET() {
@@ -13,7 +13,7 @@ export async function GET() {
     const { user } = data;
     const userInfo = await User.findOne({ email: user.email }, { friends: 1, friendRequests: 1, _id: 0 });
     if (!userInfo) throw Error();
-    let friends: Omit<FriendInfo, "lastMessage" | "newMessages">[] | null = null;
+    let friends: FriendInfo[] | null = null;
     const arr = userInfo.friends;
 
     for (let i = 0; i < arr.length; i++) {

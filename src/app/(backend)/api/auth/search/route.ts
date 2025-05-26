@@ -1,14 +1,10 @@
 import dbConnect from "@/app/(backend)/lib/DbConnect";
 import { User } from "@/app/(backend)/model/User";
 import { AuthRequest } from "@/app/(backend)/utility/authRequest";
-import { tokenAuth } from "@/app/(backend)/utility/authToken";
-import { keys } from "@/lib/keys";
-import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
   await dbConnect();
   const body = await req.json();
-  const cookieStore = await cookies();
   const data = await AuthRequest();
 
   const { search } = body;
@@ -20,7 +16,7 @@ export async function POST(req: Request) {
     const findUser = await User.find({ $text: { $search: search } });
     const users = findUser.map((user) => {
       const friend = userInfo?.friends.some((item) => item.userId === user.userId);
-      return { email: user.email, name: user.name, friend };
+      return { email: user.email, name: user.name, friend, profilePic: user.profilePic };
     });
     return new Response(JSON.stringify({ users }), { status: 200 });
   } catch (err) {

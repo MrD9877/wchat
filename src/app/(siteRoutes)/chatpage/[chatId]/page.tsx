@@ -18,6 +18,7 @@ import useGetRoom from "@/hooks/useGetRoom";
 import { checkFriendData, getMessagesSortedByTime, SavedDbMessages, saveMessageForUser } from "@/utility/saveAndRetrievedb";
 import { generateRandom } from "@/app/(backend)/utility/random";
 import { updateFriend } from "@/utility/updateFriend";
+import { handleNewMessage, MessageData } from "@/hooks/useGetMessages";
 
 export type ItemSelected = {
   type: "text" | "image" | "audio" | "video";
@@ -43,23 +44,23 @@ export default function ChatPage() {
   const { room, friend } = useGetRoom(setChat);
 
   // for received msg
-  const handleNewMessage = async ({ message, user, image, audio }: { message: string; user: string; image?: string[]; audio?: Blob[] }) => {
+  const handleMessage = async (data: MessageData) => {
     if (!clientId || !room) {
       //todo
       console.log({ clientId, room });
       return;
     }
     try {
-      const id = generateRandom(16);
-      await saveMessageForUser(clientId, { message: message, audio, image, sender: false, id }, room);
+      const { message, user, image, audio, id } = data;
+      await handleNewMessage(clientId, data);
       setChat((pre) => {
         return [...pre, { id, userId: user, image, audio, message, timestamp: Date.now(), video: undefined, sender: false }];
       });
-      await updateFriend({ clientId, userId: room, image, message, audio });
     } catch (err) {
       console.log(err);
+    } finally {
+      scrollToBottom();
     }
-    scrollToBottom();
   };
 
   const handleOldChat = async () => {
@@ -74,9 +75,9 @@ export default function ChatPage() {
   };
 
   useEffect(() => {
-    socket.on("chat message", handleNewMessage);
+    socket.on("chat message", handleMessage);
     return () => {
-      socket.off("chat message", handleNewMessage);
+      socket.off("chat message", handleMessage);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [room, clientId]);
@@ -92,7 +93,7 @@ export default function ChatPage() {
       <ChatPageTop room={room} friend={friend} itemSelected={itemSelected} clearSelected={clearSelected} setChat={setChat} chat={chat} />
       <div style={{ height: "92svh", background: "url('/chatpageBg.png')" }} className="grid grid-rows-12 bg-sky-100  z-10">
         {/* chat */}
-        <div className="overflow-scroll row-span-11">
+        <div className="overflow-scroll row-span-11 ">
           {chat.map((item, index) => {
             // const day = getDate(item.timestamp);
             const time = convertTime(item.timestamp);

@@ -2,13 +2,12 @@ import "./globals.css";
 import { Geist, Geist_Mono } from "next/font/google";
 import StoreProvider from "@/redux/StoreProvider";
 import SetUser from "../components/SetUser";
-import GetMessages from "../components/GetMessages";
+import GetMessages from "../hooks/useGetMessages";
 import { Toaster } from "@/components/ui/sonner";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/scrollbar";
-import PwaCustumServicePush from "../components/AddserviceWorker";
 import { ReactNode } from "react";
 import Loading from "@/components/Loading";
 
@@ -23,7 +22,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "WChat",
+  title: "HindsApp",
   description: "Text app for the web",
   generator: "Next.js",
   manifest: "/manifest.json",
@@ -45,9 +44,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <StoreProvider>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           {/* <PwaCustumServicePush /> */}
-          <SetUser />
           <Loading />
-          <GetMessages />
+          <SetUser />
           {children}
           <Toaster />
         </body>

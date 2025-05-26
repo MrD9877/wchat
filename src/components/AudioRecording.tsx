@@ -75,7 +75,7 @@ const AudioRecorder = ({ audioRecording, room, setChat }: AudioRecorderType) => 
           await saveMessageForUser(userId, { message: undefined, sender: true, audio: audioChunksRef.current, image: undefined, video: undefined, id }, room);
           await updateFriend({ clientId: userId, userId: room, image: undefined, message: undefined, audio: audioChunksRef.current });
           const accessToken = getCookie("accessToken");
-          socket.emit("private message", room, { audio: url, accessToken });
+          socket.emit("private message", room, { audio: url, accessToken, id });
         }
         stopMediaStream();
       };

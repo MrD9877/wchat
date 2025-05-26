@@ -37,14 +37,15 @@ export default function ChatpageInput({ scrollToBottom, clearTimer, setChat, roo
   const { src, setSrc, files, setFile, fileSelected } = useFiles();
   const audioRecorder = AudioRecorder({ audioRecording, room, setChat });
   void audioRecorder;
+
   const handleExpire = async () => {
-    const res = await fetch("/api/refreshAuth");
-    if (res.status === 200) {
-      const accessToken = getCookie("accessToken");
-      socket.emit("private message", room, { message: textMessage, accessToken });
-    } else {
-      router.push("/login");
-    }
+    // const res = await fetch("/api/refreshAuth");
+    // if (res.status === 200) {
+    //   const accessToken = getCookie("accessToken");
+    //   sendMsg();
+    // } else {
+    //   router.push("/login");
+    // }
   };
 
   const sendMsg = async () => {
@@ -70,7 +71,7 @@ export default function ChatpageInput({ scrollToBottom, clearTimer, setChat, roo
       console.log(err);
     }
     const accessToken = getCookie("accessToken");
-    socket.emit("private message", room, { message: textMessage, accessToken, image: urls.length > 0 ? urls : undefined });
+    socket.emit("private message", room, { message: textMessage, accessToken, image: urls.length > 0 ? urls : undefined, id });
     socket.on("tokenExpire", handleExpire);
     setTextMessage("");
     setSrc([]);

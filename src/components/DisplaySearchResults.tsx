@@ -45,7 +45,7 @@ export default function DisplaySearchResults({ array, setArray }: { array: Users
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img className="w-8 h-8 rounded-full" src={"/getStarted.png"} alt="Neil image" />
+                      <img className="w-8 h-8 rounded-full" src={`${process.env.NEXT_PUBLIC_AWS_URL}/${user.profilePic}`} alt="Neil image" />
                     </div>
                     <div className="flex-1 min-w-0 ms-4">
                       <p className="text-sm font-medium text-black truncate ">Email: {user.email.slice(0, 20)}</p>
