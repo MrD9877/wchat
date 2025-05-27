@@ -2,24 +2,24 @@
 import { socket } from "@/socket";
 import Link from "next/link";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getCookie } from "../utility/getCookie";
-import { useRouter } from "next/navigation";
 import AudioRecorder from "./AudioRecording";
 import AudioInputUI from "./AudioInputUI";
 import AttachPhotoUI from "./AttachPhotoUI";
-import { UserState } from "@/redux/Slice";
+import { setLoading, UserState } from "@/redux/Slice";
 import useFiles from "@/hooks/useFiles";
 import { SavedDbMessages, saveMessageForUser } from "@/utility/saveAndRetrievedb";
 import { generateRandom } from "@/app/(backend)/utility/random";
 import { updateFriend } from "@/utility/updateFriend";
 import { uploadImageAndGetUrl } from "@/utility/uploadAndGetUrl";
+import { ChatType } from "@/app/(siteRoutes)/chatpage/[chatId]/page";
 
 interface ChatInputComponent {
   room: string;
   textMessage: string;
   setTextMessage: Dispatch<SetStateAction<string>>;
-  setChat: Dispatch<SetStateAction<SavedDbMessages[]>>;
+  setChat: Dispatch<SetStateAction<ChatType[]>>;
   showInput: () => void;
   emojiKeyBoard: boolean;
   setEmojiKeyBoard: Dispatch<SetStateAction<boolean>>;
@@ -30,53 +30,57 @@ interface ChatInputComponent {
 export default function ChatpageInput({ scrollToBottom, clearTimer, setChat, room, setTextMessage, textMessage, showInput, emojiKeyBoard, setEmojiKeyBoard }: ChatInputComponent) {
   const [sendVisible, setSendVisible] = useState(false);
   const userId = useSelector((state: UserState) => state.userId);
-  const router = useRouter();
   const textInput = useRef<HTMLInputElement>(null);
   const [audioRecording, setAudioRecording] = useState(false);
   const [changesInInpur, setChanges] = useState(false);
   const { src, setSrc, files, setFile, fileSelected } = useFiles();
   const audioRecorder = AudioRecorder({ audioRecording, room, setChat });
+  const sendButtonRef = useRef<HTMLButtonElement>(null);
+  const [disable, setDisable] = useState(false);
+  const dispatch = useDispatch();
   void audioRecorder;
 
-  const handleExpire = async () => {
-    // const res = await fetch("/api/refreshAuth");
-    // if (res.status === 200) {
-    //   const accessToken = getCookie("accessToken");
-    //   sendMsg();
-    // } else {
-    //   router.push("/login");
-    // }
-  };
-
   const sendMsg = async () => {
-    console.log("send");
+    // if (disable) return;
+    // else setDisable(true);
     if (src.length < 1 && textMessage === "") return;
     const image = src.length > 0 ? src : undefined;
     const urls: string[] = [];
     if (!userId || !room) return;
     if (image) {
+      dispatch(setLoading(true));
       for (let i = 0; i < image.length; i++) {
         const dataUri = image[i];
         const url = await uploadImageAndGetUrl({ image: dataUri });
         if (url) urls.push(url);
       }
+      dispatch(setLoading(false));
     }
     const id = generateRandom(16);
-    setChat((pre) => [...pre, { message: textMessage, sender: true, id, userId: room, timestamp: Date.now(), image, audio: undefined, video: undefined }]);
+    setChat((pre) => {
+      const temp = [...pre];
+      temp.forEach((item, index) => {
+        if (item.unread) {
+          temp[index].unread = undefined;
+        }
+      });
+      return [{ message: textMessage, sender: true, id, userId: room, timestamp: Date.now(), image, audio: undefined, video: undefined }, ...temp];
+    });
     // save in localstorage
     try {
-      await saveMessageForUser(userId, { message: textMessage, image, audio: undefined, video: undefined, sender: true, id }, room);
+      await saveMessageForUser(userId, { message: textMessage, image, audio: undefined, video: undefined, sender: true, id, userId: room, timestamp: Date.now() });
       await updateFriend({ clientId: userId, userId: room, image, message: textMessage, audio: undefined });
     } catch (err) {
       console.log(err);
+    } finally {
+      const accessToken = getCookie("accessToken");
+      socket.emit("private message", room, { message: textMessage, accessToken, image: urls.length > 0 ? urls : undefined, id });
+      setTextMessage("");
+      setSrc([]);
+      setFile(null);
+      scrollToBottom();
+      setDisable(false);
     }
-    const accessToken = getCookie("accessToken");
-    socket.emit("private message", room, { message: textMessage, accessToken, image: urls.length > 0 ? urls : undefined, id });
-    socket.on("tokenExpire", handleExpire);
-    setTextMessage("");
-    setSrc([]);
-    setFile(null);
-    scrollToBottom();
   };
 
   const handleEmote = () => {
@@ -190,7 +194,7 @@ export default function ChatpageInput({ scrollToBottom, clearTimer, setChat, roo
           </div>
           {/* send  */}
           <label htmlFor="text-input">
-            <div style={{ display: sendVisible ? "" : "none" }} className="bg-weblue px-4 pt-[15px] pb-2 rounded-full">
+            <div style={{ display: sendVisible ? "" : "none" }}>
               <button
                 onMouseDown={(e) => {
                   e.preventDefault(); // Prevents focus loss
@@ -200,6 +204,9 @@ export default function ChatpageInput({ scrollToBottom, clearTimer, setChat, roo
                   e.preventDefault(); // For mobile
                   sendMsg();
                 }}
+                onClick={(e) => e.preventDefault()}
+                ref={sendButtonRef}
+                className="bg-weblue p-4  rounded-full"
               >
                 <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M8.3208 12L19.3208 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

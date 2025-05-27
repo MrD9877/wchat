@@ -8,12 +8,11 @@ import { CopyIcon, Share, Trash2Icon, X } from "lucide-react";
 import { copyToClipboard } from "@/utility/copyToClipboard";
 import { handleShare } from "@/utility/shareData";
 import ImageWithFallBack from "./ImageWithFallBack";
-import { deleteMessage, SavedDbFriends, SavedDbMessages } from "@/utility/saveAndRetrievedb";
+import { deleteMediaInDb, deleteMessage, SavedDbFriends, SavedDbMessages } from "@/utility/saveAndRetrievedb";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import { deleteFromArray } from "@/utility/deleteFromArray";
 import { UserState } from "@/redux/Slice";
 import { useSelector } from "react-redux";
-import ServiceWorkerClass from "@/utility/ServiceWorker";
 
 type ChatTopType = {
   setChat: Dispatch<SetStateAction<SavedDbMessages[]>>;
@@ -37,17 +36,20 @@ export default function ChatPageTop({ friend, room, itemSelected, clearSelected,
   useEffect(() => {}, [friend]);
 
   const deleteSelected = async () => {
-    if (itemSelected && clientId && itemSelected.id) {
-      const deleteFromDb = await deleteMessage(clientId, itemSelected.id);
-      if (deleteFromDb) {
-        const arr = await deleteFromArray(chat, itemSelected?.index);
-        setChat(arr);
+    try {
+      if (itemSelected && clientId && itemSelected.id) {
+        const deleteFromDb = await deleteMessage(clientId, itemSelected.id);
+        if (deleteFromDb) {
+          const arr = await deleteFromArray(chat, itemSelected?.index);
+          setChat(arr);
+        }
+        if (deleteFromDb) {
+          await deleteMediaInDb(clientId, itemSelected.content);
+        }
       }
-      if (itemSelected.type !== "text" && deleteFromDb) {
-        ServiceWorkerClass.clearCache(itemSelected.content);
-      }
+    } finally {
+      clearSelected();
     }
-    clearSelected();
   };
 
   const handleVideoCall = async () => {
@@ -72,7 +74,7 @@ export default function ChatPageTop({ friend, room, itemSelected, clearSelected,
     router.push(`/VoiceCall/${room}`);
   };
   return (
-    <>
+    <div>
       <div className="bg-weblue h-[8svh] fixed top-0 w-screen flex justify-between items-center px-4 rounded-b-3xl">
         <div className="flex items-center gap-4">
           {/* back  */}
@@ -163,7 +165,7 @@ export default function ChatPageTop({ friend, room, itemSelected, clearSelected,
           </div>
         )}
       </div>
-      <div className="h-[8svh]"></div>
-    </>
+      <div className="h-[8svh] bg-sky-100 w-screen"></div>
+    </div>
   );
 }

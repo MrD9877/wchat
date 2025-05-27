@@ -10,7 +10,7 @@ export type MessageData = { message: string; user: string; image?: string[]; aud
 export const handleNewMessage = async (clientId: string, { message, user, image, audio, id }: MessageData) => {
   try {
     await checkFriendData(clientId, user);
-    await saveMessageForUser(clientId, { message: message, audio, image, sender: false, id }, user);
+    await saveMessageForUser(clientId, { message: message, audio, image, sender: false, id, userId: user, timestamp: Date.now() });
     await updateFriend({ clientId, userId: user, image, message, audio });
   } catch (err) {
     console.log(err);

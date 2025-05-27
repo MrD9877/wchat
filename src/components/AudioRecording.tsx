@@ -72,7 +72,7 @@ const AudioRecorder = ({ audioRecording, room, setChat }: AudioRecorderType) => 
           }
           const id = generateRandom(16);
           setChat((pre) => [...pre, { message: undefined, sender: true, audio: audioChunksRef.current, userId: room, image: undefined, video: undefined, id, timestamp: Date.now() }]);
-          await saveMessageForUser(userId, { message: undefined, sender: true, audio: audioChunksRef.current, image: undefined, video: undefined, id }, room);
+          await saveMessageForUser(userId, { message: undefined, sender: true, audio: audioChunksRef.current, image: undefined, video: undefined, id, userId: room, timestamp: Date.now() });
           await updateFriend({ clientId: userId, userId: room, image: undefined, message: undefined, audio: audioChunksRef.current });
           const accessToken = getCookie("accessToken");
           socket.emit("private message", room, { audio: url, accessToken, id });

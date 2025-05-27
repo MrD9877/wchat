@@ -7,7 +7,7 @@ import DownLoadingAudio from "./DownLoadingAudio";
 
 export const AudioBubbleOut = ({ url }: { url: string }) => {
   return (
-    <div className="flex w-screen justify-end px-2.5 my-2">
+    <div className="px-2.5">
       <audio controls src={url}></audio>
     </div>
   );
@@ -43,7 +43,7 @@ export function AudioBubbleIn({ url }: { url: string }) {
 
   if (!src) return <DownLoadingAudio />;
   return (
-    <div className="px-2.5 my-2">
+    <div className="px-2.5">
       <audio controls src={src}></audio>
     </div>
   );

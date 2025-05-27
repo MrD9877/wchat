@@ -3,21 +3,28 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getDisplayTime } from "../utility/convertTime";
 import ImageWithFallBack from "./ImageWithFallBack";
-import { getFriends, SavedDbFriends } from "@/utility/saveAndRetrievedb";
+import { getFriends, getLastRead, getMessagesSortedByTime, SavedDbFriends } from "@/utility/saveAndRetrievedb";
 import { useSelector } from "react-redux";
 import { UserState } from "@/redux/Slice";
 
+type ChatLogFriendstype = { newMessages?: number } & SavedDbFriends;
 export default function Chatlog() {
-  const [friends, setFriends] = useState<SavedDbFriends[]>([]);
+  const [friends, setFriends] = useState<ChatLogFriendstype[]>([]);
   const router = useRouter();
   const clientId = useSelector((state: UserState) => state.userId);
 
   const handleIndexDb = async () => {
     if (!clientId) return;
     try {
-      const data = await getFriends(clientId);
-      data.reverse();
-      setFriends(data);
+      const data: ChatLogFriendstype[] = await getFriends(clientId);
+      for (let i = 0; i < data.length; i++) {
+        const userId = data[i].userId;
+        const lastRead = await getLastRead(clientId, userId);
+        const messages = await getMessagesSortedByTime(clientId, userId, lastRead);
+        data[i].newMessages = messages.length;
+      }
+
+      setFriends(data.reverse());
     } catch (err) {
       console.log(err);
     }
@@ -28,7 +35,7 @@ export default function Chatlog() {
   }, [clientId]);
 
   return (
-    <div className="overflow-scroll">
+    <div className="overflow-y-scroll min-h-[70svh]">
       <div className="py-3 px-5">
         {/* <!-- Chat list --> */}
         <div className="divide-y divide-gray-200">
@@ -51,7 +58,7 @@ export default function Chatlog() {
                         )}
                       </div>
                     </div>
-                    {friend.newMessage && <div className="absolute right-10 bg-weblue px-2 text-[12px] text-white py-0.5 rounded-full">{friend.newMessage}</div>}
+                    {!!friend.newMessages && <div className="absolute right-10 bg-weblue px-2 text-[12px] text-white py-0.5 rounded-full">{friend.newMessages}</div>}
                   </div>
                 </button>
               );

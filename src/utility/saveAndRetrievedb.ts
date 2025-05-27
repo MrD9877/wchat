@@ -18,7 +18,6 @@ export type SavedDbFriends = {
   profilePic: string;
   name: string;
   email: string;
-  newMessage?: number;
 };
 
 export type FriendUpdate = {
@@ -37,6 +36,7 @@ export function openChatDB(clientId: string) {
       const messageStore = db.createObjectStore("messages", { keyPath: "id" });
       const friendStore = db.createObjectStore("friends", { keyPath: "userId" });
       const mediaStore = db.createObjectStore("media", { keyPath: "url" });
+      const lastReadStore = db.createObjectStore("lastRead", { keyPath: "userId" });
       messageStore.createIndex("userId", "userId", { unique: false });
       messageStore.createIndex("timestamp", "timestamp", { unique: false });
       messageStore.createIndex("userId_timestamp", ["userId", "timestamp"], { unique: false });
@@ -52,22 +52,26 @@ export function openChatDB(clientId: string) {
     };
   });
 }
-export async function saveMessageForUser(clientId: string, data: Omit<SavedDbMessages, "userId" | "timestamp">, userId: string) {
+export async function saveMessageForUser(clientId: string, data: SavedDbMessages) {
   const db = await openChatDB(clientId);
-  const tx = db.transaction("messages", "readwrite");
+  const tx = db.transaction(["messages", "lastRead"], "readwrite");
   const store = tx.objectStore("messages");
+  const lastReadStore = tx.objectStore("lastRead");
+
+  if (data.sender) {
+    lastReadStore.put({ userId: data.userId, timestamp: data.timestamp });
+  }
 
   const message: SavedDbMessages = {
     id: data.id, // unique ID (can be UUID)
-    userId: userId,
+    userId: data.userId,
     message: data.message,
     audio: data.audio,
     image: data.image,
     video: data.video,
-    timestamp: Date.now(),
+    timestamp: data.timestamp,
     sender: data.sender,
   };
-  console.log(message);
   store.add(message);
 
   return new Promise((resolve: (v: void) => void, reject) => {
@@ -97,15 +101,9 @@ export async function updateFriendsInDb(clientId: string, data: { userId: string
         reject(false);
         return;
       }
+
       data.update.forEach((update) => {
-        if (update && update.key === "newMessage") {
-          const value = update.value;
-          let newMessages = friend.newMessage;
-          newMessages = value ? (newMessages ? newMessages + value : value) : 0;
-          friend.newMessage = newMessages;
-        } else if (update) {
-          (friend as any)[update.key] = update.value;
-        }
+        if (update) (friend as any)[update.key] = update.value;
       });
       const updateRequest = store.put(friend);
       updateRequest.onsuccess = () => resolve(true);
@@ -149,15 +147,15 @@ export async function getFriends(clientId: string) {
   });
 }
 
-export async function getMessagesSortedByTime(clientId: string, userId: string) {
+export async function getMessagesSortedByTime(clientId: string, userId: string, timestamp?: number) {
   const db = await openChatDB(clientId);
   const tx = db.transaction("messages", "readonly");
   const store = tx.objectStore("messages");
   const index = store.index("userId_timestamp");
 
-  const lowerBound = [userId, 0];
+  const lowerBound = [userId, timestamp || 0];
   const upperBound = [userId, Number.MAX_SAFE_INTEGER];
-  const range = IDBKeyRange.bound(lowerBound, upperBound);
+  const range = IDBKeyRange.bound(lowerBound, upperBound, true);
 
   const messages: SavedDbMessages[] = [];
   const request = index.openCursor(range);
@@ -234,6 +232,20 @@ export async function saveMediaInDb(clientId: string, url: string, blob: Blob) {
     };
   });
 }
+export async function deleteMediaInDb(clientId: string, url: string) {
+  const db = await openChatDB(clientId);
+  const tx = db.transaction("media", "readwrite");
+  const store = tx.objectStore("media");
+  store.delete(url);
+  return new Promise((res: (r: string) => void, rej: () => void) => {
+    tx.oncomplete = () => {
+      res("done");
+    };
+    tx.onerror = () => {
+      rej();
+    };
+  });
+}
 export async function getMediaInDb(clientId: string, url: string) {
   const db = await openChatDB(clientId);
   const tx = db.transaction("media", "readwrite");
@@ -245,6 +257,42 @@ export async function getMediaInDb(clientId: string, url: string) {
 
       if (data) res(data.blob);
       else rej();
+    };
+  });
+}
+
+export async function updateLastRead(clientId: string, userId: string) {
+  const db = await openChatDB(clientId);
+  const tx = db.transaction("lastRead", "readwrite");
+  const store = tx.objectStore("lastRead");
+
+  const save = store.put({ userId, timestamp: Date.now() });
+  return new Promise((res: (r: boolean) => void, rej: () => void) => {
+    save.onsuccess = () => {
+      res(true);
+    };
+    save.onsuccess = () => {
+      rej();
+    };
+  });
+}
+export async function getLastRead(clientId: string, userId: string) {
+  const db = await openChatDB(clientId);
+  const tx = db.transaction("lastRead", "readwrite");
+  const store = tx.objectStore("lastRead");
+  console.log(clientId, userId);
+  const save = store.get(userId);
+  return new Promise((res: (r: number) => void, rej: () => void) => {
+    save.onsuccess = () => {
+      console.log(save.result);
+      if (save.result) {
+        res(save.result.timestamp);
+      } else {
+        res(Date.now());
+      }
+    };
+    save.onerror = () => {
+      rej();
     };
   });
 }

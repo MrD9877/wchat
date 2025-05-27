@@ -30,7 +30,7 @@ export default function CaremaPage() {
     socket.emit("private message", room, { message: caption, accessToken, image: url, id });
     if (room && dataUri && userId)
       try {
-        await saveMessageForUser(userId, { message: caption, image: dataUri, audio: undefined, video: undefined, sender: true, id }, room);
+        await saveMessageForUser(userId, { message: caption, image: dataUri, audio: undefined, video: undefined, sender: true, id, userId: room, timestamp: Date.now() });
         await updateFriend({ clientId: userId, userId: room, image: dataUri, message: caption, audio: undefined });
       } catch (err) {
         console.log(err);

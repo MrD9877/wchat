@@ -32,7 +32,8 @@ export default function ImageTaken({ dataUri, sendImage, isCaption = false }: Im
           <div className="px-2 py-1 rounded-2xl bg-gray-900">Image</div>
           <div className="bg-weblue px-4 pt-[15px] pb-2 rounded-full w-fit">
             <button
-              onClick={() => {
+              onClick={(e) => {
+                e.currentTarget.disabled = true;
                 dispatch(setLoading(true));
                 sendImage(dataUri, caption);
               }}
