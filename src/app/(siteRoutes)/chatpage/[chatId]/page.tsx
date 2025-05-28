@@ -76,12 +76,15 @@ export default function ChatPage() {
       await checkFriendData(clientId, room);
       const data: ChatType[] = await getMessagesSortedByTime(clientId, room);
       const lastRead = await getLastRead(clientId, room);
-      data.forEach((item, index) => {
+      for (let i = 0; i < data.length; i++) {
+        const item = data[i];
         if (item.timestamp > lastRead) {
-          data[index].unread = data.length - index;
+          data[i].unread = data.length - i;
+          i = data.length;
         }
-      });
+      }
       setChat(data.reverse());
+      await updateLastRead(clientId, room);
     } catch (err) {
       console.log(err);
     }

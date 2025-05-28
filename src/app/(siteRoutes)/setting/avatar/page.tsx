@@ -41,12 +41,12 @@ export default function AvatarPage() {
 
   return (
     <div className=" text-black absolute top-0  w-screen z-50 flex flex-col bg-weChat min-h-screen">
-      <div className="h-[9svh] w-screen"></div>
+      <div className="h-[9svh] w-screen z-[-1]"></div>
       <div className="h-[9svh] fixed top-0 w-screen bg-white border-b border-black flex items-center px-4 gap-4 z-10">
-        <button onClick={() => router.back()}>
+        <button className="absolute" onClick={() => router.back()}>
           <ArrowLeft width={35} height={35} />
         </button>
-        <span className="text-lg absolute w-screen flex justify-center">Select Avatar</span>
+        <span className="text-lg w-screen flex justify-center">Select Avatar</span>
       </div>
       <div className="w-screen grid grid-cols-4 gap-2 p-2 ">
         {src

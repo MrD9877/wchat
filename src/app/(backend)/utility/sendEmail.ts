@@ -1,24 +1,26 @@
 "use server";
-import Content from "@/components/OTPEmail";
+import Content from "@/app/_email/OTPEmail";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.NEXT_PUBLIC_RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendEmail(otp: string, userName: string, email: string) {
   try {
     const { data, error } = await resend.emails.send({
-      from: "hindsApp@jagraongarments.in",
-      to: email,
-      subject: "Email Verify",
+      from: "Acme <onboarding@resend.dev>",
+      to: "shubhambansal1235@gmail.com",
+      subject: "Your OTP Code",
       react: Content({ otp, userName }),
+      text: `Hi ${userName} your otp for email ${email} is ${otp}`,
     });
 
     if (error) {
-      return false;
+      throw Error(error.message);
     }
 
-    return true;
+    return data;
   } catch (error) {
+    console.log(error);
     return false;
   }
 }

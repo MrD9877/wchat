@@ -6,12 +6,14 @@ import ImageWithFallBack from "./ImageWithFallBack";
 import { getFriends, getLastRead, getMessagesSortedByTime, SavedDbFriends } from "@/utility/saveAndRetrievedb";
 import { useSelector } from "react-redux";
 import { UserState } from "@/redux/Slice";
+import { socket } from "@/socket";
 
 type ChatLogFriendstype = { newMessages?: number } & SavedDbFriends;
 export default function Chatlog() {
   const [friends, setFriends] = useState<ChatLogFriendstype[]>([]);
   const router = useRouter();
   const clientId = useSelector((state: UserState) => state.userId);
+  const newMessage = useSelector((state: UserState) => state.newMessage);
 
   const handleIndexDb = async () => {
     if (!clientId) return;
@@ -23,7 +25,7 @@ export default function Chatlog() {
         const messages = await getMessagesSortedByTime(clientId, userId, lastRead);
         data[i].newMessages = messages.length;
       }
-
+      console.log(data);
       setFriends(data.reverse());
     } catch (err) {
       console.log(err);
@@ -32,7 +34,7 @@ export default function Chatlog() {
   useEffect(() => {
     handleIndexDb();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clientId]);
+  }, [clientId, newMessage]);
 
   return (
     <div className="overflow-y-scroll min-h-[70svh]">

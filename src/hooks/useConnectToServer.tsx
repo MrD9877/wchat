@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useActionState } from "react";
+import { useEffect } from "react";
 import { socket } from "@/socket"; // Import socket from the singleton
 import { useRouter } from "next/navigation";
 import { getCookie } from "../utility/getCookie";
@@ -20,7 +20,12 @@ export default function useConnectToServer(room: String | undefined) {
       }
     };
     const accessToken = getCookie("accessToken");
-    socket.emit("joinRoom", accessToken);
+    socket.on("connect", () => {
+      socket.emit("joinRoom", accessToken);
+    });
+    socket.on("reconnect", () => {
+      socket.emit("joinRoom", accessToken);
+    });
     socket.on("welcome", handleWelcome);
     return () => {
       socket.off("welcome", handleWelcome);

@@ -4,8 +4,11 @@ import { socket } from "@/socket"; // Import socket from the singleton
 import { checkFriendData, saveMessageForUser } from "@/utility/saveAndRetrievedb";
 import { usePathname } from "next/navigation";
 import { updateFriend } from "@/utility/updateFriend";
+import { toast } from "sonner";
+import { useDispatch } from "react-redux";
+import { addNewMessage } from "@/redux/Slice";
 
-export type MessageData = { message: string; user: string; image?: string[]; audio?: Blob[]; id: string };
+export type MessageData = { message: string; user: string; image?: string | string[]; audio?: string; id: string; username: string };
 
 export const handleNewMessage = async (clientId: string, { message, user, image, audio, id }: MessageData) => {
   try {
@@ -17,21 +20,37 @@ export const handleNewMessage = async (clientId: string, { message, user, image,
   }
 };
 
+function pushNotification(data: MessageData) {
+  const notificationMessage: string[] = [];
+  if (data.message) notificationMessage.push(data.message);
+  if (data.image) notificationMessage.push("🖼️");
+  if (data.image && !data.message) notificationMessage.push("Image");
+  if (data.audio) notificationMessage.push("🎙️ 1:00");
+  toast(data.username, { description: notificationMessage.join(" ") });
+}
+
 export default function useGetMessages(clientId: string | undefined) {
   const pathname = usePathname();
-
-  const handleMessage = async (data: MessageData) => {
-    if (!clientId || pathname === `/chatpage/${data.user}`) return;
-    await handleNewMessage(clientId, data);
-  };
+  const dispath = useDispatch();
 
   useEffect(() => {
+    const handleMessage = async (data: MessageData) => {
+      if (!clientId || pathname === `/chatpage/${data.user}`) return;
+      else {
+        await handleNewMessage(clientId, data);
+        if (pathname === "/chatscreen") {
+          dispath(addNewMessage(1));
+        } else {
+          pushNotification(data);
+        }
+      }
+    };
+
     if (typeof window === "undefined") return;
     socket.on("chat message", handleMessage);
     return () => {
       socket.off("chat message", handleMessage);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clientId]);
+  }, [clientId, pathname, dispath]);
   return [];
 }

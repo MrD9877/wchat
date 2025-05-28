@@ -1,10 +1,11 @@
 import dotenv from "dotenv";
+import { toast } from "sonner";
 
 dotenv.config();
 
 const getUrl = async () => {
   try {
-    const data = await fetch(`${process.env.NEXT_PUBLIC_URL_BASE}/api/auth/changeProfilePic`);
+    const data = await fetch(`/api/auth/changeProfilePic`);
     const { url } = await data.json();
     console.log(url);
     return url as string;
@@ -14,6 +15,7 @@ const getUrl = async () => {
 };
 
 export async function uploadProfilePic(dataUri: string | undefined, profilePicId: string | undefined, bufferData?: Buffer<ArrayBuffer>, contentType?: string) {
+  console.log({ dataUri, profilePicId, bufferData, contentType });
   if (!profilePicId) return;
   let buffer: Buffer<ArrayBuffer>;
 
@@ -25,9 +27,9 @@ export async function uploadProfilePic(dataUri: string | undefined, profilePicId
   } else {
     return;
   }
-  const url = await getUrl();
-  if (!url) return;
   try {
+    const url = await getUrl();
+    if (!url) throw Error();
     const upload = await fetch(url, {
       method: "PUT",
       body: buffer,
@@ -40,5 +42,6 @@ export async function uploadProfilePic(dataUri: string | undefined, profilePicId
     const d = await cache.delete(`${process.env.NEXT_PUBLIC_AWS_URL}/${profilePicId}`);
   } catch (err) {
     console.log(err);
+    toast("somthing went wrong when uploading image");
   }
 }

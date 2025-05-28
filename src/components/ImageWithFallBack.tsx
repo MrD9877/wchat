@@ -1,5 +1,4 @@
 /* eslint-disable @next/next/no-img-element */
-import Image from "next/image";
 import React, { useEffect, useState } from "react";
 type Props = React.HTMLAttributes<HTMLDivElement>;
 type ClassName = Pick<Props, "className">;

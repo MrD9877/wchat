@@ -14,7 +14,7 @@ export async function GET() {
     if (!refreshTokenString || !sessionTokenString) return new Response(JSON.stringify({ msg: keys.UNAUTHORIZED }), { status: 401 });
     const refreshToken = await tokenAuth(refreshTokenString);
     if (!refreshToken) return new Response(JSON.stringify({ msg: keys.UNAUTHORIZED }), { status: 401 });
-    const token = generateAccessToken({ ...refreshToken.user }, oneDayInMS);
+    const token = await generateAccessToken({ ...refreshToken.user }, oneDayInMS);
     if (!token) throw Error();
     const session = await sessionAuth(sessionTokenString);
     if (!session || !session.sessionData || !session.sessionData.refreshToken || session.sessionData.refreshToken !== refreshTokenString) return new Response(JSON.stringify({ msg: keys.UNAUTHORIZED }), { status: 401 });

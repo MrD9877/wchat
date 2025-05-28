@@ -191,11 +191,11 @@ export async function getFriend(clientId: string, userId: string) {
 }
 
 export async function checkFriendData(clientId: string, userId: string) {
-  console.log("updating");
   try {
     const data = await getFriend(clientId, userId);
     if (!data) {
-      await handleUpdateDb(userId, clientId);
+      const newData = await handleUpdateDb(userId, clientId);
+      return newData;
     }
     return data;
   } catch {}

@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import webpush from "web-push";
+import { sendEmail } from "../../utility/sendEmail";
 
 export async function GET(req: Request) {
-  const keys = webpush.generateVAPIDKeys();
-  console.log(keys);
-  return new NextResponse(JSON.stringify({ keys }), { status: 200 });
+  const data = await sendEmail("1234", "dhuruv", "shurbhambansal1235@gmail.com");
+  return new NextResponse(JSON.stringify({ data }), { status: 200 });
 }

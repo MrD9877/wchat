@@ -39,7 +39,7 @@ export default function Content({ otp = "0000", userName }: { otp: string; userN
             <Preview>Confirm your email address</Preview>
             <Row className="w-1/2">
               <Column align="center" className="h-[40px] w-fit">
-                <Img src={`https://j-shop.s3.eu-north-1.amazonaws.com/icon.ico`} alt="Slack" />
+                <Img alt="H" width="40" height="40" style={{ objectFit: "contain", display: "block" }} src={`https://webnovel-d.s3.eu-north-1.amazonaws.com/letter-h.png`} />
               </Column>
               <Column align="center" className="h-[40px] w-fit px-2">
                 <span className="text-bold text-xl">HINDSAPP</span>
@@ -48,7 +48,7 @@ export default function Content({ otp = "0000", userName }: { otp: string; userN
             <Section style={header}>
               <Row>
                 <Column style={headerContent}>
-                  <Heading style={headerContentTitle}>HAPP</Heading>
+                  <Heading style={headerContentTitle}>HINDS</Heading>
                   <Text style={headerContentSubtitle}>Where your privacy is our responsibility.</Text>
                 </Column>
                 <Column style={headerImageContainer}>
@@ -81,7 +81,7 @@ export default function Content({ otp = "0000", userName }: { otp: string; userN
                 </div>
                 <div className="text-gray-700 my-8">
                   <div>Best Regards,</div>
-                  <div className="text-purple-600">JG Team.</div>
+                  <div className="text-purple-600">HindsApp Team.</div>
                 </div>
                 <Hr className="my-[16px] border-t-2 border-gray-300" />
                 <div className=" w-full">

@@ -10,7 +10,7 @@ export async function GET() {
     const user = data.user;
     const userInfo = await User.findOne({ email: user.email });
     if (!userInfo) throw Error();
-    return new Response(JSON.stringify({ email: userInfo.email, name: userInfo.name, userId: userInfo.userId, chatPages: userInfo.chatPages, profilePic: userInfo.profilePic }), { status: 200 });
+    return new Response(JSON.stringify({ email: userInfo.email, name: userInfo.name, userId: userInfo.userId, profilePic: userInfo.profilePic }), { status: 200 });
   } catch (err) {
     console.log(err);
     return new Response(JSON.stringify({ msg: "Internal Server Error" }), { status: 500 });

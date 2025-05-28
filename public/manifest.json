@@ -1,8 +1,8 @@
 {
-  "name": "WeChat",
-  "short_name": "",
+  "name": "HindsApp",
+  "short_name": "HindsApp",
   "theme_color": "#00ff00",
-  "background_color": "#ffffff",
+  "background_color": "#000",
   "display": "standalone",
   "orientation": "any",
   "scope": "/",

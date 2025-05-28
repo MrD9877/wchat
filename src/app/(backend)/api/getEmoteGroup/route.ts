@@ -1,11 +1,11 @@
 // distinct
 import dbConnect from "../../lib/DbConnect";
-import { Emotes } from "../../model/Emotes";
+import { EmotesModel } from "../../model/Emotes";
 
 export async function GET() {
   await dbConnect();
   try {
-    const group = await Emotes.distinct("groupName");
+    const group = await EmotesModel.distinct("groupName");
     return new Response(JSON.stringify({ group }), { status: 200 });
   } catch (err) {
     console.log(err);

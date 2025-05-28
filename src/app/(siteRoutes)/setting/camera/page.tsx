@@ -1,7 +1,8 @@
+"use client";
 import Camera from "@/components/Camera";
 import { setLoading, UserState } from "@/redux/Slice";
 import { uploadProfilePic } from "@/utility/uploadProfilePic";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";

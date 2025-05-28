@@ -2,13 +2,12 @@ import "./globals.css";
 import { Geist, Geist_Mono } from "next/font/google";
 import StoreProvider from "@/redux/StoreProvider";
 import SetUser from "../components/SetUser";
-import GetMessages from "../hooks/useGetMessages";
 import { Toaster } from "@/components/ui/sonner";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/scrollbar";
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 import Loading from "@/components/Loading";
 
 const geistSans = Geist({
@@ -41,13 +40,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#000000" />
       </head>
+
       <StoreProvider>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           {/* <PwaCustumServicePush /> */}
           <Loading />
-          <SetUser />
-          {children}
-          <Toaster />
+          <Suspense>
+            <SetUser />
+            {children}
+            <Toaster />
+          </Suspense>
         </body>
       </StoreProvider>
     </html>

@@ -2,7 +2,7 @@
 import { getCookie } from "@/utility/getCookie";
 import { socket } from "@/socket";
 import { useRouter, useSearchParams } from "next/navigation";
-import React from "react";
+import React, { Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading, UserState } from "@/redux/Slice";
 import { saveMessageForUser } from "@/utility/saveAndRetrievedb";
@@ -40,5 +40,9 @@ export default function CaremaPage() {
       }
   };
 
-  return <Camera sendImage={sendImage} isCaption={true} />;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Camera sendImage={sendImage} isCaption={true} />;
+    </Suspense>
+  );
 }

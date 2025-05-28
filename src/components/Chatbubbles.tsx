@@ -43,7 +43,7 @@ export function WrapperBubble({ children, longPressEvents, item, index, type, it
   return (
     <>
       <div style={{ display: item.sender ? "flex" : "block", background: itemSelected?.index === index ? "rgba(0,0,22,0.3)" : "" }} className="w-screen flex justify-end">
-        <div onClick={handleWrapperClick} className="my-1 px-2 " {...longPressEvents} data-type={type} data-content={type === "image" ? item.image : type === "audio" ? item.audio : item.message} data-index={index} data-id={item.id} key={index}>
+        <div onClick={handleWrapperClick} className="my-1 px-2 w-fit" {...longPressEvents} data-type={type} data-content={type === "image" ? item.image : type === "audio" ? item.audio : item.message} data-index={index} data-id={item.id} key={index}>
           {children}
         </div>
       </div>

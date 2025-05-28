@@ -1,32 +1,35 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
-interface EmotesArray {
+
+export interface EmotesArray {
   name: string;
   character: string;
 }
 
-interface Emotes {
+export interface Emotes {
   groupName: string;
   emotesArray: EmotesArray[];
 }
-export interface IEmotes extends Document, Emotes {}
-const EmoteSchema = new Schema<Emotes>({
+
+export interface IEmotes extends Emotes, Document {}
+
+const EmoteSchema = new Schema<IEmotes>({
   groupName: {
     type: Schema.Types.String,
-    require: true,
+    required: true, // ✅ corrected spelling from `require`
   },
   emotesArray: [
     {
       name: {
         type: Schema.Types.String,
-        require: true,
+        required: true,
       },
       character: {
         type: Schema.Types.String,
-        require: true,
+        required: true,
       },
     },
   ],
 });
 
-const EmotesModel: Model<IEmotes> = mongoose.models.Emotes || mongoose.model<IEmotes>("Emotes", EmoteSchema);
-export { EmotesModel as Emotes };
+// ✅ Schema and Model now agree on type: IEmotes
+export const EmotesModel: Model<IEmotes> = mongoose.models.Emotes || mongoose.model<IEmotes>("Emotes", EmoteSchema);

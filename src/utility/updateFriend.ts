@@ -8,12 +8,13 @@ export const handleUpdateDb = async (userId: string, clientId: string | undefine
       const data: SavedDbFriends = await res.json();
       data["lastMessageDate"] = 2;
       await saveFriends(clientId, data);
+      return data;
     }
   } catch (err) {
     console.log(err);
   }
 };
-export const updateFriend = async ({ clientId, userId, image, message, audio }: { clientId: string; userId: string; image?: string | string[]; message?: string; audio?: Blob[] }) => {
+export const updateFriend = async ({ clientId, userId, image, message, audio }: { clientId: string; userId: string; image?: string | string[]; message?: string; audio?: string }) => {
   const type = image ? "image" : message ? "message" : audio && "audio";
   if (!type) return;
   const updates: FriendUpdate[] = [];

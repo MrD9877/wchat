@@ -47,7 +47,9 @@ export default function Camera(props: Omit<ImageTakenType, "dataUri">) {
     if (!ctx) return;
     ctx.save();
     ctx.translate(canvas.width, 0);
-    ctx.scale(-1, 1); // mirror horizontally
+    if (faceMode === "user") {
+      ctx.scale(-1, 1); // mirror horizontally
+    }
     ctx.drawImage(stream, 0, 0, canvas.width, canvas.height);
     ctx.restore();
     const dataUri = canvas.toDataURL("image/png");

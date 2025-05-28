@@ -3,6 +3,8 @@ const version = 1;
 const MAX_AGE = 12 * 60 * 60 * 1000;
 
 const cacheWithDomain = ["hinds-app-media.s3.eu-north-1.amazonaws.com"];
+const cacheEndpoint = ["/api/auth/getUser"];
+const URL_BASE = "http://localhost:3001";
 
 ////////////////////////////////////////////////
 
@@ -37,6 +39,7 @@ self.addEventListener("push", function (event) {
     const options = {
       body: notificationMessage.join(" "),
       icon: "/icons/icon-48.png",
+      badge: "/icons/icon-16.png",
     };
     event.waitUntil(notificationFn(title, options, data));
   } catch {}
@@ -55,14 +58,34 @@ self.addEventListener("message", (ev) => {
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 async function notificationFn(title, options, data) {
+  const clientsList = await self.clients.matchAll({
+    type: "window",
+    includeUncontrolled: true,
+  });
+
+  let isAppOpen = false;
+  let isAppFocused = false;
+
+  for (const client of clientsList) {
+    if (client.visibilityState === "visible") {
+      isAppOpen = true;
+      isAppFocused = true;
+      break; // One focused client is enough
+    } else if (client.visibilityState === "hidden") {
+      isAppOpen = true;
+    }
+  }
   try {
-    const { userId, clientId } = data;
-    // async code here
-    await saveMessageForUser(clientId, data, userId);
-    await updateFriend(data);
-  } catch {
+    if (!isAppOpen || !isAppFocused) {
+      const { userId, clientId } = data;
+      // async code here
+      await saveMessageForUser(clientId, data, userId);
+      await updateFriend(data);
+    }
   } finally {
-    return self.registration.showNotification(title, options);
+    if (!isAppOpen && !isAppFocused) {
+      return self.registration.showNotification(title, options);
+    }
   }
 }
 
@@ -183,25 +206,17 @@ const fetchAndSaveInCaches = async (req) => {
 
 async function handleRequest(ev) {
   const url = new URL(ev.request.url);
-  if ("webnovel-d.s3.eu-north-1.amazonaws.com" === url.hostname && ev.request.method === "GET") {
+  console.log(url.pathname);
+  if (cacheEndpoint.includes(url.pathname) || ("webnovel-d.s3.eu-north-1.amazonaws.com" === url.hostname && ev.request.method === "GET")) {
     const cacheRes = await caches.match(`${ev.request.url}`);
     if (cacheRes) {
       const cachedDate = new Date(cacheRes.headers.get("media-cache-time"));
       const age = Date.now() - cachedDate.getTime();
-      console.log(age);
-      if (age < MAX_AGE) {
-        return cacheRes;
-      } else {
-        return fetchAndCacheWithExpireDate(ev.request);
-      }
-    } else {
-      return fetchAndCacheWithExpireDate(ev.request);
+      if (age < MAX_AGE) return cacheRes;
     }
-  } else {
-    try {
-      return await fetch(ev.request);
-    } catch {}
+    return fetchAndCacheWithExpireDate(ev.request);
   }
+  return await fetch(ev.request);
 }
 
 async function fetchAndCacheWithExpireDate(request) {

@@ -11,6 +11,7 @@ export interface UserState {
   inComingCall: InComingCall;
   profilePic?: string;
   loading: boolean;
+  newMessage: number;
 }
 
 const initialState: UserState = {
@@ -20,6 +21,7 @@ const initialState: UserState = {
   inComingCall: null,
   loading: false,
   profilePic: undefined,
+  newMessage: 0,
 };
 
 export const userSlice = createSlice({
@@ -38,10 +40,13 @@ export const userSlice = createSlice({
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
     },
+    addNewMessage: (state, action: PayloadAction<number>) => {
+      state.newMessage = state.newMessage + action.payload;
+    },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { setUser, setIncomingCall, setLoading } = userSlice.actions;
+export const { setUser, setIncomingCall, setLoading, addNewMessage } = userSlice.actions;
 
 export default userSlice.reducer;
