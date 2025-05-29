@@ -13,8 +13,8 @@ export default function NotificationSetting() {
 
   useEffect(() => {
     (async () => {
-      const registration = await navigator.serviceWorker.ready;
-      const existingSubscription = await registration.pushManager.getSubscription();
+      const registration = await navigator.serviceWorker?.ready;
+      const existingSubscription = await registration?.pushManager.getSubscription();
       if (existingSubscription) {
         setIsChecked(true);
       }

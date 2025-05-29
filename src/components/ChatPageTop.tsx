@@ -9,10 +9,12 @@ import { copyToClipboard } from "@/utility/copyToClipboard";
 import { handleShare } from "@/utility/shareData";
 import ImageWithFallBack from "./ImageWithFallBack";
 import { deleteMediaInDb, deleteMessage, SavedDbFriends, SavedDbMessages } from "@/utility/saveAndRetrievedb";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { deleteFromArray } from "@/utility/deleteFromArray";
 import { UserState } from "@/redux/Slice";
 import { useSelector } from "react-redux";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import OpenProfilePic from "./OpenProfilePic";
 
 type ChatTopType = {
   setChat: Dispatch<SetStateAction<SavedDbMessages[]>>;
@@ -23,8 +25,33 @@ type ChatTopType = {
   chat: SavedDbMessages[];
 };
 
+export const handleVideoCall = async ({ room, router }: { room: string | undefined; router: AppRouterInstance }) => {
+  if (!room) return;
+  if (!peer.peer) {
+    peer.closeConnection();
+    await peer.initializePeerConnection();
+  }
+  const offer = await peer.getOffer();
+  const accessToken = getCookie("accessToken");
+  socket.emit("call", { to: room, offer, accessToken, type: "video" });
+  router.push(`/videoCall/${room}`);
+};
+
+export const handleVoiceCall = async ({ room, router }: { room: string | undefined; router: AppRouterInstance }) => {
+  if (!room) return;
+  if (!peer.peer) {
+    peer.closeConnection();
+    await peer.initializePeerConnection();
+  }
+  const offer = await peer.getOffer();
+  const accessToken = getCookie("accessToken");
+  socket.emit("call", { to: room, offer, accessToken, type: "voice" });
+  router.push(`/VoiceCall/${room}`);
+};
+
 export default function ChatPageTop({ friend, room, itemSelected, clearSelected, setChat, chat }: ChatTopType) {
   const clientId = useSelector((state: UserState) => state.userId);
+  const [openPic, setOpenPic] = useState<string>();
   const router = useRouter();
   const handleBack = () => {
     if (itemSelected) {
@@ -33,8 +60,9 @@ export default function ChatPageTop({ friend, room, itemSelected, clearSelected,
       router.push("/chatscreen");
     }
   };
-  const OpenProfile = () => {
-    router.push("/");
+  const openProfile = () => {
+    if (!room) return;
+    router.push(`/profile?userId=${room}`);
   };
 
   const deleteSelected = async () => {
@@ -54,29 +82,9 @@ export default function ChatPageTop({ friend, room, itemSelected, clearSelected,
     }
   };
 
-  const handleVideoCall = async () => {
-    if (!peer.peer) {
-      peer.closeConnection();
-      await peer.initializePeerConnection();
-    }
-    const offer = await peer.getOffer();
-    const accessToken = getCookie("accessToken");
-    socket.emit("call", { to: room, offer, accessToken, type: "video" });
-    router.push(`/videoCall/${room}`);
-  };
-
-  const handleVoiceCall = async () => {
-    if (!peer.peer) {
-      peer.closeConnection();
-      await peer.initializePeerConnection();
-    }
-    const offer = await peer.getOffer();
-    const accessToken = getCookie("accessToken");
-    socket.emit("call", { to: room, offer, accessToken, type: "voice" });
-    router.push(`/VoiceCall/${room}`);
-  };
   return (
     <div>
+      {openPic && <OpenProfilePic url={openPic} setUrl={setOpenPic} />}
       <div className="bg-weblue h-[8svh] fixed top-0 w-screen flex justify-between items-center px-4 rounded-b-3xl">
         <div className="flex items-center gap-4">
           {/* back  */}
@@ -91,9 +99,22 @@ export default function ChatPageTop({ friend, room, itemSelected, clearSelected,
             </button>
           </div>
           {/* profile pic  */}
-          {!itemSelected && <button onClick={OpenProfile}>{<ImageWithFallBack className="rounded-full items-start flex-shrink-0 " src={`${process.env.NEXT_PUBLIC_AWS_URL}/${friend?.profilePic}`} width={36} height={36} alt="dp" />}</button>}
+          {!itemSelected && (
+            <button
+              style={friend ? { viewTransitionName: `open ${process.env.NEXT_PUBLIC_AWS_URL}/${friend.profilePic}` } : {}}
+              onClick={() => {
+                if (friend) setOpenPic(`${process.env.NEXT_PUBLIC_AWS_URL}/${friend.profilePic}`);
+              }}
+            >
+              {<ImageWithFallBack className="rounded-full items-start flex-shrink-0 w-10 h-10" src={`${process.env.NEXT_PUBLIC_AWS_URL}/${friend?.profilePic}`} width={36} height={36} alt="dp" />}
+            </button>
+          )}
           {/* name  */}
-          {!itemSelected && <div className="text-white text-lg">{(friend && friend.name) || ""}</div>}
+          {!itemSelected && (
+            <button className="text-white text-lg select-none" onClick={openProfile}>
+              {(friend && friend.name) || ""}
+            </button>
+          )}
         </div>
         {itemSelected ? (
           <div className="flex items-center gap-5 justify-center mr-3 text-white">
@@ -127,7 +148,7 @@ export default function ChatPageTop({ friend, room, itemSelected, clearSelected,
           <div className="flex items-center gap-4 justify-center">
             <div>
               {/* call  */}
-              <button onClick={handleVoiceCall}>
+              <button onClick={() => handleVoiceCall({ room, router })}>
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
                     d="M2.33073 2.16538H7.19202L8.75867 6.08257L6.24141 7.76074C6.09317 7.85964 5.97164 7.99361 5.88759 8.15074C5.80355 8.30788 5.75959 8.48334 5.75961 8.66154C5.76286 8.76331 5.75961 8.66262 5.75961 8.66262V8.68536C5.76018 8.73378 5.76234 8.78216 5.76611 8.83044C5.77261 8.91922 5.78343 9.0394 5.804 9.18773C5.84623 9.48005 5.92743 9.88282 6.0855 10.357C6.40382 11.3098 7.02745 12.543 8.24223 13.7578C9.45701 14.9726 10.6902 15.5962 11.6419 15.9145C12.1172 16.0726 12.5189 16.1527 12.8134 16.196C12.9796 16.2192 13.1469 16.2336 13.3146 16.2393L13.3287 16.2404H13.3374C13.3374 16.2404 13.4586 16.2339 13.3385 16.2404C13.5395 16.2403 13.7365 16.1842 13.9074 16.0785C14.0784 15.9727 14.2165 15.8215 14.3064 15.6417L15.0318 14.1908L19.8346 14.992V19.6693C17.5491 19.9995 11.3755 20.3254 6.52508 15.4749C1.67462 10.6245 1.99942 4.44987 2.33073 2.16538ZM8.00403 9.18773L9.96046 7.88417C10.3738 7.60848 10.6797 7.19906 10.827 6.72456C10.9742 6.25007 10.9538 5.73937 10.7692 5.27813L9.20258 1.36094C9.04181 0.959163 8.76434 0.614769 8.40597 0.372188C8.0476 0.129608 7.62477 -2.90091e-05 7.19202 4.86911e-09H2.27443C1.29026 4.86911e-09 0.364558 0.683179 0.203237 1.75071C-0.164879 4.17811 -0.664 11.3477 4.99415 17.0058C10.6523 22.664 17.8219 22.1638 20.2493 21.7968C21.3168 21.6344 22 20.7097 22 19.7256V14.992C22.0001 14.4795 21.8183 13.9835 21.487 13.5923C21.1557 13.2012 20.6964 12.9402 20.1908 12.8559L15.388 12.0558C14.9312 11.9795 14.462 12.0517 14.0493 12.2618C13.6365 12.4719 13.302 12.8087 13.0949 13.2229L12.7202 13.9732C12.5878 13.9406 12.4567 13.9027 12.3272 13.8595C11.656 13.6365 10.7238 13.1774 9.77316 12.2268C8.82255 11.2762 8.36349 10.344 8.14046 9.67169C8.08721 9.51276 8.04204 9.35123 8.00512 9.18773H8.00403Z"
@@ -138,7 +159,7 @@ export default function ChatPageTop({ friend, room, itemSelected, clearSelected,
             </div>
             {/* vedio call */}
             <div>
-              <button onClick={handleVideoCall}>
+              <button onClick={() => handleVideoCall({ room, router })}>
                 <svg width="24" height="17" viewBox="0 0 24 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
                     d="M22.7886 2.57871C22.4242 2.41463 22.0196 2.36126 21.6251 2.42523C21.2306 2.4892 20.8636 2.6677 20.5697 2.93853L17.991 5.33733V3.5982C17.991 2.6439 17.6119 1.72868 16.9371 1.05389C16.2623 0.379095 15.3471 0 14.3928 0H3.5982C2.6439 0 1.72868 0.379095 1.05389 1.05389C0.379095 1.72868 0 2.6439 0 3.5982V13.1934C0 14.1477 0.379095 15.0629 1.05389 15.7377C1.72868 16.4125 2.6439 16.7916 3.5982 16.7916H14.3928C15.3471 16.7916 16.2623 16.4125 16.9371 15.7377C17.6119 15.0629 17.991 14.1477 17.991 13.1934V11.4543L20.5817 13.8531C20.9631 14.1983 21.4586 14.3905 21.973 14.3928C22.2585 14.3921 22.5406 14.3308 22.8006 14.2129C23.1544 14.0698 23.4574 13.8245 23.6711 13.5083C23.8847 13.1921 23.9992 12.8194 24 12.4378V4.35382C23.9983 3.97084 23.882 3.59714 23.6661 3.28079C23.4502 2.96445 23.1446 2.71993 22.7886 2.57871ZM15.5922 13.1934C15.5922 13.5115 15.4658 13.8166 15.2409 14.0415C15.016 14.2664 14.7109 14.3928 14.3928 14.3928H3.5982C3.2801 14.3928 2.97503 14.2664 2.7501 14.0415C2.52517 13.8166 2.3988 13.5115 2.3988 13.1934V3.5982C2.3988 3.2801 2.52517 2.97503 2.7501 2.7501C2.97503 2.52517 3.2801 2.3988 3.5982 2.3988H14.3928C14.7109 2.3988 15.016 2.52517 15.2409 2.7501C15.4658 2.97503 15.5922 3.2801 15.5922 3.5982V13.1934ZM21.5892 11.5142L18.2189 8.3958L21.5892 5.27736V11.5142Z"

@@ -9,7 +9,7 @@ import { setLoading, UserState } from "@/redux/Slice";
 import ImageTaken from "./ImageTaken";
 import { toast } from "sonner";
 
-function EditOptionsCard({ text, children, callbackfn }: { text: string; children: React.ReactNode; callbackfn?: () => void }) {
+export function EditOptionsCard({ text, children, callbackfn }: { text: string; children: React.ReactNode; callbackfn?: () => void }) {
   return (
     <div className="border border-gray-500 rounded-xl flex justify-center items-center flex-col p-3 select-none" onClick={callbackfn}>
       {children}

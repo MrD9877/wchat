@@ -24,3 +24,9 @@ export const updateFriend = async ({ clientId, userId, image, message, audio }: 
     await updateFriendsInDb(clientId, { userId, update: updates });
   } catch {}
 };
+
+export async function unfriendUser(userId: string) {
+  try {
+    await fetch("/api/auth/removeFriend", { method: "POST", body: JSON.stringify({ userId }) });
+  } catch (err) {}
+}
