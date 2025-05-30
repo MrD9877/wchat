@@ -1,5 +1,5 @@
 "use client";
-import { handleVideoCall, handleVoiceCall } from "@/components/ChatPageTop";
+import { handleVideoCall } from "@/components/ChatPageTop";
 import { EditOptionsCard } from "@/components/EditProfilePic";
 import ImageWithFallBack from "@/components/ImageWithFallBack";
 import { copyToClipboard } from "@/utility/copyToClipboard";
@@ -70,15 +70,12 @@ export default function ProfilePage() {
             <Copy width={12} height={12} />
           </span>
         </div>
-        <div className="flex justify-between mt-4 px-4">
-          <EditOptionsCard text="Audio" callbackfn={() => handleVoiceCall({ room: userId, router })}>
-            <Phone className="text-green-500 w-12" />
-          </EditOptionsCard>
+        <div className="flex justify-center gap-8 mt-4 px-4">
           <EditOptionsCard text="Video" callbackfn={() => handleVideoCall({ room: userId, router })}>
-            <Video className="text-green-500 w-12" />
+            <Video className="text-green-500 w-14" />
           </EditOptionsCard>
           <EditOptionsCard text="Chat" callbackfn={() => router.push(`/chatpage/${userId}`)}>
-            <MessageCircleCode className="text-green-500 w-12" />
+            <MessageCircleCode className="text-green-500 w-14" />
           </EditOptionsCard>
         </div>
       </div>

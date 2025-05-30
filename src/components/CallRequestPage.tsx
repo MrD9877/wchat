@@ -2,7 +2,7 @@ import { UserState } from "@/redux/Slice";
 
 export default function CallRequestPage({ acceptCall, rejectCall, inComingCall }: { acceptCall: () => void; rejectCall: () => void; inComingCall: UserState["inComingCall"] }) {
   return (
-    <div style={{ background: "rgba(39, 177, 178,0.8)" }} className="absolute w-screen h-screen top-0 z-50">
+    <div style={{ background: "rgba(39, 177, 178,0.8)" }} className="absolute w-screen h-[100svh] top-0 z-50">
       <div className="h-[80vh] flex flex-col justify-center items-center">
         <div className="text-2xl font-bold">{inComingCall?.name.toUpperCase()}</div>
         <div className="flex justify-center items-center">

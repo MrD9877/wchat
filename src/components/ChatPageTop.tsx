@@ -1,6 +1,5 @@
 "use client";
 import { useRouter } from "next/navigation";
-import peer from "@/utility/peer";
 import { socket } from "@/socket";
 import { getCookie } from "../utility/getCookie";
 import { ItemSelected } from "@/app/(siteRoutes)/chatpage/[chatId]/page";
@@ -27,26 +26,9 @@ type ChatTopType = {
 
 export const handleVideoCall = async ({ room, router }: { room: string | undefined; router: AppRouterInstance }) => {
   if (!room) return;
-  if (!peer.peer) {
-    peer.closeConnection();
-    await peer.initializePeerConnection();
-  }
-  const offer = await peer.getOffer();
   const accessToken = getCookie("accessToken");
-  socket.emit("call", { to: room, offer, accessToken, type: "video" });
-  router.push(`/videoCall/${room}`);
-};
-
-export const handleVoiceCall = async ({ room, router }: { room: string | undefined; router: AppRouterInstance }) => {
-  if (!room) return;
-  if (!peer.peer) {
-    peer.closeConnection();
-    await peer.initializePeerConnection();
-  }
-  const offer = await peer.getOffer();
-  const accessToken = getCookie("accessToken");
-  socket.emit("call", { to: room, offer, accessToken, type: "voice" });
-  router.push(`/VoiceCall/${room}`);
+  socket.emit("call", { to: room, accessToken, type: "video" });
+  router.push(`/videoCall?room=${room}`);
 };
 
 export default function ChatPageTop({ friend, room, itemSelected, clearSelected, setChat, chat }: ChatTopType) {
@@ -145,19 +127,7 @@ export default function ChatPageTop({ friend, room, itemSelected, clearSelected,
             </button>
           </div>
         ) : (
-          <div className="flex items-center gap-4 justify-center">
-            <div>
-              {/* call  */}
-              <button onClick={() => handleVoiceCall({ room, router })}>
-                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M2.33073 2.16538H7.19202L8.75867 6.08257L6.24141 7.76074C6.09317 7.85964 5.97164 7.99361 5.88759 8.15074C5.80355 8.30788 5.75959 8.48334 5.75961 8.66154C5.76286 8.76331 5.75961 8.66262 5.75961 8.66262V8.68536C5.76018 8.73378 5.76234 8.78216 5.76611 8.83044C5.77261 8.91922 5.78343 9.0394 5.804 9.18773C5.84623 9.48005 5.92743 9.88282 6.0855 10.357C6.40382 11.3098 7.02745 12.543 8.24223 13.7578C9.45701 14.9726 10.6902 15.5962 11.6419 15.9145C12.1172 16.0726 12.5189 16.1527 12.8134 16.196C12.9796 16.2192 13.1469 16.2336 13.3146 16.2393L13.3287 16.2404H13.3374C13.3374 16.2404 13.4586 16.2339 13.3385 16.2404C13.5395 16.2403 13.7365 16.1842 13.9074 16.0785C14.0784 15.9727 14.2165 15.8215 14.3064 15.6417L15.0318 14.1908L19.8346 14.992V19.6693C17.5491 19.9995 11.3755 20.3254 6.52508 15.4749C1.67462 10.6245 1.99942 4.44987 2.33073 2.16538ZM8.00403 9.18773L9.96046 7.88417C10.3738 7.60848 10.6797 7.19906 10.827 6.72456C10.9742 6.25007 10.9538 5.73937 10.7692 5.27813L9.20258 1.36094C9.04181 0.959163 8.76434 0.614769 8.40597 0.372188C8.0476 0.129608 7.62477 -2.90091e-05 7.19202 4.86911e-09H2.27443C1.29026 4.86911e-09 0.364558 0.683179 0.203237 1.75071C-0.164879 4.17811 -0.664 11.3477 4.99415 17.0058C10.6523 22.664 17.8219 22.1638 20.2493 21.7968C21.3168 21.6344 22 20.7097 22 19.7256V14.992C22.0001 14.4795 21.8183 13.9835 21.487 13.5923C21.1557 13.2012 20.6964 12.9402 20.1908 12.8559L15.388 12.0558C14.9312 11.9795 14.462 12.0517 14.0493 12.2618C13.6365 12.4719 13.302 12.8087 13.0949 13.2229L12.7202 13.9732C12.5878 13.9406 12.4567 13.9027 12.3272 13.8595C11.656 13.6365 10.7238 13.1774 9.77316 12.2268C8.82255 11.2762 8.36349 10.344 8.14046 9.67169C8.08721 9.51276 8.04204 9.35123 8.00512 9.18773H8.00403Z"
-                    fill="white"
-                  />
-                </svg>
-              </button>
-            </div>
-            {/* vedio call */}
+          <div className="flex items-center gap-6 justify-center">
             <div>
               <button onClick={() => handleVideoCall({ room, router })}>
                 <svg width="24" height="17" viewBox="0 0 24 17" fill="none" xmlns="http://www.w3.org/2000/svg">

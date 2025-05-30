@@ -4,7 +4,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { socket } from "@/socket";
-import peer from "@/utility/peer";
 import CallRequestPage from "./CallRequestPage";
 import { Usertype } from "@/app/(backend)/model/User";
 import ServiceWorkerClass from "@/utility/ServiceWorker";
@@ -37,22 +36,15 @@ export default function SetUser() {
   };
 
   const acceptCall = async () => {
-    if (!peer.peer) {
-      peer.closeConnection();
-      await peer.initializePeerConnection();
-    }
     setCalling(false);
     if (inComingCall && inComingCall.type == "video") {
-      router.push(`/videoCall/${inComingCall.from}`);
-    }
-    if (inComingCall && inComingCall.type == "voice") {
-      router.push(`/VoiceCall/${inComingCall.from}`);
+      router.push(`/videoCall?room=${inComingCall.from}`);
     }
   };
 
   const handleCallRequest = async ({ offer, from, name, type }: { offer: RTCSessionDescriptionInit; from: string; name: string; type: "voice" | "video" }) => {
     // setIncomingCall({ offer, from });
-    dispatch(setIncomingCall({ inComingCall: { offer, from, name, type } }));
+    dispatch(setIncomingCall({ inComingCall: { from, name, type } }));
   };
 
   const getUser = async () => {

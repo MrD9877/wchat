@@ -1,7 +1,7 @@
 "use client";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-type InComingCall = null | { from: string; offer: RTCSessionDescriptionInit; type: "video" | "voice"; name: string };
+type InComingCall = null | { from: string; type: "video" | "voice"; name: string };
 
 // Define the types for the user state
 export interface UserState {
