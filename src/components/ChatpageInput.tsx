@@ -14,6 +14,7 @@ import { generateRandom } from "@/app/(backend)/utility/random";
 import { updateFriend } from "@/utility/updateFriend";
 import { uploadImageAndGetUrl } from "@/utility/uploadAndGetUrl";
 import { ChatType } from "@/app/(siteRoutes)/chatpage/[chatId]/page";
+import { PrivateMessage } from "@/app/(siteRoutes)/camera/page";
 
 interface ChatInputComponent {
   room: string;
@@ -74,7 +75,8 @@ export default function ChatpageInput({ scrollToBottom, clearTimer, setChat, roo
       console.log(err);
     } finally {
       const accessToken = getCookie("accessToken");
-      socket.emit("private message", room, { message: textMessage, accessToken, image: urls.length > 0 ? urls : undefined, id });
+      const data: PrivateMessage = { message: textMessage, accessToken, image: urls.length > 0 ? urls : undefined, id, userId: room };
+      socket.emit("private message", data);
       setTextMessage("");
       setSrc([]);
       setFile(null);

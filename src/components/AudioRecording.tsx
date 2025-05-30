@@ -7,6 +7,7 @@ import { UserState } from "@/redux/Slice";
 import { generateRandom } from "@/app/(backend)/utility/random";
 import { updateFriend } from "@/utility/updateFriend";
 import { uploadImageAndGetUrl } from "@/utility/uploadAndGetUrl";
+import { PrivateMessage } from "@/app/(siteRoutes)/camera/page";
 
 type AudioRecorderType = {
   setChat: Dispatch<SetStateAction<SavedDbMessages[]>>;
@@ -75,7 +76,8 @@ const AudioRecorder = ({ audioRecording, room, setChat }: AudioRecorderType) => 
           await saveMessageForUser(userId, { message: undefined, sender: true, audio: audioChunksRef.current, image: undefined, video: undefined, id, userId: room, timestamp: Date.now() });
           await updateFriend({ clientId: userId, userId: room, image: undefined, message: undefined, audio: audioChunksRef.current ? "true" : undefined });
           const accessToken = getCookie("accessToken");
-          socket.emit("private message", room, { audio: url, accessToken, id });
+          const data: PrivateMessage = { audio: url, accessToken, id, userId: room };
+          socket.emit("private message", data);
         }
         stopMediaStream();
       };

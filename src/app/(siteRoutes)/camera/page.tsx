@@ -11,6 +11,15 @@ import { updateFriend } from "@/utility/updateFriend";
 import { uploadImageAndGetUrl } from "@/utility/uploadAndGetUrl";
 import Camera from "@/components/Camera";
 
+export type PrivateMessage = {
+  userId: string | null;
+  message?: string | undefined;
+  accessToken: string | null;
+  image?: string | string[];
+  id: string;
+  audio?: string;
+};
+
 export default function CaremaPage() {
   const userId = useSelector((state: UserState) => state.userId);
   const router = useRouter();
@@ -27,7 +36,8 @@ export default function CaremaPage() {
       return;
     }
     const id = generateRandom(8);
-    socket.emit("private message", room, { message: caption, accessToken, image: url, id });
+    const data: PrivateMessage = { userId: room, message: caption, accessToken, image: url, id };
+    socket.emit("private message", data);
     if (room && dataUri && userId)
       try {
         await saveMessageForUser(userId, { message: caption, image: dataUri, audio: undefined, video: undefined, sender: true, id, userId: room, timestamp: Date.now() });

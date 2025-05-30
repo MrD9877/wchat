@@ -1,5 +1,6 @@
 import { UserState } from "@/redux/Slice";
 import { socket } from "@/socket";
+import { getCookie } from "@/utility/getCookie";
 import { useSelector } from "react-redux";
 
 type GenerateOffer = {
@@ -35,7 +36,8 @@ export default function useGenerateOffer() {
     });
 
     await waitForIce;
-    socket.emit("offer", { offer: JSON.stringify(peer.localDescription), to: room, from: userId });
+    const accessToken = getCookie("accessToken");
+    socket.emit("offer", { offer: JSON.stringify(peer.localDescription), to: room, accessToken });
   };
   const generateAnswer = async ({ peerConnection, room }: GenerateOffer, offer: string) => {
     const peer = peerConnection.current;
@@ -65,7 +67,8 @@ export default function useGenerateOffer() {
     });
 
     await waitForIce;
-    socket.emit("answer", { answer: JSON.stringify(peer.localDescription), to: room, from: userId });
+    const accessToken = getCookie("accessToken");
+    socket.emit("answer", { answer: JSON.stringify(peer.localDescription), to: room, accessToken });
   };
 
   const addAnswer = async (answer: string, peerConnection: React.RefObject<RTCPeerConnection | null>) => {
