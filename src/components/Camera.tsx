@@ -98,7 +98,7 @@ export default function Camera(props: Omit<ImageTakenType, "dataUri">) {
                   </button>
                 </div>
                 <div style={{ display: visible ? "block" : "none" }} className="h-fit w-screen absolute bottom-20 flex" tabIndex={0}>
-                  <video ref={videoRef} autoPlay playsInline className="w-screen h-[100svh] bg-black scale-x-[-1]" muted />
+                  <video ref={videoRef} autoPlay style={{ scale: faceMode === "user" ? "-1 1" : "1 1" }} playsInline className="w-screen h-[100svh] bg-black scale-x-[-1]" muted />
                 </div>
               </div>
             </>
