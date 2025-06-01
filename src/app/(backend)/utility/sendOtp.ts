@@ -9,10 +9,9 @@ export async function sendOtp(email: string, name: string) {
     console.log({ otp });
     await client.connect();
     await client.setEx(`otp-${email}`, 60 * 5, otp);
-    // const data = await sendEmail(otp, name, email);
-    // if (data && data.id)
-    return { msg: "Created", status: 201 };
-    // else throw Error();
+    const data = await sendEmail(otp, name, email);
+    if (data && data.id) return { msg: "Created", status: 201 };
+    else throw Error();
   } catch {
     return { msg: "Internal server error", status: 500 };
   } finally {
