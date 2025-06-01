@@ -10,6 +10,8 @@ import ServiceWorkerClass from "@/utility/ServiceWorker";
 import useConnectToServer from "../hooks/useConnectToServer";
 import useGetMessages from "@/hooks/useGetMessages";
 import useInAppNotification from "./InAppNotification";
+import { checkMessagesByIdFromDB, saveMessageForUser } from "@/utility/saveAndRetrievedb";
+import { ChatPage } from "@/app/(backend)/model/Chatpages";
 
 export default function SetUser() {
   const dispatch = useDispatch();
@@ -23,9 +25,28 @@ export default function SetUser() {
   const voids2 = useGetMessages(userId);
   const n = useInAppNotification();
 
-  const setOfflineMessages = async () => {
+  const getChatAndSaveIndb = async (chatId: string, userId: string) => {
+    if (!userId) return;
     try {
-      // const res = await fetch("/api/auth");
+      const isMessage = await checkMessagesByIdFromDB(userId, chatId);
+      if (!isMessage) {
+        const res = await fetch("/api/auth/getChat", { method: "POST", body: chatId });
+        if (res.ok) {
+          const chat: ChatPage = await res.json();
+          await saveMessageForUser(userId, { ...chat, sender: false, id: chatId });
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const setOfflineMessages = async (chatsIds: string[], userId: string) => {
+    for (let i = 0; i < chatsIds.length; i++) {
+      await getChatAndSaveIndb(chatsIds[i], userId);
+    }
+    try {
+      await fetch("/api/auth/deleteChats", { method: "POST", body: JSON.stringify(chatsIds) });
     } catch {}
   };
 
@@ -53,7 +74,11 @@ export default function SetUser() {
       if (res.status === 200) {
         const data: Usertype = await res.json();
         dispatch(setUser({ email: data.email, name: data.name, userId: data.userId, profilePic: data.profilePic }));
-        setOfflineMessages();
+        const chatResponse = await fetch("/api/auth/getUserChats");
+        if (chatResponse.ok) {
+          const chats: string[] = await chatResponse.json();
+          await setOfflineMessages(chats, data.userId);
+        }
       }
     } catch {}
   };

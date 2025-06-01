@@ -3,12 +3,11 @@ import { ChatPage } from "@/app/(backend)/model/Chatpages";
 
 export async function POST(req: Request) {
   dbConnect();
-  const chatId = await req.json();
+  const chatIds: string[] = await req.json();
   try {
-    if (!chatId) throw Error();
-    const chats = await ChatPage.findOne({ chatId });
-    await ChatPage.deleteOne({ chatId });
-    return new Response(JSON.stringify({ ...chats }), { status: 200 });
+    if (!chatIds) throw Error();
+    const chatsDeleted = await ChatPage.deleteMany({ chatId: { $in: chatIds } });
+    return new Response(JSON.stringify(chatsDeleted), { status: 200 });
   } catch (err) {
     console.log(err);
     return new Response(JSON.stringify({ msg: "Internal Server Error" }), { status: 500 });

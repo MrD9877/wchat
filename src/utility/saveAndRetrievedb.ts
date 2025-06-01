@@ -173,6 +173,26 @@ export async function getMessagesSortedByTime(clientId: string, userId: string, 
   });
 }
 
+export async function checkMessagesByIdFromDB(clientId: string, chatId: string) {
+  const db = await openChatDB(clientId);
+  const tx = db.transaction("messages", "readonly");
+  const store = tx.objectStore("messages");
+
+  const request = store.get(chatId);
+
+  return new Promise((resolve: (r: boolean) => void, reject) => {
+    request.onsuccess = function () {
+      const chat = request.result;
+      if (chat) {
+        resolve(true);
+      } else {
+        resolve(false);
+      }
+    };
+    request.onerror = () => reject();
+  });
+}
+
 export async function getFriend(clientId: string, userId: string) {
   try {
     const db = await openChatDB(clientId);
