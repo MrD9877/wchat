@@ -57,7 +57,6 @@ export default function AttachPhotoUI({ src, setSrc, sendMsg, setFile }: AttachP
             {slides &&
               slide !== null &&
               slides.map((item, index) => {
-                console.log(`${(1 / slides.length) * 100}%`);
                 return <div key={index} style={{ width: `${(1 / slides.length) * 100}%`, background: slide >= index ? "red" : "white", height: "3px" }}></div>;
               })}
           </div>

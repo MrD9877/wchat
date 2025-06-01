@@ -1,14 +1,17 @@
-import { FriendUpdate, SavedDbFriends, saveFriends, updateFriendsInDb } from "./saveAndRetrievedb";
+import { FriendInfoFromServer } from "@/hooks/useFriendAndRequests";
+import { Base64ToPublicKey } from "./Encription";
+import { FriendUpdate, SavedDbFriends, saveFriend, updateFriendsInDb } from "./saveAndRetrievedb";
 
 export const handleUpdateDb = async (userId: string, clientId: string | undefined) => {
   if (!clientId) return;
   try {
     const res = await fetch("/api/auth/userFriends", { method: "POST", body: JSON.stringify({ userId }) });
     if (res.status === 200) {
-      const data: SavedDbFriends = await res.json();
+      const data: FriendInfoFromServer = await res.json();
       data["lastMessageDate"] = 2;
-      await saveFriends(clientId, data);
-      return data;
+      const publicKey = await Base64ToPublicKey(data.publicKey);
+      await saveFriend(clientId, { ...data, publicKey });
+      return { ...data, publicKey } as const;
     }
   } catch (err) {
     console.log(err);

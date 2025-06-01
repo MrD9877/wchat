@@ -27,7 +27,6 @@ export default function Chatlog() {
         const messages = await getMessagesSortedByTime(clientId, userId, lastRead);
         data[i].newMessages = messages.length;
       }
-      console.log(data);
       setFriends(data.reverse());
     } catch (err) {
       console.log(err);

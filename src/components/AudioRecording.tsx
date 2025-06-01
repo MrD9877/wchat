@@ -1,24 +1,22 @@
-import { socket } from "@/socket";
-import React, { useEffect, useRef, Dispatch, SetStateAction } from "react";
-import { getCookie } from "../utility/getCookie";
-import { useSelector } from "react-redux";
-import { SavedDbMessages, saveMessageForUser } from "@/utility/saveAndRetrievedb";
+import { useEffect, useRef, Dispatch, SetStateAction } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { SavedDbFriends, SavedDbMessages } from "@/utility/saveAndRetrievedb";
 import { UserState } from "@/redux/Slice";
 import { generateRandom } from "@/app/(backend)/utility/random";
-import { updateFriend } from "@/utility/updateFriend";
-import { uploadImageAndGetUrl } from "@/utility/uploadAndGetUrl";
-import { PrivateMessage } from "@/app/(siteRoutes)/camera/page";
+import { sendPrivateMessage } from "@/utility/sendPrivateMessage";
 
 type AudioRecorderType = {
   setChat: Dispatch<SetStateAction<SavedDbMessages[]>>;
   room: string;
   audioRecording: boolean;
+  friend: SavedDbFriends | null | undefined;
 };
 
-const AudioRecorder = ({ audioRecording, room, setChat }: AudioRecorderType) => {
+const AudioRecorder = ({ audioRecording, room, setChat, friend }: AudioRecorderType) => {
   const mediaRecorderRef = useRef<MediaRecorder>(null); // Reference for MediaRecorder
   const audioChunksRef = useRef<Blob[]>([]); // To store the audio data chunks
-  const userId = useSelector((state: UserState) => state.userId);
+  const clientId = useSelector((state: UserState) => state.userId);
+  const dispatch = useDispatch();
 
   // Request access to the microphone
   const startMedia = async (): Promise<void> => {
@@ -61,25 +59,18 @@ const AudioRecorder = ({ audioRecording, room, setChat }: AudioRecorderType) => 
   const stopRecording = () => {
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
-
-      // Wait for the recording to finish before accessing audioChunks
       mediaRecorderRef.current.onstop = async () => {
-        if (userId) {
-          // Send the audio chunks via socket (if necessary)
-          const url = await uploadImageAndGetUrl({ audio: audioChunksRef.current });
-          if (!url) {
-            // todo no url
-            return;
-          }
-          const id = generateRandom(16);
-          setChat((pre) => [...pre, { message: undefined, sender: true, audio: audioChunksRef.current, userId: room, image: undefined, video: undefined, id, timestamp: Date.now() }]);
-          await saveMessageForUser(userId, { message: undefined, sender: true, audio: audioChunksRef.current, image: undefined, video: undefined, id, userId: room, timestamp: Date.now() });
-          await updateFriend({ clientId: userId, userId: room, image: undefined, message: undefined, audio: audioChunksRef.current ? "true" : undefined });
-          const accessToken = getCookie("accessToken");
-          const data: PrivateMessage = { audio: url, accessToken, id, userId: room };
-          socket.emit("private message", data);
+        if (!clientId || !friend) return;
+        const id = generateRandom(8);
+        const timestamp = Date.now();
+        try {
+          await sendPrivateMessage({ clientId, audio: audioChunksRef.current, userId: room, id, timestamp, publicKey: friend.publicKey }, dispatch);
+          setChat((pre) => [{ sender: true, audio: audioChunksRef.current, userId: room, id, timestamp }, ...pre]);
+        } catch (error) {
+          console.log(error);
+        } finally {
+          stopMediaStream();
         }
-        stopMediaStream();
       };
     }
   };

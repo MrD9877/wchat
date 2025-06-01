@@ -1,4 +1,3 @@
-import { resolve } from "path";
 import { onUpgrade } from "./indexDbFunctions";
 export type IndexStores = { friendStore: IDBObjectStore; chatStore: IDBObjectStore; emoteStore: IDBObjectStore };
 
@@ -18,7 +17,6 @@ export async function connectIndexDb() {
     request.onupgradeneeded = onUpgrade;
 
     request.onsuccess = function () {
-      console.log("Database opened successfully");
       const db = request.result;
       // 1
       const transaction = db.transaction(["friends", "chats", "emotes"], "readwrite");

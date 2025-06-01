@@ -31,7 +31,6 @@ export default function ProfileFront() {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       deferredPrompt.userChoice.then((choiceResult) => {
-        console.log(`User response: ${choiceResult.outcome}`);
         setDeferredPrompt(null);
       });
     }

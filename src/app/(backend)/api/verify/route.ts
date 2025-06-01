@@ -1,5 +1,3 @@
-import { cookies } from "next/headers";
-import { generateAccessToken, generateRefreshToken, generateSession } from "../../utility/generateTokens";
 import dbConnect from "../../lib/DbConnect";
 import { User } from "../../model/User";
 import { connectRedis } from "../../utility/redis";
@@ -8,10 +6,13 @@ import { setCokies } from "../../utility/setCokie";
 export async function POST(req: Request) {
   await dbConnect();
   const client = await connectRedis();
-  const { otp, email } = await req.json();
-  if (!email || !otp) {
+  const body: { email?: string; otp?: string; publicKey?: string } = await req.json();
+  console.log(body);
+  if (!body || !body.email || !body.otp || !body.publicKey) {
     return new Response(JSON.stringify({ msg: "Bad request: Email not found" }), { status: 400 });
   }
+  const { email, otp, publicKey } = body;
+  console.log(body);
   try {
     await client.connect();
     const otpVerify = await client.get(`otp-${email}`);
@@ -25,7 +26,9 @@ export async function POST(req: Request) {
     const CookiesSet = await setCokies(email, userInfo.name, profilePic, userId);
     if (!CookiesSet) throw Error();
     await client.del(`otp-${email}`);
-    return new Response(JSON.stringify({ msg: "OK" }), { status: 200 });
+    userInfo.publicKey = publicKey;
+    await userInfo.save();
+    return new Response(JSON.stringify({ name: userInfo.name, email: userInfo.email, userId: userInfo.userId, profilePic: userInfo.profilePic }), { status: 200 });
   } catch (err) {
     console.log(err);
     return new Response(JSON.stringify({ msg: "Internal Server Error Try agian!!" }), { status: 500 });

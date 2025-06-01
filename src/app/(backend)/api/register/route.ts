@@ -9,8 +9,8 @@ export async function POST(request: Request) {
   await dbConnect();
   const cookieStore = await cookies();
   const body = await request.json();
-  const profilePic = generateRandom(32);
-  const userId = generateRandom(32);
+  const profilePic = generateRandom(8);
+  const userId = generateRandom(8);
   const { email, name } = body;
   try {
     const userEmail = await User.findOne({ email });

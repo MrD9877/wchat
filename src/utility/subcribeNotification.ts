@@ -5,7 +5,6 @@ export const unsubscribe = async () => {
     const registration = await navigator.serviceWorker.ready;
     const existingSubscription = await registration.pushManager.getSubscription();
     if (existingSubscription) {
-      console.log("Unsubscribing existing push subscription...");
       await existingSubscription.unsubscribe();
     }
     await fetch("/api/auth/save-subscription", {
@@ -28,7 +27,6 @@ export const subscribe = async () => {
     const existingSubscription = await registration.pushManager.getSubscription();
 
     if (existingSubscription) {
-      console.log("Unsubscribing existing push subscription...");
       await existingSubscription.unsubscribe();
     }
 
@@ -36,8 +34,6 @@ export const subscribe = async () => {
       userVisibleOnly: true,
       applicationServerKey: urlB64ToUint8Array(publickey),
     });
-
-    console.log(JSON.stringify(newSubscription));
 
     // Send to backend to store
     await fetch("/api/auth/save-subscription", {

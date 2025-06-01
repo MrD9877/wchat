@@ -18,14 +18,13 @@ export async function GET() {
 
     for (let i = 0; i < arr.length; i++) {
       const userId = arr[i].userId;
-      const info = await User.findOne({ userId }, { userId: 1, email: 1, _id: 0, name: 1, profilePic: 1 });
+      const info = await User.findOne({ userId }, { userId: 1, email: 1, _id: 0, name: 1, profilePic: 1, publicKey: 1 });
       if (info && friends) {
         friends.push(info);
       } else if (info) {
         friends = [info];
       }
     }
-
     const requests = userInfo.friendRequests;
     return new Response(JSON.stringify({ friends, requests }), { status: 200 });
   } catch (err) {
@@ -40,17 +39,18 @@ export async function POST(req: Request) {
   const data = await tokenAuth(cookieStore.get("accessToken")?.value || "");
   try {
     if (!data) return new Response(JSON.stringify({ msg: "unauthorized" }), { status: 401 });
-    if (!body.userId) return new Response(JSON.stringify({ msg: "email of friend required" }), { status: 400 });
+    if (!body.userId) throw Error("userId of friend required");
     const { user } = data;
     const userInfo = await User.findOne({ email: user.email }, { friends: 1 });
-    const friendInfo = await User.findOne({ userId: body.userId }, { userId: 1, email: 1, _id: 0, name: 1, profilePic: 1 });
-    if (!userInfo || !friendInfo) throw Error();
-    // if (!userInfo.friends.includes({ userId: friendInfo.userId })) {
-    //   return new Response(JSON.stringify({ msg: "please add user as friend to get this info" }), { status: 400 });
-    // }
-    return new Response(JSON.stringify({ userId: friendInfo.userId, email: friendInfo.email, name: friendInfo.name, profilePic: friendInfo.profilePic }), { status: 200 });
+    const friendInfo = await User.findOne({ userId: body.userId }, { userId: 1, email: 1, _id: 0, name: 1, profilePic: 1, publicKey: 1 });
+    if (!userInfo || !friendInfo) throw Error("User Not found");
+    return new Response(JSON.stringify({ userId: friendInfo.userId, email: friendInfo.email, name: friendInfo.name, profilePic: friendInfo.profilePic, publicKey: friendInfo.publicKey }), { status: 200 });
   } catch (err) {
     console.log(err);
-    return new Response(JSON.stringify({ msg: "Internal Server Error" }), { status: 500 });
+    if (err instanceof Error) {
+      return new Response(JSON.stringify({ msg: err.message }), { status: 400 });
+    } else {
+      return new Response(JSON.stringify({ msg: "Internal Server Error" }), { status: 500 });
+    }
   }
 }

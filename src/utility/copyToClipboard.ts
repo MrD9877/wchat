@@ -14,7 +14,6 @@ export const copyToClipboard = (text: string) => {
 
   try {
     document.execCommand("copy");
-    console.log("Copied via fallback!");
   } catch (err) {
     console.error("Fallback copy failed", err);
   }

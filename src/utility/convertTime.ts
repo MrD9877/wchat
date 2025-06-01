@@ -40,7 +40,6 @@ export function timeDifference(string1: number, string2: number) {
   const hours2 = date2.getHours();
 
   const hoursDifference = hours2 - hours1;
-  console.log(hoursDifference);
 
   if (hoursDifference > 0) return `${hoursDifference}hrs ago`;
 
@@ -48,7 +47,6 @@ export function timeDifference(string1: number, string2: number) {
   const min2 = date2.getMinutes();
 
   const minutesDifference = min2 - min1;
-  console.log(minutesDifference);
   if (minutesDifference > 0) {
     return `${minutesDifference}min ago`;
   } else {

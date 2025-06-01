@@ -28,7 +28,6 @@ export default function DisplaySearchResults({ array, setArray }: { array: Users
       }
       setPending((pre) => ({ ...pre, [email]: undefined }));
     } catch {
-      console.log(array);
       setPending((pre) => ({ ...pre, [email]: undefined }));
     }
   };

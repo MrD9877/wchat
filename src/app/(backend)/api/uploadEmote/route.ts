@@ -7,7 +7,6 @@ export async function POST(req: Request) {
   if (key !== "key") return new Response(JSON.stringify({ msg: "Invalid key" }), { status: 401 });
   if (!obj) return new Response(JSON.stringify({ msg: "no data found" }), { status: 400 });
   try {
-    // console.log(sub);
     const emotesArray = obj.map((emote: { unicodeName: string; character: string }) => {
       return { name: emote.unicodeName, character: emote.character };
     });

@@ -15,7 +15,6 @@ const getUrl = async () => {
 };
 
 export async function uploadProfilePic(dataUri: string | undefined, profilePicId: string | undefined, bufferData?: Buffer<ArrayBuffer>, contentType?: string) {
-  console.log({ dataUri, profilePicId, bufferData, contentType });
   if (!profilePicId) return;
   let buffer: Buffer<ArrayBuffer>;
 

@@ -21,14 +21,12 @@ const getBuffer = async (dataUri?: string, audio?: Blob[]) => {
 };
 
 export const uploadImageAndGetUrl = async ({ image, audio }: UploadImageAndGetURL) => {
-  console.log(image);
-  const id = generateRandom(16);
+  const id = generateRandom(8);
   try {
     const preSignedUploadUrl = await uploadImage(id, true);
     const buffer = await getBuffer(image, audio);
     const contentType = image ? "image/png" : "audio/mp4";
 
-    console.log({ preSignedUploadUrl, buffer });
     if (!buffer) return;
     await fetch(preSignedUploadUrl, {
       method: "PUT",
@@ -39,6 +37,7 @@ export const uploadImageAndGetUrl = async ({ image, audio }: UploadImageAndGetUR
       mode: "cors",
     });
     const url = await getImageSigned(id);
+    console.log(url);
     return url;
   } catch (err) {
     console.log(err);

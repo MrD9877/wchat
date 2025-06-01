@@ -1,4 +1,7 @@
+import dbConnect from "@/app/(backend)/lib/DbConnect";
 import { User } from "@/app/(backend)/model/User";
+import { uploadImageDirectly } from "@/app/(backend)/utility/awsBucket";
+import { downloadImage } from "@/app/(backend)/utility/downLoadImage";
 import { generateRandom } from "@/app/(backend)/utility/random";
 import { setCokies } from "@/app/(backend)/utility/setCokie";
 import { getCodeVerifier, OAuthClient, OAuthProviders, validState } from "@/utility/authClient";
@@ -15,19 +18,23 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ prov
   const provider = z.enum(OAuthProviders).parse(rawProvider);
   if (typeof code !== "string") return redirect("/login?error=Failed to connect. Please try again");
   try {
+    await dbConnect();
     const isValidState = validState(state, cookie);
-    if (!isValidState) throw Error("OAuthstate is not valid");
+    if (!state || !isValidState) throw Error("OAuthstate is not valid");
     const { email, username, avatar, id } = await new OAuthClient(provider).fetchUser(code, getCodeVerifier(cookie));
-    console.log({ email, username });
+    const publicKey = cookie.get("publicKey")?.value;
     let profilePic: string;
     const user = await User.findOne({ email });
     if (!user) {
       profilePic = generateRandom(8);
-      const user = new User({ email, name: username, profilePic, userId: id });
+      const user = new User({ email, name: username, profilePic, userId: id, publicKey });
       await user.save();
+      const buffer = await downloadImage(avatar);
+      if (buffer) await uploadImageDirectly(profilePic, buffer, "image/png", false);
     } else {
       profilePic = user.profilePic;
     }
+    console.log(avatar);
     const CookiesSet = await setCokies(email, username, avatar, id);
     if (!CookiesSet) throw Error();
   } catch (err) {

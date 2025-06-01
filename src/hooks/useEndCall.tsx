@@ -16,7 +16,6 @@ export default function useEndCall({ localMedia, remoteMedia }: EndCallHook) {
   const stopMediaStream = (stream: MediaStream) => {
     if (stream) {
       stream.getTracks().forEach((track) => {
-        console.log(track);
         track.stop(); // Stop each track (audio/video)
       });
     }

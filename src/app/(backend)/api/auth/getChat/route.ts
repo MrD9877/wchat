@@ -5,7 +5,6 @@ export async function POST(req: Request) {
   dbConnect();
   const body = await req.json();
   const { chatId } = body;
-  console.log(chatId);
   try {
     const chats = await ChatPage.findOne({ chatId });
     return new Response(JSON.stringify({ chats }), { status: 200 });

@@ -16,7 +16,6 @@ async function dbConnect() {
     connection.isConnected = db.connections[0].readyState;
     console.log("Connected to database");
   } catch (e) {
-    console.log(e);
     process.exit();
     // return new Response("Internal Server Error", { status: 500 });
   }

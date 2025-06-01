@@ -1,10 +1,12 @@
 import { FriendRequest } from "@/app/(backend)/model/User";
 import { UserState } from "@/redux/Slice";
-import { handleUpdateDb } from "@/utility/updateFriend";
+import { Base64ToPublicKey } from "@/utility/Encription";
+import { SavedDbFriends, saveFriend } from "@/utility/saveAndRetrievedb";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
-export type FriendInfo = { name: string; email: string; profilePic: string; userId: string };
+export type FriendInfo = { name: string; email: string; profilePic: string; userId: string; publicKey: CryptoKey };
+export type FriendInfoFromServer = Omit<SavedDbFriends, "publicKey"> & { publicKey: string };
 
 export default function useFriendAndRequests(page: string) {
   const [request, setRequest] = useState<FriendRequest[]>();
@@ -22,26 +24,34 @@ export default function useFriendAndRequests(page: string) {
       }
     } catch {}
   };
-  const handleAcceptRequest = async (email: string, index: number, userId: string) => {
+
+  const handleAcceptRequest = async (email: string, index: number) => {
     setPending((pre) => ({ ...pre, [email]: true }));
+    if (!clientId) return;
     try {
       const res = await fetch("/api/auth/acceptfriendrequest", { method: "POST", body: JSON.stringify({ email }) });
-      if (res.status === 200) {
-        await handleUpdateDb(userId, clientId);
-        setRequest((pre) => {
-          if (!pre) return;
-          let temp = [...pre];
-          temp.splice(index, 1);
-          return temp;
-        });
-      } else if (res.status === 404) {
-        toast(404);
+      if (!res.ok) throw Error(res.statusText);
+
+      const data: FriendInfoFromServer = await res.json();
+      data["lastMessageDate"] = 2;
+      const publicKey = await Base64ToPublicKey(data.publicKey);
+      await saveFriend(clientId, { ...data, publicKey });
+
+      setRequest((pre) => {
+        if (!pre) return;
+        let temp = [...pre];
+        temp.splice(index, 1);
+        return temp;
+      });
+
+      toast(`${email} added as friend`);
+    } catch (err) {
+      if (err instanceof Error) {
+        toast(err.message);
       } else {
-        const { msg } = await res.json();
-        toast(msg);
+        toast("somthing went wrong try again!!");
       }
-      setPending((pre) => ({ ...pre, [email]: undefined }));
-    } catch {
+    } finally {
       setPending((pre) => ({ ...pre, [email]: undefined }));
     }
   };

@@ -18,9 +18,9 @@ export async function POST(req: Request) {
     const updateOthersideRequest = await User.updateOne({ email: email }, { $push: { friends: { userId: userInfo.userId } }, $pull: { friendRequestSend: data.user.email } });
     if (!updateRequest.acknowledged || !updateOthersideRequest.acknowledged) return new Response(JSON.stringify({ msg: "No request from this user found" }), { status: 400 });
     await sendInAppNotification({ userId: newFriend.userId, notification: { from: userInfo.userId }, type: "friend request accepted" });
+    return new Response(JSON.stringify({ userId: newFriend.userId, publicKey: newFriend.publicKey, name: newFriend.name, email: newFriend.name, profilePic: newFriend.profilePic }), { status: 200 });
   } catch (err) {
     console.log(err);
     return new Response(JSON.stringify({ msg: "Internal Server Error" }), { status: 500 });
   }
-  return new Response(JSON.stringify({ msg: `Friend request send to ${email}` }), { status: 200 });
 }

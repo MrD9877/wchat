@@ -18,6 +18,7 @@ export type SavedDbFriends = {
   profilePic: string;
   name: string;
   email: string;
+  publicKey: CryptoKey;
 };
 
 export type FriendUpdate = {
@@ -63,7 +64,7 @@ export async function saveMessageForUser(clientId: string, data: SavedDbMessages
   }
 
   const message: SavedDbMessages = {
-    id: data.id, // unique ID (can be UUID)
+    id: data.id,
     userId: data.userId,
     message: data.message,
     audio: data.audio,
@@ -79,7 +80,7 @@ export async function saveMessageForUser(clientId: string, data: SavedDbMessages
     tx.onerror = () => reject(tx.error);
   });
 }
-export async function saveFriends(clientId: string, data: SavedDbFriends) {
+export async function saveFriend(clientId: string, data: SavedDbFriends) {
   const db = await openChatDB(clientId);
   const tx = db.transaction("friends", "readwrite");
   const store = tx.objectStore("friends");
@@ -120,7 +121,6 @@ export async function getFriends(clientId: string) {
   const tx = db.transaction("friends", "readwrite");
   const store = tx.objectStore("friends");
   const index = store.index("time");
-  console.log("1");
 
   const lowerBound = [0];
   const upperBound = [Date.now()];
@@ -132,7 +132,6 @@ export async function getFriends(clientId: string) {
   return new Promise((resolve: (r: SavedDbFriends[]) => void, reject: (r: false) => void) => {
     request.onsuccess = function () {
       const cursor = request.result;
-      console.log({ cursor });
       if (cursor) {
         friends.push(cursor.value);
         cursor.continue();
@@ -280,11 +279,9 @@ export async function getLastRead(clientId: string, userId: string) {
   const db = await openChatDB(clientId);
   const tx = db.transaction("lastRead", "readwrite");
   const store = tx.objectStore("lastRead");
-  console.log(clientId, userId);
   const save = store.get(userId);
   return new Promise((res: (r: number) => void, rej: () => void) => {
     save.onsuccess = () => {
-      console.log(save.result);
       if (save.result) {
         res(save.result.timestamp);
       } else {

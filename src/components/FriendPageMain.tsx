@@ -19,7 +19,6 @@ export default function FriendPageMain({ page, setNumber }: { page: string; setN
         <div className="divide-y divide-gray-200 ">
           {friends && friends.length > 0 ? (
             friends.map((friend, index) => {
-              console.log(friend);
               return (
                 <button onClick={() => router.push(`/chatpage/${friend.userId}`)} key={index} className="w-full text-left py-2 focus:outline-none focus-visible:bg-indigo-50">
                   <div className="flex items-center">
@@ -60,7 +59,7 @@ export default function FriendPageMain({ page, setNumber }: { page: string; setN
                           </div>
                           <div className="flex flex-col ml-3">
                             {isPending[userEmail] === undefined ? (
-                              <button style={{ width: "75px" }} onClick={() => handleAcceptRequest(userEmail, index, user.userId)} className="weButton ">
+                              <button style={{ width: "75px" }} onClick={() => handleAcceptRequest(userEmail, index)} className="weButton ">
                                 Accept
                               </button>
                             ) : (

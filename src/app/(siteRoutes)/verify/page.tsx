@@ -2,11 +2,12 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { setUser } from "@/redux/Slice";
+import { setLoading, setUser } from "@/redux/Slice";
 import TopHeader from "@/components/TopHeader";
 import WeButton from "@/utility/WeButton";
 import { InputOTPControlled } from "@/components/OTPInput";
 import { toast } from "sonner";
+import { exportPublicKeyBase64, getKeysForFirstTime } from "@/utility/Encription";
 
 export default function VerifyPage() {
   const [value, setValue] = useState("");
@@ -22,20 +23,26 @@ export default function VerifyPage() {
       return;
     }
     try {
-      const res = await fetch("/api/verify", { method: "POST", credentials: "include", body: JSON.stringify({ otp, email }) });
-      console.log(res.status);
-      if (res.status === 200) {
-        const { user } = await res.json();
-        dispatch(setUser({ ...user }));
-        router.push("/chatscreen");
-      } else if (res.status === 400) {
-        const data = await res.json();
-        toast(data.msg);
+      dispatch(setLoading(true));
+      const keys = await getKeysForFirstTime();
+      if (!keys.publicKey) throw Error();
+      const publicKey = await exportPublicKeyBase64(keys.publicKey);
+      console.log(publicKey);
+      const verifyRes = await fetch("/api/verify", { method: "POST", credentials: "include", body: JSON.stringify({ otp, email, publicKey }) });
+      if (!verifyRes.ok) throw Error(`Error: status ${verifyRes.statusText}`);
+      const user = await verifyRes.json();
+      dispatch(setUser({ ...user }));
+      router.push("/chatscreen");
+      toast(`welcome ${user.name}`);
+    } catch (err) {
+      console.log(err);
+      if (err instanceof Error) {
+        toast(err.message);
       } else {
-        toast(res.status);
+        toast("An unexpected error occurred.");
       }
-    } catch {
-      toast("Internal Server Error");
+    } finally {
+      dispatch(setLoading(false));
     }
   };
 

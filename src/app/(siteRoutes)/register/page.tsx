@@ -1,13 +1,24 @@
 "use client";
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "@/utility/singIn";
 import { toast } from "sonner";
 import { CircleUserRound } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { setLoading } from "@/redux/Slice";
+import { exportPublicKeyBase64, getKeysForFirstTime } from "@/utility/Encription";
+
+export const handleOauhSignIn = async (provider: "google" | "discord") => {
+  const keys = await getKeysForFirstTime();
+  if (!keys.publicKey) return;
+  const publicKey = await exportPublicKeyBase64(keys.publicKey);
+  await signIn(provider, publicKey);
+};
 
 export default function Page() {
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const [error, submitAction, isPending] = useActionState(async (previousState: unknown, formData: FormData) => {
     const data = Object.fromEntries(formData);
@@ -27,9 +38,15 @@ export default function Page() {
       }
     } catch {
       toast("Server not responding");
+    } finally {
+      dispatch(setLoading(false));
+      return null;
     }
-    return null;
   }, null);
+
+  useEffect(() => {
+    if (isPending) dispatch(setLoading(isPending));
+  }, [isPending, dispatch]);
   return (
     <>
       <div className="h-[100svh] w-screen flex justify-center items-center text-black bg-weblue px-4">
@@ -63,7 +80,7 @@ export default function Page() {
           <p className="p line">Or With</p>
 
           <div className="flex-row">
-            <button className="btn google" type="button" onClick={async () => await signIn("google")}>
+            <button className="btn google" type="button" onClick={async () => await handleOauhSignIn("google")}>
               <svg version="1.1" width="20" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 512 512" enableBackground={"new 0 0 512 512"}>
                 <path
                   style={{ fill: "#FBBB00" }}
@@ -92,7 +109,7 @@ export default function Page() {
               </svg>
               Google
             </button>
-            <button className="btn apple" onClick={async () => await signIn("discord")}>
+            <button className="btn apple" onClick={async () => await handleOauhSignIn("discord")}>
               <svg version="1.1" height="20" width="20" id="Capa_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 22.773 22.773" enableBackground={"new 0 0 22.773 22.773"}>
                 {" "}
                 <g>

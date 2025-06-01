@@ -28,7 +28,6 @@ export default function useSwipe() {
         setSwipe(newDirection);
       }
     }
-    console.log(isLeftSwipe);
     // add your conditional logic here
   };
   return { onTouchEnd, onTouchMove, onTouchStart, swipe, setSwipe } as const;

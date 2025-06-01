@@ -1,15 +1,12 @@
 "use client";
-import { getCookie } from "@/utility/getCookie";
-import { socket } from "@/socket";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setLoading, UserState } from "@/redux/Slice";
-import { saveMessageForUser } from "@/utility/saveAndRetrievedb";
+import { UserState } from "@/redux/Slice";
 import { generateRandom } from "@/app/(backend)/utility/random";
-import { updateFriend } from "@/utility/updateFriend";
-import { uploadImageAndGetUrl } from "@/utility/uploadAndGetUrl";
 import Camera from "@/components/Camera";
+import { checkFriendData } from "@/utility/saveAndRetrievedb";
+import { sendPrivateMessage } from "@/utility/sendPrivateMessage";
 
 export type PrivateMessage = {
   userId: string | null;
@@ -18,36 +15,28 @@ export type PrivateMessage = {
   image?: string | string[];
   id: string;
   audio?: string;
+  timestamp: number;
 };
 
 export default function CaremaPage() {
-  const userId = useSelector((state: UserState) => state.userId);
+  const clientId = useSelector((state: UserState) => state.userId);
   const router = useRouter();
   const searchParams = useSearchParams();
   const room = searchParams.get("room");
   const dispatch = useDispatch();
 
   const sendImage = async (dataUri: string, caption?: string) => {
-    const accessToken = getCookie("accessToken");
-    if (!dataUri) return;
-    const url = await uploadImageAndGetUrl({ image: dataUri });
-    if (!url) {
-      /// todo handle image not upload
-      return;
-    }
+    if (!room || !dataUri || !clientId) return;
+    const friend = await checkFriendData(clientId, room);
+    if (!friend) return;
     const id = generateRandom(8);
-    const data: PrivateMessage = { userId: room, message: caption, accessToken, image: url, id };
-    socket.emit("private message", data);
-    if (room && dataUri && userId)
-      try {
-        await saveMessageForUser(userId, { message: caption, image: dataUri, audio: undefined, video: undefined, sender: true, id, userId: room, timestamp: Date.now() });
-        await updateFriend({ clientId: userId, userId: room, image: dataUri, message: caption, audio: undefined });
-      } catch (err) {
-        console.log(err);
-      } finally {
-        dispatch(setLoading(false));
-        router.back();
-      }
+    try {
+      await sendPrivateMessage({ clientId, message: caption, image: [dataUri], id, userId: room, timestamp: Date.now(), publicKey: friend.publicKey }, dispatch);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      router.back();
+    }
   };
 
   return (

@@ -34,8 +34,6 @@ const ServiceWorkerClass: {
             });
           }
         });
-
-        console.log("Service worker registered and active");
       } catch (error) {
         console.error("Service Worker registration failed:", error);
       }
@@ -45,11 +43,8 @@ const ServiceWorkerClass: {
       });
     }
     if ("standalone" in navigator && navigator.standalone) {
-      console.log("Installed on iOS");
     } else if (matchMedia("(display-mode: standalone)").matches) {
-      console.log("Installed on Android or desktop");
     } else {
-      console.log("Launched from a browser tab");
     }
 
     window.addEventListener("beforeinstallprompt", (ev) => {
@@ -76,8 +71,6 @@ const ServiceWorkerClass: {
   },
 
   handleMessage(ev: MessageEvent<unknown>) {
-    console.log(ev.data);
-
     if (typeof ev.data === "object" && ev.data && "confirmOnline" in ev.data) {
     } else if (typeof ev.data === "string" && ev.data === "not-found") {
     }

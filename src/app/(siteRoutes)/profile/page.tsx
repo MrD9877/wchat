@@ -25,7 +25,7 @@ export default function ProfilePage() {
   useEffect(() => {
     async function getUser() {
       try {
-        const res = await fetch("/api/getFriend", { method: "POST", body: JSON.stringify({ userId }) });
+        const res = await fetch("/api/auth/userFriends", { method: "POST", body: JSON.stringify({ userId }) });
         if (res.ok) {
           const data: UserData = await res.json();
           setUserData(data);

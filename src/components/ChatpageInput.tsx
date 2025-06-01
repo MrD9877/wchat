@@ -1,20 +1,16 @@
 "use client";
-import { socket } from "@/socket";
 import Link from "next/link";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCookie } from "../utility/getCookie";
 import AudioRecorder from "./AudioRecording";
 import AudioInputUI from "./AudioInputUI";
 import AttachPhotoUI from "./AttachPhotoUI";
-import { setLoading, UserState } from "@/redux/Slice";
+import { UserState } from "@/redux/Slice";
 import useFiles from "@/hooks/useFiles";
-import { SavedDbMessages, saveMessageForUser } from "@/utility/saveAndRetrievedb";
+import { SavedDbFriends } from "@/utility/saveAndRetrievedb";
 import { generateRandom } from "@/app/(backend)/utility/random";
-import { updateFriend } from "@/utility/updateFriend";
-import { uploadImageAndGetUrl } from "@/utility/uploadAndGetUrl";
 import { ChatType } from "@/app/(siteRoutes)/chatpage/[chatId]/page";
-import { PrivateMessage } from "@/app/(siteRoutes)/camera/page";
+import { sendPrivateMessage } from "@/utility/sendPrivateMessage";
 
 interface ChatInputComponent {
   room: string;
@@ -26,62 +22,43 @@ interface ChatInputComponent {
   setEmojiKeyBoard: Dispatch<SetStateAction<boolean>>;
   clearTimer: () => void;
   scrollToBottom: () => void;
+  friend: SavedDbFriends | null | undefined;
 }
 
-export default function ChatpageInput({ scrollToBottom, clearTimer, setChat, room, setTextMessage, textMessage, showInput, emojiKeyBoard, setEmojiKeyBoard }: ChatInputComponent) {
+export default function ChatpageInput({ friend, scrollToBottom, clearTimer, setChat, room, setTextMessage, textMessage, showInput, emojiKeyBoard, setEmojiKeyBoard }: ChatInputComponent) {
   const [sendVisible, setSendVisible] = useState(false);
   const userId = useSelector((state: UserState) => state.userId);
   const textInput = useRef<HTMLInputElement>(null);
   const [audioRecording, setAudioRecording] = useState(false);
   const [changesInInpur, setChanges] = useState(false);
   const { src, setSrc, files, setFile, fileSelected } = useFiles();
-  const audioRecorder = AudioRecorder({ audioRecording, room, setChat });
+  const audioRecorder = AudioRecorder({ audioRecording, room, setChat, friend });
   const sendButtonRef = useRef<HTMLButtonElement>(null);
-  const [disable, setDisable] = useState(false);
   const dispatch = useDispatch();
-  void audioRecorder;
 
   const sendMsg = async () => {
-    // if (disable) return;
-    // else setDisable(true);
+    if (!userId || !room) return;
     if (src.length < 1 && textMessage === "") return;
     const image = src.length > 0 ? src : undefined;
-    const urls: string[] = [];
-    if (!userId || !room) return;
-    if (image) {
-      dispatch(setLoading(true));
-      for (let i = 0; i < image.length; i++) {
-        const dataUri = image[i];
-        const url = await uploadImageAndGetUrl({ image: dataUri });
-        if (url) urls.push(url);
-      }
-      dispatch(setLoading(false));
-    }
-    const id = generateRandom(16);
-    setChat((pre) => {
-      const temp = [...pre];
-      temp.forEach((item, index) => {
-        if (item.unread) {
-          temp[index].unread = undefined;
-        }
-      });
-      return [{ message: textMessage, sender: true, id, userId: room, timestamp: Date.now(), image, audio: undefined, video: undefined }, ...temp];
-    });
-    // save in localstorage
+    console.log(image);
+    const id = generateRandom(8);
+    const timestamp = Date.now();
+    if (!friend) return;
+    const publicKey = friend.publicKey;
     try {
-      await saveMessageForUser(userId, { message: textMessage, image, audio: undefined, video: undefined, sender: true, id, userId: room, timestamp: Date.now() });
-      await updateFriend({ clientId: userId, userId: room, image, message: textMessage, audio: undefined });
+      await sendPrivateMessage({ message: textMessage, id, userId: room, timestamp, image, clientId: userId, publicKey }, dispatch);
+      setChat((pre) => {
+        const temp = [...pre];
+        temp.forEach((item, index) => (temp[index].unread = undefined));
+        return [{ message: textMessage, sender: true, id, userId: room, timestamp, image }, ...temp];
+      });
     } catch (err) {
       console.log(err);
     } finally {
-      const accessToken = getCookie("accessToken");
-      const data: PrivateMessage = { message: textMessage, accessToken, image: urls.length > 0 ? urls : undefined, id, userId: room };
-      socket.emit("private message", data);
       setTextMessage("");
       setSrc([]);
       setFile(null);
       scrollToBottom();
-      setDisable(false);
     }
   };
 

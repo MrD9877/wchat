@@ -16,7 +16,8 @@ import useSelectItem from "@/hooks/useSelectItem";
 import useScrollToInput from "@/hooks/useScrollToInput";
 import useGetRoom from "@/hooks/useGetRoom";
 import { checkFriendData, getLastRead, getMessagesSortedByTime, SavedDbMessages, updateLastRead } from "@/utility/saveAndRetrievedb";
-import { handleNewMessage, MessageData } from "@/hooks/useGetMessages";
+import { MessageData } from "@/hooks/useGetMessages";
+import { handleNewMessage } from "@/utility/getNewMessage";
 
 export type ItemSelected = {
   type: "text" | "image" | "audio" | "video";
@@ -47,12 +48,11 @@ export default function ChatPage() {
   const handleMessage = async (data: MessageData) => {
     if (!clientId || !room) {
       //todo
-      console.log({ clientId, room });
       return;
     }
     try {
-      const { message, user, image, audio, id } = data;
-      await handleNewMessage(clientId, data);
+      const parsedData = await handleNewMessage(clientId, data, `/chatpage/${data.userId}`);
+      if (!parsedData) throw Error(parsedData);
       setChat((pre) => {
         const temp = [...pre];
         temp.forEach((item, index) => {
@@ -60,9 +60,9 @@ export default function ChatPage() {
             temp[index].unread = undefined;
           }
         });
-        return [{ id, userId: user, image, audio, message, timestamp: Date.now(), video: undefined, sender: false }, ...temp];
+        return [{ ...parsedData, video: undefined, sender: false }, ...temp];
       });
-      await updateLastRead(clientId, data.user);
+      await updateLastRead(clientId, data.userId);
     } catch (err) {
       console.log(err);
     } finally {
@@ -157,7 +157,7 @@ export default function ChatPage() {
             }
           })}
         </div>
-        {room && <ChatpageInput scrollToBottom={scrollToBottom} clearTimer={clearTimer} showInput={showInput} emojiKeyBoard={emojiKeyBoard} setEmojiKeyBoard={setEmojiKeyBoard} setChat={setChat} room={room} textMessage={textMessage} setTextMessage={setTextMessage} />}
+        {room && <ChatpageInput friend={friend} scrollToBottom={scrollToBottom} clearTimer={clearTimer} showInput={showInput} emojiKeyBoard={emojiKeyBoard} setEmojiKeyBoard={setEmojiKeyBoard} setChat={setChat} room={room} textMessage={textMessage} setTextMessage={setTextMessage} />}
         {emojiKeyBoard && <EmoteKeyBoard setTextMessage={setTextMessage} />}
         <div ref={placeholder2} className="mt-2"></div>
       </div>

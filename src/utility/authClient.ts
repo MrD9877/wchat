@@ -92,7 +92,14 @@ export class OAuthClient {
     });
     return state;
   }
-  createAuthUrl(cookies: ReadonlyRequestCookies) {
+  createAuthUrl(cookies: ReadonlyRequestCookies, publicKey: string) {
+    cookies.set("publicKey", publicKey, {
+      secure: true,
+      httpOnly: true,
+      sameSite: "lax",
+      expires: Date.now() + COOKIE_VERIFIER_EXPIRE_IN_SEC * 1000,
+    });
+
     const url = urls[this.provider].auth;
     url.searchParams.set("client_id", urls[this.provider].clientId || "");
     url.searchParams.set("redirect_uri", this.redirectUrl().toString());
