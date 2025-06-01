@@ -47,14 +47,14 @@ function VideoCall() {
   }, [peerConnection.current]);
 
   useEffect(() => {
-    if (inComingCall) {
+    if (inComingCall && localStream) {
       (async () => {
         const wait = new Promise((res, rej) => setTimeout(res, 1000));
         await wait;
         await generateOffer({ peerConnection, room: inComingCall.from });
       })();
     }
-  }, [inComingCall]);
+  }, [inComingCall, localStream]);
 
   return (
     <>

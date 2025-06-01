@@ -11,7 +11,7 @@ export async function POST(request: Request) {
   try {
     const checkUser = await User.findOne({ email });
     if (!checkUser) {
-      return new Response(JSON.stringify({ msg: "Register your account" }), { status: 400 });
+      return new Response(JSON.stringify({ msg: "Register your account" }), { status: 302 });
     }
     const { msg, status } = await sendOtp(email, checkUser.name);
     cookieStore.set("email", JSON.stringify({ email, name: checkUser.name }));

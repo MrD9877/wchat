@@ -19,6 +19,10 @@ export default function LoginPage() {
       const res = await fetch("/api/login", { method: "POST", credentials: "include", body: JSON.stringify({ email }) });
       if (res.status === 201 || res.status === 409) {
         router.push(`/verify?email=${email}`);
+      } else if (res.status === 302) {
+        const { msg } = await res.json();
+        toast(msg);
+        router.push("/register");
       } else if (res.status === 400) {
         const data = await res.json();
         toast(data.msg);

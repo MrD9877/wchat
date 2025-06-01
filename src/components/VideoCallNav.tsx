@@ -1,6 +1,5 @@
 import { socket } from "@/socket";
-import React, { useEffect, useState } from "react";
-import { Dispatch } from "redux";
+import React from "react";
 interface VideoCallNav {
   handleEndCall: () => void;
   callUser: string | null;
