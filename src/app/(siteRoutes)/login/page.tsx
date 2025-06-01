@@ -1,12 +1,12 @@
 "use client";
 import { setLoading } from "@/redux/Slice";
+import { handleOauhSignIn } from "@/utility/logout";
 import { signIn } from "@/utility/singIn";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useActionState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
-import { handleOauhSignIn } from "../register/page";
 
 export default function LoginPage() {
   const router = useRouter();

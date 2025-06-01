@@ -7,14 +7,7 @@ import { toast } from "sonner";
 import { CircleUserRound } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { setLoading } from "@/redux/Slice";
-import { exportPublicKeyBase64, getKeysForFirstTime } from "@/utility/Encription";
-
-export const handleOauhSignIn = async (provider: "google" | "discord") => {
-  const keys = await getKeysForFirstTime();
-  if (!keys.publicKey) return;
-  const publicKey = await exportPublicKeyBase64(keys.publicKey);
-  await signIn(provider, publicKey);
-};
+import { handleOauhSignIn } from "@/utility/logout";
 
 export default function Page() {
   const router = useRouter();

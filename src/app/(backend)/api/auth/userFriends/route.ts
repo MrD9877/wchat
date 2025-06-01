@@ -4,6 +4,8 @@ import { tokenAuth } from "@/app/(backend)/utility/authToken";
 import { FriendInfo } from "@/hooks/useFriendAndRequests";
 import { cookies } from "next/headers";
 
+export type FriendServerInfo = Omit<FriendInfo, "publicKey"> & { publicKey: string };
+
 export async function GET() {
   await dbConnect();
   const cookieStore = await cookies();
@@ -13,7 +15,7 @@ export async function GET() {
     const { user } = data;
     const userInfo = await User.findOne({ email: user.email }, { friends: 1, friendRequests: 1, _id: 0 });
     if (!userInfo) throw Error();
-    let friends: FriendInfo[] | null = null;
+    let friends: FriendServerInfo[] | null = null;
     const arr = userInfo.friends;
 
     for (let i = 0; i < arr.length; i++) {
