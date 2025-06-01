@@ -35,29 +35,39 @@ export default function Camera(props: Omit<ImageTakenType, "dataUri">) {
 
   const handleCapture = async () => {
     const canvas = canvasRef.current;
-    const stream = videoRef.current;
+    const video = videoRef.current;
 
-    if (!canvas || !stream) return;
-    const width = stream.videoWidth;
-    const height = stream.videoHeight;
+    if (!canvas || !video) return;
+
+    const width = video.videoWidth;
+    const height = video.videoHeight;
 
     canvas.width = width;
     canvas.height = height;
+
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+
+    ctx.clearRect(0, 0, width, height);
     ctx.save();
-    ctx.translate(canvas.width, 0);
+
     if (faceMode === "user") {
-      ctx.scale(-1, 1); // mirror horizontally
+      // Mirror for front camera
+      ctx.translate(width, 0);
+      ctx.scale(-1, 1);
     }
-    ctx.drawImage(stream, 0, 0, canvas.width, canvas.height);
+
+    ctx.drawImage(video, 0, 0, width, height);
     ctx.restore();
+
     const dataUri = canvas.toDataURL("image/png");
+
     document.startViewTransition(() => {
       setDataUri(dataUri);
     });
-    stopStream(stream.srcObject as MediaStream);
-    stream.srcObject = null;
+
+    stopStream(video.srcObject as MediaStream);
+    video.srcObject = null;
   };
 
   return (
