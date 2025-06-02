@@ -34,8 +34,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ prov
     } else {
       profilePic = user.profilePic;
     }
-    console.log(avatar);
-    const CookiesSet = await setCokies(email, username, avatar, id);
+    const CookiesSet = await setCokies(email, username, profilePic, id);
     if (!CookiesSet) throw Error();
   } catch (err) {
     console.log(err);
