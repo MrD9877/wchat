@@ -54,29 +54,28 @@ export default function EmoteKeyBoard({ setTextMessage }: { setTextMessage: Reac
     getEmotes(selectedGroup);
   }, [selectedGroup]);
   return (
-    <div className="bg-white h-[40svh] mt-6 bottom-0">
-      {group && (
-        <div className="flex mx-auto w-fit gap-5 max-w-[100vw] overflow-scroll py-4 px-3 text-bold text-lg">
-          {group.map((groupName, index) => {
-            return (
-              <button disabled={loading} onClick={() => setSelectGroup(groupName)} style={selectedGroup === groupName ? { opacity: 1 } : { opacity: "0.5" }} key={index}>
+    <div className="py-8 h-[40svh] w-full bottom-0 max-w-[600px] px-4">
+      <div>
+        {group && (
+          <div className="flex mx-auto gap-5 w-full overflow-x-auto whitespace-nowrap py-4 px-3 text-bold text-lg bg-white">
+            {group.map((groupName, index) => (
+              <button disabled={loading} onClick={() => setSelectGroup(groupName)} style={selectedGroup === groupName ? { opacity: 1 } : { opacity: 0.5 }} key={index} className="shrink-0">
                 {groupName.split("-")[0].toUpperCase()}
               </button>
-            );
-          })}
-        </div>
-      )}
-      {emoji && (
-        <div className="overflow-y-scroll px-4 grid gap-3 grid-cols-6 h-[37svh] ">
-          {emoji.map((item, index) => {
-            return (
+            ))}
+          </div>
+        )}
+
+        {emoji && (
+          <div className="overflow-y-scroll w-full px-4 grid gap-3 grid-cols-6 h-[37svh] bg-white">
+            {emoji.map((item, index) => (
               <button onClick={() => setTextMessage((pre) => pre + item.character)} className="text-3xl" key={index}>
                 {item.character}
               </button>
-            );
-          })}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

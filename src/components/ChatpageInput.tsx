@@ -94,7 +94,7 @@ export default function ChatpageInput({ friend, scrollToBottom, clearTimer, setC
     <div>
       {src.length > 0 && <AttachPhotoUI src={src} setSrc={setSrc} sendMsg={sendMsg} setFile={setFile} />}
       <div className="h-[8%]">
-        <div className="flex justify-between  w-screen px-4 gap-2">
+        <div className="flex justify-between  w-full px-4 gap-2 max-w-viewWidth">
           <div className="flex px-4 py-2 gap-3 bg-white rounded-3xl items-center justify-between w-[80%]">
             {audioRecording ? (
               <AudioInputUI />

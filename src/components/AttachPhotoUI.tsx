@@ -30,22 +30,22 @@ export default function AttachPhotoUI({ src, setSrc, sendMsg, setFile }: AttachP
 
   if (!src || src.length === 0) return null; // Ensure src is valid and has images
   return (
-    <div style={{ background: "rgba(0,0,0,0.5)" }} className="absolute top-0 w-screen h-screen flex items-center flex-col justify-center">
-      <div className="z-50 absolute top-0 left-0 m-6">
+    <div style={{ background: "rgba(0,0,0,0.5)" }} className="absolute top-0 w-full h-screen flex items-center flex-col justify-center max-w-viewWidth px-4">
+      <div className="z-50 fixed top-0 left-0 m-6 max-w-viewWidth">
         <button onClick={handleDiscard} className="px-1.5 py-1 bg-white w-fit rounded-full opacity-65 ">
           <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M16 8L8 16M8.00001 8L16 16" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
       </div>
-      <div style={{ background: "rgba(0,0,0,0.5)" }} className="overflow-clip  max-w-[55vw] mx-auto   rounded-lg">
+      <div style={{ background: "rgba(0,0,0,0.5)" }} className="overflow-clip w-full mx-auto   rounded-lg">
         <div ref={swiperDiv} className="rounded-xl flex h-fit justify-start">
           <Swiper onSlideChange={(e) => setSlide(e.activeIndex)} spaceBetween={1} slidesPerView={1}>
             {src.map((sr, index) => {
               return (
                 <SwiperSlide key={index}>
-                  <div className="bg-black h-[50vh] justify-center flex">
-                    <img className="rounded-xl mx-auto object-contain" src={typeof sr === "string" ? sr : ""} alt="img" />
+                  <div className="bg-black h-[50vh] justify-center flex ">
+                    <img className="rounded-xl mx-auto object-contain " src={typeof sr === "string" ? sr : ""} alt="img" />
                   </div>
                 </SwiperSlide>
               );
@@ -62,7 +62,7 @@ export default function AttachPhotoUI({ src, setSrc, sendMsg, setFile }: AttachP
           </div>
         </div>
       </div>
-      <div style={{ background: "rgba(0,0,0,0.5)" }} className=" flex items-end justify-end  fixed bottom-0 w-screen px-10 py-3">
+      <div style={{ background: "rgba(0,0,0,0.5)" }} className=" flex items-end justify-end  fixed bottom-0 max-w-viewWidth w-full px-10 py-3 ">
         <div className="bg-weblue px-4 pt-[15px] pb-2 rounded-full my-1 mx-2 z-50">
           <button onClick={sendMsg}>
             <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">

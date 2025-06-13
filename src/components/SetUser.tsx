@@ -64,7 +64,6 @@ export default function SetUser() {
   };
 
   const handleCallRequest = async ({ offer, from, name, type }: { offer: RTCSessionDescriptionInit; from: string; name: string; type: "voice" | "video" }) => {
-    // setIncomingCall({ offer, from });
     dispatch(setIncomingCall({ inComingCall: { from, name, type } }));
   };
 
@@ -109,11 +108,9 @@ export default function SetUser() {
   }, [inComingCall]);
 
   useEffect(() => {
-    if (exceptions.includes(pathname)) return;
     getUser();
     ServiceWorkerClass.init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  }, [pathname, exceptions]);
 
   if (userId)
     return (

@@ -62,12 +62,11 @@ export default function Camera(props: Omit<ImageTakenType, "dataUri">) {
 
     const dataUri = canvas.toDataURL("image/png");
 
+    stopStream(videoRef.current?.srcObject as MediaStream);
+    video.srcObject = null;
     document.startViewTransition(() => {
       setDataUri(dataUri);
     });
-
-    stopStream(video.srcObject as MediaStream);
-    video.srcObject = null;
   };
 
   return (

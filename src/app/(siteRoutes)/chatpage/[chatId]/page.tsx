@@ -104,10 +104,9 @@ export default function ChatPage() {
   }, [clientId, room]);
 
   return (
-    <div className="h-[100svh]">
-      <ShowImageAndVideo sources={showImage} setSrc={setShowImage} />
+    <div className="h-[100svh] relative max-w-viewWidth">
       <ChatPageTop room={room} friend={friend} itemSelected={itemSelected} clearSelected={clearSelected} setChat={setChat} chat={chat} />
-      <div style={{ height: "92svh", background: "url('/chatpageBg.png')" }} className="grid grid-rows-12 z-10">
+      <div style={{ height: "92svh", background: "url('/chatpageBg.png')" }} className="grid grid-rows-12 z-10 w-full">
         {/* chat */}
         <div className="overflow-scroll row-span-11 flex flex-col-reverse">
           <div ref={placeholder} className="mt-2"></div>
