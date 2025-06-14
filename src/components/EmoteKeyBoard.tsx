@@ -54,7 +54,7 @@ export default function EmoteKeyBoard({ setTextMessage }: { setTextMessage: Reac
     getEmotes(selectedGroup);
   }, [selectedGroup]);
   return (
-    <div className="py-8 h-[40svh] w-full bottom-0 max-w-[600px] px-4">
+    <div className="py-8 h-[40svh] bottom-0 max-w-screen vw:max-w-viewWidth px-4">
       <div>
         {group && (
           <div className="flex mx-auto gap-5 w-full overflow-x-auto whitespace-nowrap py-4 px-3 text-bold text-lg bg-white">

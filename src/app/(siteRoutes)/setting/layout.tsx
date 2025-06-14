@@ -18,11 +18,11 @@ export interface BeforeInstallPromptEvent extends Event {
 export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   return (
-    <div>
+    <div className="h-screen w-full overflow-y-scroll">
       <AnimatePresence mode="wait">
         <div key={pathname}>{children}</div>
       </AnimatePresence>
-      <div className="bg-gray-200   sm:p-8 h-[90vh] overflow-y-scroll overflow-x-clip">
+      <div className="bg-gray-200 overflow-y-scroll overflow-x-clip">
         <ProfileFront />
         <UserInoCard />
         <NotificationSetting />

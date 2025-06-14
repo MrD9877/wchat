@@ -22,8 +22,22 @@ export default function Camera(props: Omit<ImageTakenType, "dataUri">) {
   };
 
   useEffect(() => {
-    if (!dataUri) setVideo(videoRef.current, faceMode);
-  }, [videoRef, faceMode, dataUri]);
+    const video = videoRef.current;
+    if (!dataUri && video) {
+      setVideo(video, faceMode);
+    }
+
+    return () => {
+      const currentStream = video?.srcObject as MediaStream | null;
+      if (currentStream) {
+        stopStream(currentStream);
+      }
+      if (video) {
+        video.pause();
+        video.srcObject = null;
+      }
+    };
+  }, [faceMode, dataUri]);
 
   const toggleCamera = () => {
     setFaceMode(faceMode === "environment" ? "user" : "environment");
@@ -58,22 +72,47 @@ export default function Camera(props: Omit<ImageTakenType, "dataUri">) {
     }
 
     ctx.drawImage(video, 0, 0, width, height);
+    stopVideo();
     ctx.restore();
-
     const dataUri = canvas.toDataURL("image/png");
-
-    stopStream(videoRef.current?.srcObject as MediaStream);
-    video.srcObject = null;
-    document.startViewTransition(() => {
-      setDataUri(dataUri);
-    });
+    setDataUri(dataUri);
   };
+
+  const stopVideo = () => {
+    const video = videoRef.current;
+    const currentStream = video?.srcObject as MediaStream | null;
+
+    if (currentStream) {
+      stopStream(currentStream);
+    }
+
+    if (video) {
+      video.pause();
+      video.srcObject = null;
+    }
+  };
+
+  useEffect(() => {
+    const cleanup = () => {
+      const stream = videoRef.current?.srcObject as MediaStream;
+      if (stream) stopStream(stream);
+    };
+    window.addEventListener("beforeunload", cleanup);
+    return () => window.removeEventListener("beforeunload", cleanup);
+  }, []);
 
   return (
     <div className="bg-black">
       <canvas ref={canvasRef} className="hidden" />
       <div className="bg-black h-[100svh] w-screen pt-10  text-white overflow-hidden absolute top-0 z-50">
-        <button onClick={() => router.back()} className="px-1.5 py-1  flex items-center m-4 absolute z-50 bg-weblue w-fit rounded-full opacity-45 " style={{ viewTransitionName: "capturedImage" }}>
+        <button
+          onClick={() => {
+            stopVideo();
+            router.back();
+          }}
+          className="px-1.5 py-1  flex items-center m-4 absolute z-50 bg-weblue w-fit rounded-full opacity-45 "
+          style={{ viewTransitionName: "capturedImage" }}
+        >
           <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M16 8L8 16M8.00001 8L16 16" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>

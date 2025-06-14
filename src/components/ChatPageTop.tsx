@@ -65,9 +65,9 @@ export default function ChatPageTop({ friend, room, itemSelected, clearSelected,
   };
 
   return (
-    <div className="max-w-viewWidth relative">
+    <div className="vw:max-w-viewWidth relative">
       {openPic && <OpenProfilePic url={openPic} setUrl={setOpenPic} />}
-      <div className="bg-weblue h-[8svh] fixed top-0 w-full flex justify-between items-center px-4 rounded-b-3xl max-w-viewWidth ">
+      <div className="bg-weblue h-[8svh] fixed top-0 w-full flex justify-between items-center px-4 rounded-b-3xl vw:max-w-viewWidth ">
         <div className="flex items-center gap-4">
           {/* back  */}
           <div>
@@ -154,7 +154,7 @@ export default function ChatPageTop({ friend, room, itemSelected, clearSelected,
           </div>
         )}
       </div>
-      <div className="h-[8svh] bg-sky-100 w-full max-w-viewWidth" style={{ background: "url('/chatpageBg.png')" }}></div>
+      <div className="h-[8svh] bg-sky-100 w-full vw:max-w-viewWidth" style={{ background: "url('/chatpageBg.png')" }}></div>
     </div>
   );
 }

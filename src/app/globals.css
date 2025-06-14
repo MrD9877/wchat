@@ -6,6 +6,19 @@
   --background-chatPattern: url("/chatpageBg.png");
   --font-xxs: 8px;
   --lineHeight-xxs: 10px;
+  --background: white;
+  --foreground: black;
+  --viewWidth: 460px;
+}
+
+/* Applies to the whole page */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 @theme {
@@ -14,11 +27,8 @@
   --background-chatPattern: var(--background-chatPattern);
   --font-xxs: var(--font-xxs);
   --lineHeight-xxs: var(--lineHeight-xxs);
-}
-
-:root {
-  --background: white;
-  --foreground: black;
+  --breakpoint-vw: 460px;
+  --spacing-viewWidth: var(--viewWidth);
 }
 
 .weInputContainer {

@@ -30,9 +30,9 @@ export default function NotificationSetting() {
   }, [isChecked]);
 
   return (
-    <div className="my-4   flex flex-col 2xl:flex-row space-y-4 2xl:space-y-0 2xl:space-x-4">
+    <div className=" flex flex-col mb-24 ">
       <div className="w-full flex flex-col ">
-        <div className="flex-1 bg-white rounded-lg shadow-xl p-3 sm:p-8">
+        <div className="flex-1 bg-white rounded-lg shadow-xl p-3 ">
           <h4 className="text-xl text-gray-900 font-bold">Options</h4>
           <ul className="w-full mt-2 text-gray-700">
             <li className="flex border-y py-2">

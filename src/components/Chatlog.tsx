@@ -40,8 +40,8 @@ export default function Chatlog() {
   return (
     <>
       {url && <OpenProfilePic url={url} setUrl={setUrl} />}
-      <div className="overflow-y-scroll min-h-[70svh]">
-        <div className="py-3 px-5">
+      <div className="overflow-y-scroll min-h-[70svh] w-full">
+        <div className="py-3 px-5 w-full">
           {/* <!-- Chat list --> */}
           <div className="divide-y divide-gray-200">
             {/* <!-- User --> */}

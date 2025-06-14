@@ -11,7 +11,7 @@ export default function FriendsPage() {
 
   return (
     <div>
-      <div className="h-[15vh]  bg-weblue rounded-b-2xl pt-8">
+      <div className="h-[15%]  bg-weblue rounded-b-2xl pt-8">
         <SearchBar />
         <nav className="flex text-white font-bold justify-evenly text-xl mt-3 max-w-screen">
           <button onClick={() => setPage("friends")}>
@@ -31,7 +31,7 @@ export default function FriendsPage() {
           </button>
         </nav>
       </div>
-      <div className="z-1">
+      <div className="z-1 w-full">
         <FriendPageMain page={page} setNumber={setNumber} />
       </div>
       <NavBarChatBox />
