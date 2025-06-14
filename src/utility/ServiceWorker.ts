@@ -10,9 +10,10 @@ const ServiceWorkerClass: {
   clearCache: (req: string) => void;
 } = {
   SW: null,
-  isOnline: "onLine" in navigator && navigator.onLine,
+  isOnline: typeof navigator !== "undefined" ? "onLine" in navigator && navigator.onLine : false,
   deferredInstall: null,
   async init() {
+    if (typeof window === "undefined" || typeof navigator === "undefined") return;
     if ("serviceWorker" in navigator) {
       try {
         const registration = await navigator.serviceWorker.register("/sw.js", {

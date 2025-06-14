@@ -16,6 +16,7 @@ export default function Camera(props: Omit<ImageTakenType, "dataUri">) {
   const setVideo = async (video: HTMLVideoElement | null, faceMode: string | undefined) => {
     if (!video) return;
     try {
+      if (typeof window === "undefined" || typeof navigator === "undefined") return;
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: { facingMode: faceMode } });
       video.srcObject = stream;
     } catch {}

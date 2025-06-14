@@ -24,6 +24,7 @@ export default function useLocalMedia(setRemoteStream: React.Dispatch<React.SetS
   const peerConnection = useRef<RTCPeerConnection>(null);
 
   const startMedia = async () => {
+    if (typeof window === "undefined" || typeof navigator === "undefined") return;
     const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
     setLocalStream(stream);
   };

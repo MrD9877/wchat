@@ -109,7 +109,9 @@ export default function SetUser() {
 
   useEffect(() => {
     getUser();
-    ServiceWorkerClass.init();
+    if (typeof window !== "undefined" || typeof navigator !== "undefined") {
+      ServiceWorkerClass.init();
+    }
   }, [pathname, exceptions]);
 
   if (userId)

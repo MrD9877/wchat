@@ -1,4 +1,5 @@
 export const copyToClipboard = (text: string) => {
+  if (typeof window === "undefined" || typeof navigator === "undefined") return;
   if (navigator.clipboard && window.isSecureContext) {
     return navigator.clipboard.writeText(text);
   }

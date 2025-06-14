@@ -20,6 +20,7 @@ const AudioRecorder = ({ audioRecording, room, setChat, friend }: AudioRecorderT
 
   // Request access to the microphone
   const startMedia = async (): Promise<void> => {
+    if (typeof window === "undefined" || typeof navigator === "undefined") return;
     if (navigator.mediaDevices) {
       return new Promise((resolve, reject) => {
         navigator.mediaDevices

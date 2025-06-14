@@ -13,6 +13,7 @@ export default function NotificationSetting() {
 
   useEffect(() => {
     (async () => {
+      if (typeof window === "undefined" || typeof navigator === "undefined") return;
       const registration = await navigator.serviceWorker?.ready;
       const existingSubscription = await registration?.pushManager.getSubscription();
       if (existingSubscription) {

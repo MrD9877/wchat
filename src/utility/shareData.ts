@@ -12,6 +12,7 @@ export const handleShare = async (dataUri: string, type: FileTypes) => {
   const buffer = Buffer.from(base64, "base64");
   const blob = new Blob([buffer], { type: fileTypes[type] });
   const file = new File([blob], "shared", { type: blob.type });
+  if (typeof window === "undefined" || typeof navigator === "undefined") return;
 
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
