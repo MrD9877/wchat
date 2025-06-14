@@ -1,36 +1,9 @@
-"use client";
 import React from "react";
-import ProfileFront from "@/components/ProfileFront";
-import UserInoCard from "@/components/UserInoCard";
-import NotificationSetting from "@/components/NotificationSetting";
-import { usePathname } from "next/navigation";
-import { AnimatePresence } from "framer-motion";
-
-export interface BeforeInstallPromptEvent extends Event {
-  readonly platforms: string[];
-  readonly userChoice: Promise<{
-    outcome: "accepted" | "dismissed";
-    platform: string;
-  }>;
-  prompt: () => Promise<void>;
-}
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
   return (
     <main className="w-screen h-svh flex overflow-clip ">
-      <div className="max-w-viewWidth vw:min-w-viewWidth w-full h-svh overflow-y-scroll">
-        <div className="h-screen w-full overflow-y-scroll">
-          <AnimatePresence mode="wait">
-            <div key={pathname}>{children}</div>
-          </AnimatePresence>
-          <div className="bg-gray-200 overflow-y-scroll overflow-x-clip">
-            <ProfileFront />
-            <UserInoCard />
-            <NotificationSetting />
-          </div>
-        </div>
-      </div>
+      <div className="max-w-viewWidth vw:min-w-viewWidth w-full h-svh overflow-y-scroll">{children}</div>
       <div className="hidden w-full h-svh overflow-clip vw:flex justify-center items-center bg-[#e8e8e3]">
         <div>
           <svg width="100" height="90" viewBox="0 0 100 90" fill="none" xmlns="http://www.w3.org/2000/svg">
