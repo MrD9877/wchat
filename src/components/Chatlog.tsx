@@ -50,7 +50,7 @@ export default function Chatlog() {
               friends.map((friend) => {
                 return (
                   <button key={friend.userId} className="w-full text-left py-2 focus:outline-none focus-visible:bg-indigo-50">
-                    <div className="flex items-center">
+                    <div className="flex items-center relative">
                       <div onClick={() => setUrl(`${process.env.NEXT_PUBLIC_AWS_URL}/${friend.profilePic}`)}>
                         <ImageWithFallBack className="rounded-full items-start flex-shrink-0 mr-3 w-10 h-10" src={`${process.env.NEXT_PUBLIC_AWS_URL}/${friend.profilePic}`} width={32} height={32} alt="dp" />
                       </div>
