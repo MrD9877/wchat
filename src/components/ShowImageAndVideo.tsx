@@ -6,10 +6,10 @@ export default function ShowImageAndVideo({ sources, setSrc }: { sources: string
   return (
     <div style={{ display: sources ? "flex" : "none" }} className="absolute  h-screen bg-black z-50 top-0 left-0 w-screen ">
       {sources && (
-        <div className="flex gap-4 flex-col max-w-viewWidth">
+        <div className="flex gap-4 flex-col ">
           {sources.map((src) => {
             return (
-              <div key={src} className="flex w-full  min-h-[100svh] justify-center items-center bg-black relative">
+              <div key={src} className="flex w-screen  min-h-[100svh] justify-center items-center bg-black relative">
                 <div className="z-50 absolute top-0 right-0 m-6">
                   <button
                     onClick={() => {
