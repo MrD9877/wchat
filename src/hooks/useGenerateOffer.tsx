@@ -1,7 +1,5 @@
-import { UserState } from "@/redux/Slice";
 import { socket } from "@/socket";
 import { getCookie } from "@/utility/getCookie";
-import { useSelector } from "react-redux";
 
 type GenerateOffer = {
   peerConnection: React.RefObject<RTCPeerConnection | null>;
@@ -9,7 +7,6 @@ type GenerateOffer = {
 };
 
 export default function useGenerateOffer() {
-  const userId = useSelector((state: UserState) => state.userId);
   const generateOffer = async ({ peerConnection, room }: GenerateOffer) => {
     const peer = peerConnection.current;
     if (!peer) return;
@@ -17,25 +14,6 @@ export default function useGenerateOffer() {
     const offer = await peer.createOffer();
     await peer.setLocalDescription(offer);
 
-    const waitForIce = new Promise<void>((resolve) => {
-      if (peer.iceGatheringState === "complete") return resolve();
-
-      const onComplete = () => {
-        if (peer.iceGatheringState === "complete") {
-          peer.removeEventListener("icegatheringstatechange", onComplete);
-          resolve();
-        }
-      };
-
-      peer.addEventListener("icegatheringstatechange", onComplete);
-
-      setTimeout(() => {
-        peer.removeEventListener("icegatheringstatechange", onComplete);
-        resolve();
-      }, 2000);
-    });
-
-    await waitForIce;
     const accessToken = getCookie("accessToken");
     socket.emit("offer", { offer: JSON.stringify(peer.localDescription), to: room, accessToken });
   };
@@ -47,26 +25,6 @@ export default function useGenerateOffer() {
     await peer.setRemoteDescription(remoteOffer);
     const answer = await peer.createAnswer();
     await peer.setLocalDescription(answer);
-
-    const waitForIce = new Promise<void>((resolve) => {
-      if (peer.iceGatheringState === "complete") return resolve();
-
-      const onComplete = () => {
-        if (peer.iceGatheringState === "complete") {
-          peer.removeEventListener("icegatheringstatechange", onComplete);
-          resolve();
-        }
-      };
-
-      peer.addEventListener("icegatheringstatechange", onComplete);
-
-      setTimeout(() => {
-        peer.removeEventListener("icegatheringstatechange", onComplete);
-        resolve();
-      }, 2000);
-    });
-
-    await waitForIce;
     const accessToken = getCookie("accessToken");
     socket.emit("answer", { answer: JSON.stringify(peer.localDescription), to: room, accessToken });
   };
@@ -74,7 +32,6 @@ export default function useGenerateOffer() {
   const addAnswer = async (answer: string, peerConnection: React.RefObject<RTCPeerConnection | null>) => {
     const peer = peerConnection.current;
     if (!peer) return;
-    console.log(answer);
     const remoteAnswer = await JSON.parse(answer);
     if (remoteAnswer) {
       await peer.setRemoteDescription(remoteAnswer);
