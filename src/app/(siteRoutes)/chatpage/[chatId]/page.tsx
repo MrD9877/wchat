@@ -104,6 +104,8 @@ export default function ChatPage() {
   }, [clientId, room]);
 
   return (
+    <>
+      <ShowImageAndVideo sources={showImage} setSrc={setShowImage} />
     <div className="h-[100svh] vw:relative vw:max-w-viewWidth">
       <ChatPageTop room={room} friend={friend} itemSelected={itemSelected} clearSelected={clearSelected} setChat={setChat} chat={chat} />
       <div style={{ height: "92svh", background: "url('/chatpageBg.png')" }} className="grid grid-rows-12 z-10 w-full">
@@ -161,5 +163,6 @@ export default function ChatPage() {
         <div ref={placeholder2} className="mt-2"></div>
       </div>
     </div>
+      </>
   );
 }
