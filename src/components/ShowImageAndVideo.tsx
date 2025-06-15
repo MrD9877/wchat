@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 
 export default function ShowImageAndVideo({ sources, setSrc }: { sources: string[] | null; setSrc: React.Dispatch<React.SetStateAction<string[] | null>> }) {
   return (
-    <div style={{ display: sources ? "flex" : "none" }} className="absolute  h-screen bg-black z-50 top-0 left-0 ">
+    <div style={{ display: sources ? "flex" : "none" }} className="absolute  h-screen bg-black z-50 top-0 left-0 w-screen ">
       {sources && (
         <div className="flex gap-4 flex-col max-w-viewWidth">
           {sources.map((src) => {
