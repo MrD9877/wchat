@@ -38,7 +38,15 @@ export async function uploadProfilePic(dataUri: string | undefined, profilePicId
       mode: "cors",
     });
     const cache = await caches.open("media");
-    const d = await cache.delete(`${process.env.NEXT_PUBLIC_AWS_URL}/${profilePicId}`);
+    const baseURL = `${process.env.NEXT_PUBLIC_AWS_URL}/${profilePicId}`;
+    await cache.keys().then((requests) => {
+      requests.forEach((request) => {
+        const urlWithoutQuery = request.url.split("?")[0];
+        if (urlWithoutQuery === baseURL) {
+          cache.delete(request);
+        }
+      });
+    });
   } catch (err) {
     console.log(err);
     toast("somthing went wrong when uploading image");

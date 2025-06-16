@@ -17,7 +17,7 @@ export default function EditProfileCameraPage() {
     toast(`Profile image updated successfully.
          Please refresh the page to see the changes`);
     dispatch(setLoading(false));
-    router.push("/setting");
+    window.location.replace("/setting");
   };
 
   return (

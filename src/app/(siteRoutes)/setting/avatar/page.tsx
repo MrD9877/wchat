@@ -30,7 +30,7 @@ export default function AvatarPage() {
       toast(`Error:Profile image was not updates`);
     } finally {
       dispatch(setLoading(false));
-      router.push("/setting");
+      window.location.replace("/setting");
     }
   };
 
