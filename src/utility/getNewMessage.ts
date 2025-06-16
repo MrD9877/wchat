@@ -2,6 +2,7 @@ import { MessageData } from "@/hooks/useGetMessages";
 import { decryptOne, getKeysFromDb } from "@/utility/Encription";
 import { checkFriendData, saveMessageForUser } from "@/utility/saveAndRetrievedb";
 import { updateFriend } from "@/utility/updateFriend";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { toast } from "sonner";
 
 export const decryptAwsURL = async (awsUrl: string | undefined, privateKey: CryptoKey) => {
@@ -24,7 +25,7 @@ const decryptAwsURLS = async (awsUrls: string[] | undefined, privateKey: CryptoK
   return urls;
 };
 
-export const handleNewMessage = async (clientId: string, { message, userId, image, audio, id, username, timestamp }: MessageData, pathname: string) => {
+export const handleNewMessage = async (clientId: string, { message, userId, image, audio, id, username, timestamp }: MessageData, pathname: string, router?: AppRouterInstance) => {
   try {
     const keys = await getKeysFromDb();
     if (!keys || !keys.privateKey) throw Error();
@@ -37,7 +38,7 @@ export const handleNewMessage = async (clientId: string, { message, userId, imag
     await saveMessageForUser(clientId, { sender: false, ...parsedData });
     await updateFriend({ clientId, ...parsedData });
     if (pathname !== "/chatscreen" && pathname !== `/chatpage/${userId}`) {
-      pushNotification(parsedData);
+      pushNotification(parsedData, userId, router);
     }
     return parsedData;
   } catch (err) {
@@ -45,11 +46,21 @@ export const handleNewMessage = async (clientId: string, { message, userId, imag
   }
 };
 
-function pushNotification(data: MessageData) {
+function pushNotification(data: MessageData, userId: string, router?: AppRouterInstance) {
   const notificationMessage: string[] = [];
   if (data.message) notificationMessage.push(data.message);
   if (data.image) notificationMessage.push("🖼️");
   if (data.image && !data.message) notificationMessage.push("Image");
   if (data.audio) notificationMessage.push("🎙️ 1:00");
-  toast(data.username, { description: notificationMessage.join(" ") });
+  toast(data.username, {
+    description: notificationMessage.join(" "),
+    action: {
+      label: "view",
+      onClick: () => {
+        const url = `chatpage/${userId}`;
+        if (router) router.push(url);
+        else window.location.href = url;
+      },
+    },
+  });
 }

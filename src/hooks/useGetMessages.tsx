@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { socket } from "@/socket"; // Import socket from the singleton
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { addNewMessage } from "@/redux/Slice";
 import { PrivateMessage } from "@/app/(siteRoutes)/camera/page";
@@ -12,12 +12,13 @@ export type MessageData = Omit<PrivateMessage, "accessToken"> & { userId: string
 export default function useGetMessages(clientId: string | undefined) {
   const pathname = usePathname();
   const dispath = useDispatch();
+  const router = useRouter();
 
   useEffect(() => {
     const handleMessage = async (data: MessageData) => {
       if (!clientId || pathname === `/chatpage/${data.userId}`) return;
       else {
-        await handleNewMessage(clientId, data, pathname);
+        await handleNewMessage(clientId, data, pathname, router);
         if (pathname === "/chatscreen") {
           dispath(addNewMessage(1));
         }
