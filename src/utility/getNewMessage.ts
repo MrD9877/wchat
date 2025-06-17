@@ -4,6 +4,7 @@ import { checkFriendData, saveMessageForUser } from "@/utility/saveAndRetrievedb
 import { updateFriend } from "@/utility/updateFriend";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { toast } from "sonner";
+import { deleteInvalidCache, logoutfn } from "./logout";
 
 export const decryptAwsURL = async (awsUrl: string | undefined, privateKey: CryptoKey) => {
   if (!awsUrl) return;
@@ -25,12 +26,13 @@ const decryptAwsURLS = async (awsUrls: string[] | undefined, privateKey: CryptoK
   return urls;
 };
 
-export const handleNewMessage = async (clientId: string, { message, userId, image, audio, id, username, timestamp }: MessageData, pathname: string, router?: AppRouterInstance) => {
+export const handleNewMessage = async (clientId: string, { message, userId, image, audio, id, username, timestamp }: MessageData, pathname: string, router: AppRouterInstance) => {
   try {
     const keys = await getKeysFromDb();
     if (!keys || !keys.privateKey) throw Error();
     const privateKey = keys.privateKey;
     const parsedMessage = await decryptOne(message, privateKey);
+
     const parsedaudio = await decryptAwsURL(audio, privateKey);
     const parsedImages = typeof image === "string" ? await decryptAwsURL(image, privateKey) : await decryptAwsURLS(image, privateKey);
     await checkFriendData(clientId, userId);
@@ -42,11 +44,17 @@ export const handleNewMessage = async (clientId: string, { message, userId, imag
     }
     return parsedData;
   } catch (err) {
-    console.log(err);
+    if (err instanceof DOMException && err.name === "OperationError") {
+      await logoutfn();
+      await deleteInvalidCache();
+      window.location.href = "/login";
+    } else {
+      console.error("Other error:", err);
+    }
   }
 };
 
-function pushNotification(data: MessageData, userId: string, router?: AppRouterInstance) {
+function pushNotification(data: MessageData, userId: string, router: AppRouterInstance) {
   const notificationMessage: string[] = [];
   if (data.message) notificationMessage.push(data.message);
   if (data.image) notificationMessage.push("🖼️");
@@ -57,7 +65,7 @@ function pushNotification(data: MessageData, userId: string, router?: AppRouterI
     action: {
       label: "view",
       onClick: () => {
-        const url = `chatpage/${userId}`;
+        const url = `/chatpage/${userId}`;
         if (router) router.push(url);
         else window.location.href = url;
       },

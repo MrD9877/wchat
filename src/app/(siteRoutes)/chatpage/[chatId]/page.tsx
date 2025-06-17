@@ -18,6 +18,7 @@ import useGetRoom from "@/hooks/useGetRoom";
 import { checkFriendData, getLastRead, getMessagesSortedByTime, SavedDbMessages, updateLastRead } from "@/utility/saveAndRetrievedb";
 import { MessageData } from "@/hooks/useGetMessages";
 import { handleNewMessage } from "@/utility/getNewMessage";
+import { useRouter } from "next/navigation";
 
 export type ItemSelected = {
   type: "text" | "image" | "audio" | "video";
@@ -34,7 +35,7 @@ export default function ChatPage() {
   const [chat, setChat] = useState<ChatType[]>([]);
   const [showImage, setShowImage] = useState<string[] | null>(null);
   const { itemSelected, longPressEvents, clearSelected, clickSelect } = useSelectItem();
-
+  const router = useRouter();
   const placeholder = useRef<HTMLDivElement>(null);
   const placeholder2 = useRef<HTMLDivElement>(null);
 
@@ -46,12 +47,14 @@ export default function ChatPage() {
 
   // for received msg
   const handleMessage = async (data: MessageData) => {
+    console.log(data);
     if (!clientId || !room) {
       //todo
       return;
     }
     try {
-      const parsedData = await handleNewMessage(clientId, data, `/chatpage/${data.userId}`);
+      const parsedData = await handleNewMessage(clientId, data, `/chatpage/${data.userId}`, router);
+      console.log(parsedData);
       if (!parsedData) throw Error(parsedData);
       setChat((pre) => {
         const temp = [...pre];
@@ -106,63 +109,63 @@ export default function ChatPage() {
   return (
     <>
       <ShowImageAndVideo sources={showImage} setSrc={setShowImage} />
-    <div className="h-[100svh] vw:relative vw:max-w-viewWidth">
-      <ChatPageTop room={room} friend={friend} itemSelected={itemSelected} clearSelected={clearSelected} setChat={setChat} chat={chat} />
-      <div style={{ height: "92svh", background: "url('/chatpageBg.png')" }} className="grid grid-rows-12 z-10 w-full">
-        {/* chat */}
-        <div className="overflow-scroll row-span-11 flex flex-col-reverse">
-          <div ref={placeholder} className="mt-2"></div>
-          {chat.map((item, index) => {
-            const time = convertTime(item.timestamp);
-            if (!item.sender) {
-              if (item.image) {
-                return (
-                  <WrapperBubble setShowImage={setShowImage} clickSelect={clickSelect} itemSelected={itemSelected} longPressEvents={longPressEvents} type="image" item={item} index={index} key={index}>
-                    <ImageBubbleRecive src={item.image} time={time} msg={item.message} />
-                  </WrapperBubble>
-                );
-              } else if (item.audio && typeof item.audio === "string") {
-                return (
-                  <WrapperBubble setShowImage={setShowImage} clickSelect={clickSelect} itemSelected={itemSelected} longPressEvents={longPressEvents} type="audio" item={item} index={index} key={index}>
-                    <AudioBubbleIn url={item.audio} />
-                  </WrapperBubble>
-                );
-              } else if (item.message) {
-                return (
-                  <WrapperBubble setShowImage={setShowImage} clickSelect={clickSelect} itemSelected={itemSelected} longPressEvents={longPressEvents} type="text" item={item} index={index} key={index}>
-                    <ChatbubblesIn time={time} text={item.message} />
-                  </WrapperBubble>
-                );
+      <div className="h-[100svh] vw:relative vw:max-w-viewWidth">
+        <ChatPageTop room={room} friend={friend} itemSelected={itemSelected} clearSelected={clearSelected} setChat={setChat} chat={chat} />
+        <div style={{ height: "92svh", background: "url('/chatpageBg.png')" }} className="grid grid-rows-12 z-10 w-full">
+          {/* chat */}
+          <div className="overflow-scroll row-span-11 flex flex-col-reverse">
+            <div ref={placeholder} className="mt-2"></div>
+            {chat.map((item, index) => {
+              const time = convertTime(item.timestamp);
+              if (!item.sender) {
+                if (item.image) {
+                  return (
+                    <WrapperBubble setShowImage={setShowImage} clickSelect={clickSelect} itemSelected={itemSelected} longPressEvents={longPressEvents} type="image" item={item} index={index} key={index}>
+                      <ImageBubbleRecive src={item.image} time={time} msg={item.message} />
+                    </WrapperBubble>
+                  );
+                } else if (item.audio && typeof item.audio === "string") {
+                  return (
+                    <WrapperBubble setShowImage={setShowImage} clickSelect={clickSelect} itemSelected={itemSelected} longPressEvents={longPressEvents} type="audio" item={item} index={index} key={index}>
+                      <AudioBubbleIn url={item.audio} />
+                    </WrapperBubble>
+                  );
+                } else if (item.message) {
+                  return (
+                    <WrapperBubble setShowImage={setShowImage} clickSelect={clickSelect} itemSelected={itemSelected} longPressEvents={longPressEvents} type="text" item={item} index={index} key={index}>
+                      <ChatbubblesIn time={time} text={item.message} />
+                    </WrapperBubble>
+                  );
+                }
+              } else if (item.sender) {
+                if (item.image) {
+                  return (
+                    <WrapperBubble setShowImage={setShowImage} clickSelect={clickSelect} itemSelected={itemSelected} longPressEvents={longPressEvents} type="image" item={item} index={index} key={index}>
+                      <ImageBubbleSend src={item.image} time={time} msg={item.message} />
+                    </WrapperBubble>
+                  );
+                } else if (item.audio && typeof item.audio !== "string") {
+                  const audioURL = handleAudioChunk(item.audio);
+                  return (
+                    <WrapperBubble setShowImage={setShowImage} clickSelect={clickSelect} itemSelected={itemSelected} longPressEvents={longPressEvents} type="audio" item={item} index={index} key={index}>
+                      <AudioBubbleOut url={audioURL} />
+                    </WrapperBubble>
+                  );
+                } else if (item.message) {
+                  return (
+                    <WrapperBubble setShowImage={setShowImage} clickSelect={clickSelect} itemSelected={itemSelected} longPressEvents={longPressEvents} type="text" item={item} index={index} key={index}>
+                      <ChatbubblesOut time={time} text={item.message} />
+                    </WrapperBubble>
+                  );
+                }
               }
-            } else if (item.sender) {
-              if (item.image) {
-                return (
-                  <WrapperBubble setShowImage={setShowImage} clickSelect={clickSelect} itemSelected={itemSelected} longPressEvents={longPressEvents} type="image" item={item} index={index} key={index}>
-                    <ImageBubbleSend src={item.image} time={time} msg={item.message} />
-                  </WrapperBubble>
-                );
-              } else if (item.audio && typeof item.audio !== "string") {
-                const audioURL = handleAudioChunk(item.audio);
-                return (
-                  <WrapperBubble setShowImage={setShowImage} clickSelect={clickSelect} itemSelected={itemSelected} longPressEvents={longPressEvents} type="audio" item={item} index={index} key={index}>
-                    <AudioBubbleOut url={audioURL} />
-                  </WrapperBubble>
-                );
-              } else if (item.message) {
-                return (
-                  <WrapperBubble setShowImage={setShowImage} clickSelect={clickSelect} itemSelected={itemSelected} longPressEvents={longPressEvents} type="text" item={item} index={index} key={index}>
-                    <ChatbubblesOut time={time} text={item.message} />
-                  </WrapperBubble>
-                );
-              }
-            }
-          })}
+            })}
+          </div>
+          {room && <ChatpageInput friend={friend} scrollToBottom={scrollToBottom} clearTimer={clearTimer} showInput={showInput} emojiKeyBoard={emojiKeyBoard} setEmojiKeyBoard={setEmojiKeyBoard} setChat={setChat} room={room} textMessage={textMessage} setTextMessage={setTextMessage} />}
+          {emojiKeyBoard && <EmoteKeyBoard setTextMessage={setTextMessage} />}
+          <div ref={placeholder2} className="mt-2"></div>
         </div>
-        {room && <ChatpageInput friend={friend} scrollToBottom={scrollToBottom} clearTimer={clearTimer} showInput={showInput} emojiKeyBoard={emojiKeyBoard} setEmojiKeyBoard={setEmojiKeyBoard} setChat={setChat} room={room} textMessage={textMessage} setTextMessage={setTextMessage} />}
-        {emojiKeyBoard && <EmoteKeyBoard setTextMessage={setTextMessage} />}
-        <div ref={placeholder2} className="mt-2"></div>
       </div>
-    </div>
-      </>
+    </>
   );
 }

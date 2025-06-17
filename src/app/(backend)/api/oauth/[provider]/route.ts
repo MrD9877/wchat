@@ -33,6 +33,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ prov
       if (buffer) await uploadImageDirectly(profilePic, buffer, "image/png", false);
     } else {
       profilePic = user.profilePic;
+      if (publicKey) user.publicKey = publicKey;
+      await user.save();
     }
     const CookiesSet = await setCokies(email, username, profilePic, id);
     if (!CookiesSet) throw Error();

@@ -17,7 +17,7 @@ export default function AvatarPage() {
   const [selected, setSelected] = useState<number>();
 
   const sendImage = async () => {
-    if (!src || !selected) return;
+    if (!src || typeof selected !== "number") return;
     try {
       const avatarBlob = await fetchAvatar(src[selected]);
       const arrayBuffer = await avatarBlob.arrayBuffer();

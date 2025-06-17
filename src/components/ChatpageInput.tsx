@@ -37,28 +37,18 @@ export default function ChatpageInput({ friend, scrollToBottom, clearTimer, setC
   const audioRecorder = AudioRecorder({ audioRecording, room, setChat, friend });
   const sendButtonRef = useRef<HTMLButtonElement>(null);
   const dispatch = useDispatch();
-  const [publicKey, setPublicKey] = useState<CryptoKey | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const key = await getPublicKey(room);
-        if (!key) throw Error();
-        const publicKey = await Base64ToPublicKey(key);
-        setPublicKey(publicKey);
-      } catch {}
-    })();
-  }, [room]);
 
   const sendMsg = async () => {
     if (!userId || !room) return;
     if (src.length < 1 && textMessage === "") return;
     const image = src.length > 0 ? src : undefined;
-    console.log(image);
     const id = generateRandom(8);
     const timestamp = Date.now();
-    if (!friend || !publicKey) return;
     try {
+      const key = await getPublicKey(room);
+      if (!key) throw Error();
+      const publicKey = await Base64ToPublicKey(key);
+      if (!friend || !publicKey) throw Error();
       await sendPrivateMessage({ message: textMessage, id, userId: room, timestamp, image, clientId: userId, publicKey }, dispatch);
       setChat((pre) => {
         const temp = [...pre];

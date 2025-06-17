@@ -16,7 +16,7 @@ export default function useGetMessages(clientId: string | undefined) {
 
   useEffect(() => {
     const handleMessage = async (data: MessageData) => {
-      if (!clientId || pathname === `/chatpage/${data.userId}`) return;
+      if (!clientId || pathname === `/chatpage/${data.userId}` || !router) return;
       else {
         await handleNewMessage(clientId, data, pathname, router);
         if (pathname === "/chatscreen") {
@@ -30,6 +30,6 @@ export default function useGetMessages(clientId: string | undefined) {
     return () => {
       socket.off("chat message", handleMessage);
     };
-  }, [clientId, pathname, dispath]);
+  }, [clientId, pathname, dispath, router]);
   return [];
 }
