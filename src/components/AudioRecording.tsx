@@ -4,6 +4,8 @@ import { SavedDbFriends, SavedDbMessages } from "@/utility/saveAndRetrievedb";
 import { UserState } from "@/redux/Slice";
 import { generateRandom } from "@/app/(backend)/utility/random";
 import { sendPrivateMessage } from "@/utility/sendPrivateMessage";
+import { getPublicKey } from "@/action/getpublicKey";
+import { Base64ToPublicKey } from "@/utility/Encription";
 
 type AudioRecorderType = {
   setChat: Dispatch<SetStateAction<SavedDbMessages[]>>;
@@ -65,7 +67,10 @@ const AudioRecorder = ({ audioRecording, room, setChat, friend }: AudioRecorderT
         const id = generateRandom(8);
         const timestamp = Date.now();
         try {
-          await sendPrivateMessage({ clientId, audio: audioChunksRef.current, userId: room, id, timestamp, publicKey: friend.publicKey }, dispatch);
+          const key = await getPublicKey(room);
+          if (!key) throw Error();
+          const publicKey = await Base64ToPublicKey(key);
+          await sendPrivateMessage({ clientId, audio: audioChunksRef.current, userId: room, id, timestamp, publicKey }, dispatch);
           setChat((pre) => [{ sender: true, audio: audioChunksRef.current, userId: room, id, timestamp }, ...pre]);
         } catch (error) {
           console.log(error);

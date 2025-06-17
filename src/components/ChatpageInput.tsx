@@ -11,6 +11,8 @@ import { SavedDbFriends } from "@/utility/saveAndRetrievedb";
 import { generateRandom } from "@/app/(backend)/utility/random";
 import { ChatType } from "@/app/(siteRoutes)/chatpage/[chatId]/page";
 import { sendPrivateMessage } from "@/utility/sendPrivateMessage";
+import { getPublicKey } from "@/action/getpublicKey";
+import { Base64ToPublicKey } from "@/utility/Encription";
 
 interface ChatInputComponent {
   room: string;
@@ -35,6 +37,18 @@ export default function ChatpageInput({ friend, scrollToBottom, clearTimer, setC
   const audioRecorder = AudioRecorder({ audioRecording, room, setChat, friend });
   const sendButtonRef = useRef<HTMLButtonElement>(null);
   const dispatch = useDispatch();
+  const [publicKey, setPublicKey] = useState<CryptoKey | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const key = await getPublicKey(room);
+        if (!key) throw Error();
+        const publicKey = await Base64ToPublicKey(key);
+        setPublicKey(publicKey);
+      } catch {}
+    })();
+  }, [room]);
 
   const sendMsg = async () => {
     if (!userId || !room) return;
@@ -43,8 +57,7 @@ export default function ChatpageInput({ friend, scrollToBottom, clearTimer, setC
     console.log(image);
     const id = generateRandom(8);
     const timestamp = Date.now();
-    if (!friend) return;
-    const publicKey = friend.publicKey;
+    if (!friend || !publicKey) return;
     try {
       await sendPrivateMessage({ message: textMessage, id, userId: room, timestamp, image, clientId: userId, publicKey }, dispatch);
       setChat((pre) => {

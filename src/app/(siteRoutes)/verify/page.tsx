@@ -27,7 +27,6 @@ export default function VerifyPage() {
       const keys = await getKeysForFirstTime();
       if (!keys.publicKey) throw Error();
       const publicKey = await exportPublicKeyBase64(keys.publicKey);
-      console.log(publicKey);
       const verifyRes = await fetch("/api/verify", { method: "POST", credentials: "include", body: JSON.stringify({ otp, email, publicKey }) });
       if (!verifyRes.ok) throw Error(`Error: status ${verifyRes.statusText}`);
       const user = await verifyRes.json();

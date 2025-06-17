@@ -7,6 +7,9 @@ import { generateRandom } from "@/app/(backend)/utility/random";
 import Camera from "@/components/Camera";
 import { checkFriendData } from "@/utility/saveAndRetrievedb";
 import { sendPrivateMessage } from "@/utility/sendPrivateMessage";
+import { getPublicKey } from "@/action/getpublicKey";
+import { toast } from "sonner";
+import { Base64ToPublicKey } from "@/utility/Encription";
 
 export type PrivateMessage = {
   userId: string | null;
@@ -31,8 +34,12 @@ export default function CaremaPage() {
     if (!friend) return;
     const id = generateRandom(8);
     try {
-      await sendPrivateMessage({ clientId, message: caption, image: [dataUri], id, userId: room, timestamp: Date.now(), publicKey: friend.publicKey }, dispatch);
+      const key = await getPublicKey(room);
+      if (!key) throw Error();
+      const publicKey = await Base64ToPublicKey(key);
+      await sendPrivateMessage({ clientId, message: caption, image: [dataUri], id, userId: room, timestamp: Date.now(), publicKey }, dispatch);
     } catch (err) {
+      toast("Unable to send message");
       console.log(err);
     } finally {
       router.back();

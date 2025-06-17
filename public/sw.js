@@ -2,7 +2,7 @@ const version = 1;
 
 const MAX_AGE = 12 * 60 * 60 * 1000;
 
-const cacheEndpoint = ["/api/auth/getUser"];
+const cacheEndpoint = [];
 ////////////////////////////////////////////////
 
 self.addEventListener("install", (ev) => {

@@ -1,10 +1,9 @@
+import { deleteTokens } from "@/action/deleteToken";
 import { exportPublicKeyBase64, getKeysForFirstTime } from "./Encription";
 import { signIn } from "./singIn";
 
-export function logoutfn() {
-  "use client";
-  document.cookie = `accessToken=; Max-Age=0; path=/;`;
-  document.cookie = `refreshToken=; Max-Age=0; path=/;`;
+export async function logoutfn() {
+  return await deleteTokens();
 }
 
 export async function deleteInvalidCache() {

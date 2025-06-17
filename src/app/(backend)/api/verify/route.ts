@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import dbConnect from "../../lib/DbConnect";
 import { User } from "../../model/User";
 import { connectRedis } from "../../utility/redis";
@@ -12,7 +13,6 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify({ msg: "Bad request: Email not found" }), { status: 400 });
   }
   const { email, otp, publicKey } = body;
-  console.log(body);
   try {
     await client.connect();
     const otpVerify = await client.get(`otp-${email}`);
@@ -28,6 +28,8 @@ export async function POST(req: Request) {
     await client.del(`otp-${email}`);
     userInfo.publicKey = publicKey;
     await userInfo.save();
+    const cookieStore = await cookies();
+    cookieStore.delete("email");
     return new Response(JSON.stringify({ name: userInfo.name, email: userInfo.email, userId: userInfo.userId, profilePic: userInfo.profilePic }), { status: 200 });
   } catch (err) {
     console.log(err);

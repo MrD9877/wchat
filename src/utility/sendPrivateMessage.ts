@@ -4,10 +4,11 @@ import { encryptMessage } from "@/utility/Encription";
 import { socket } from "@/socket";
 import { updateFriend } from "@/utility/updateFriend";
 import { uploadImageAndGetUrl } from "@/utility/uploadAndGetUrl";
-import { checkFriendData, SavedDbFriends, saveMessageForUser } from "@/utility/saveAndRetrievedb";
+import { checkFriendData, saveMessageForUser } from "@/utility/saveAndRetrievedb";
 import { setLoading } from "@/redux/Slice";
 import { Dispatch } from "react";
 import { getCookie } from "./getCookie";
+import { getPublicKey } from "@/action/getpublicKey";
 
 export const encryptAwsURL = async (awsUrl: string, publicKey: CryptoKey) => {
   const url = new URL(awsUrl);
@@ -22,7 +23,6 @@ type SaveMessageData = { message: string } | { audio: Blob[] } | { message?: str
 export type SendPrivateMessageData = { userId: string; id: string; timestamp: number; clientId: string; publicKey: CryptoKey } & SaveMessageData;
 
 export const sendPrivateMessage = async (msgData: SendPrivateMessageData, dispatch: Dispatch<UnknownAction>) => {
-  console.log({ msgData });
   try {
     const { userId, id, timestamp, clientId, publicKey } = msgData;
     let message: string | undefined;
@@ -34,7 +34,7 @@ export const sendPrivateMessage = async (msgData: SendPrivateMessageData, dispat
     if ("message" in msgData) message = msgData.message;
     if ("audio" in msgData) audio = msgData.audio;
     if ("image" in msgData) image = msgData.image;
-    console.log(image);
+
     if (image || audio) {
       dispatch(setLoading(true));
     }
