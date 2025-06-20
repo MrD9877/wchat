@@ -58,7 +58,7 @@ export const sendPrivateMessage = async (msgData: SendPrivateMessageData, dispat
     await checkFriendData(clientId, userId);
     await updateFriend({ clientId, userId, image, message, audio: audioUrl });
     const accessToken = getCookie("accessToken");
-    const data: PrivateMessage = { message: message ? await encryptMessage({ message, publicKey }) : undefined, accessToken, image: ImageUrls.length > 0 ? ImageUrls : undefined, id, userId, audio: audioUrl, timestamp };
+    const data: PrivateMessage = { message, accessToken, image: ImageUrls.length > 0 ? ImageUrls : undefined, id, userId, audio: audioUrl, timestamp };
     socket.emit("private message", { ...data });
     return true;
   } catch (err) {

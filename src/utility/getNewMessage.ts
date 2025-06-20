@@ -31,7 +31,8 @@ export const handleNewMessage = async (clientId: string, { message, userId, imag
     const keys = await getKeysFromDb();
     if (!keys || !keys.privateKey) throw Error();
     const privateKey = keys.privateKey;
-    const parsedMessage = await decryptOne(message, privateKey);
+    // removed encryption
+    const parsedMessage = message;
 
     const parsedaudio = await decryptAwsURL(audio, privateKey);
     const parsedImages = typeof image === "string" ? await decryptAwsURL(image, privateKey) : await decryptAwsURLS(image, privateKey);
