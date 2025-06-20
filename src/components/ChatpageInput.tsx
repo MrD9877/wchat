@@ -46,6 +46,10 @@ export default function ChatpageInput({ friend, scrollToBottom, clearTimer, setC
     const timestamp = Date.now();
     const message = textMessage;
     if (message) setTextMessage("");
+    if (src.length > 0) {
+      setSrc([]);
+      setFile(null);
+    }
     setChat((pre) => {
       const temp = [...pre];
       temp.forEach((item, index) => (temp[index].unread = undefined));
@@ -60,14 +64,13 @@ export default function ChatpageInput({ friend, scrollToBottom, clearTimer, setC
     } catch (err) {
       console.log(err);
       if (message) setTextMessage(message);
+      if (image) setSrc(image);
       setChat((pre) => {
         const temp = [...pre];
         temp.shift();
         return temp;
       });
     } finally {
-      setSrc([]);
-      setFile(null);
       scrollToBottom();
     }
   };
