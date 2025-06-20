@@ -44,21 +44,28 @@ export default function ChatpageInput({ friend, scrollToBottom, clearTimer, setC
     const image = src.length > 0 ? src : undefined;
     const id = generateRandom(8);
     const timestamp = Date.now();
+    const message = textMessage;
+    if (message) setTextMessage("");
+    setChat((pre) => {
+      const temp = [...pre];
+      temp.forEach((item, index) => (temp[index].unread = undefined));
+      return [{ message, sender: true, id, userId: room, timestamp, image }, ...temp];
+    });
     try {
       const key = await getPublicKey(room);
       if (!key) throw Error();
       const publicKey = await Base64ToPublicKey(key);
       if (!friend || !publicKey) throw Error();
-      await sendPrivateMessage({ message: textMessage, id, userId: room, timestamp, image, clientId: userId, publicKey }, dispatch);
-      setChat((pre) => {
-        const temp = [...pre];
-        temp.forEach((item, index) => (temp[index].unread = undefined));
-        return [{ message: textMessage, sender: true, id, userId: room, timestamp, image }, ...temp];
-      });
+      await sendPrivateMessage({ message, id, userId: room, timestamp, image, clientId: userId, publicKey }, dispatch);
     } catch (err) {
       console.log(err);
+      if (message) setTextMessage(message);
+      setChat((pre) => {
+        const temp = [...pre];
+        temp.shift();
+        return temp;
+      });
     } finally {
-      setTextMessage("");
       setSrc([]);
       setFile(null);
       scrollToBottom();
